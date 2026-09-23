@@ -102,3 +102,14 @@
 - Integration tests intentionally NOT REPEATED per user's latest instruction to deliver immediately to main. Merge only overlaps STATE.md; all existing P1/P2/P4 handoffs and code are preserved.
 - BLOCKED remote fetch/push: Repository not found. No origin/main claim. Real February actuals and unconfirmed source semantics remain external blockers; P6 worker wiring and P7 E2E remain separate.
 - Next: P6 can call evaluatePublishedForecasts after migration and actual ingestion; obtain confirmed actuals/semantics for official metrics; retry remote sync when available.
+
+
+## P3 — durable input triggers, local integration
+
+- Updated UTC: 2026-09-23T12:29:50.945Z; owner Codex; integration branch chore/integrate-p3-input-triggers. Verified task commit c07e170; integration base 6ea303d.
+- Implemented: canonical weather/measurement discovery, explicit timezone release schedule, PostgreSQL event/snapshot ledger, idempotent existing agent-job enqueue, restart/cancel/DB-failure recovery, standalone CLI. Handoff: docs/handoffs/parallel-P3.md.
+- PASS on task commit: trigger/PostgreSQL/CLI tests 12/12; npm test 44 passed (DB case run separately); agent 12/12; replay 1/1; forecast 7/7; typecheck, lint, production build and diff review.
+- Integration checks intentionally not repeated: user explicitly requested immediate main delivery without repeated tests. Existing integrated tasks and their handoffs are preserved.
+- P6 integration pending: require readTriggerSnapshot(sql,eventKey) for input-trigger jobs so runtime pins observation revisions/weather values; add Compose worker wiring. Current P3 publication evidence uses a test-only adapter, not production fallback. P7 E2E remains pending.
+- Remote synchronization BLOCKED: fetch and task-branch push return Repository not found. Local main delivery does not claim origin/main.
+- Next: P6 connects snapshot inputs and deployment; P7 runs combined E2E; restore remote access and synchronize without rewriting history.
