@@ -2,7 +2,7 @@
 
 - Updated UTC: 2026-09-23 11:45Z
 - Branch/worktree: `chore/integrate-agent-system-problems` / private integration worktree.
-- Last verified base commit: `8895ba8` on `origin/main`; agent audit task commit `f436946` is merged locally and pending final main push verification.
+- Last verified integration commit: `d2d4454` on `origin/main`; agent audit task commit `f436946` is a verified ancestor.
 - Active task: agent subsystem audit documentation completed; runtime code was not changed.
 - Demo: S05 fixture dashboard remains at `/overview`, `/forecast`, `/sources`, `/agent-log`. With PostgreSQL and `DATABASE_URL`, run `npm run db:migrate`, then `npm run dev`; CSV APIs are under `/api/v1/imports` and `/api/v1/connections`.
 
@@ -45,9 +45,10 @@
 | Agent fixture workflow tests | PASS: 7/7; PostgreSQL test SKIPPED because `TEST_DATABASE_URL` is unset |
 | Agent-focused ESLint and exact-commit TypeScript check | PASS |
 | Documentation task branch push | PASS: `origin/docs/agent-system-problems` at `f436946` |
+| Agent audit integration push | PASS: `origin/main` at `d2d4454`; task commit ancestor verified |
 
 ## Next actions
 
-1. Push this integration HEAD to `origin/main` and verify `f436946` is an ancestor.
-2. Implement the agent fixes in the priority order recorded by `docs/agent-system-problems.md`.
-3. Run AT-AG-01–AT-AG-18 before declaring the agent subsystem ready.
+1. Implement the agent fixes in the priority order recorded by `docs/agent-system-problems.md`.
+2. Run AT-AG-01–AT-AG-18 before declaring the agent subsystem ready.
+3. Configure `TEST_DATABASE_URL` and rerun the PostgreSQL agent test.
