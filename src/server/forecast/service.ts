@@ -32,7 +32,8 @@ export function validateForecastValues(request: ForecastRequest, values: Forecas
   for (const assetId of request.assetIds) {
     const rows = values.filter((row) => row.assetId === assetId);
     if (rows.length !== request.horizonHours || new Set(rows.map((row) => row.targetTime)).size !== expected.size ||
-      rows.some((row) => !expected.has(row.targetTime) || !Number.isFinite(row.value))) {
+      rows.some((row) => !expected.has(row.targetTime) || !Number.isFinite(row.value) ||
+        row.unit !== "normalized")) {
       reasons.push(`points:${assetId}`);
     }
   }

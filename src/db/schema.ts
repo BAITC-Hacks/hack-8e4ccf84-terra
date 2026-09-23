@@ -188,6 +188,37 @@ export const observations = pgTable(
   ],
 );
 
+/**
+ * Canonical as-of observations consumed by the forecast subsystem.
+ *
+ * The CSV slice keeps its import/audit rows in `observation`; accepted
+ * training rows are mirrored into this S01 table in the same transaction so
+ * a completed import is immediately visible to the production forecast path.
+ */
+export const forecastObservations = pgTable(
+  "observations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    assetId: uuid("asset_id").notNull(),
+    metric: text("metric").notNull(),
+    value: doublePrecision("value").notNull(),
+    unit: text("unit"),
+    eventTime: time("event_time").notNull(),
+    availableAt: time("available_at"),
+    ingestedAt: time("ingested_at").notNull().defaultNow(),
+    revision: integer("revision").notNull(),
+    qualityFlag: text("quality_flag").notNull(),
+    sourceTimeZone: text("source_time_zone"),
+    availabilityAssumption: jsonb("availability_assumption").$type<Record<string, unknown> | null>(),
+    rawArtifactId: uuid("raw_artifact_id"),
+  },
+  (t) => [
+    unique("observations_asset_metric_time_revision_unique")
+      .on(t.assetId, t.metric, t.eventTime, t.revision),
+    index("observations_asof_idx").on(t.assetId, t.metric, t.eventTime, t.availableAt),
+  ],
+);
+
 export const importErrors = pgTable(
   "import_error",
   {

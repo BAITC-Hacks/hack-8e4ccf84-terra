@@ -26,7 +26,7 @@ function batch(input: ForecastRequest, snapshot: SnapshotReference): ForecastBat
     points: Array.from({length: input.horizonHours}, (_, index) => ({
       assetId: "station-1",
       issuedAt: input.issuedAt,
-      targetTime: new Date(Date.parse("2026-02-01T00:00:00.000Z") + index * 3_600_000).toISOString(),
+      targetTime: new Date(Date.parse(input.issuedAt) + (index + 1) * 3_600_000).toISOString(),
       leadHour: index + 1,
       prediction: 0.4,
       baselinePrediction: 0.5,
@@ -71,7 +71,23 @@ test("uses the production forecast boundary sequentially and reveals actuals onl
     "forecast:2026-02-01T23:00:00.000Z",
     "actuals",
   ]);
-  assert.equal(result.evaluation.metrics[0].model?.n, 2);
+  assert.equal(result.evaluation.metrics[0].model?.n, 1);
+});
+
+test("rejects a forecast that relabels a past target as a later release", async () => {
+  const service: BacktestForecastService = {
+    async createSnapshot(input) { return {hash: "snapshot", availableAt: [input.issuedAt]}; },
+    async forecast(input) {
+      const result = batch(input, {hash: "snapshot", availableAt: [input.issuedAt]});
+      result.points[0].targetTime = input.issuedAt;
+      return result;
+    },
+  };
+  const actuals: ActualsReader = {async readActuals() { return []; }};
+  await assert.rejects(
+    () => new BacktestRunner(service, actuals).run({...request, issueTimes: [request.issueTimes[0]]}),
+    LeakageError,
+  );
 });
 
 test("rejects a snapshot containing information published after release", async () => {
