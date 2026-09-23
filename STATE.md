@@ -2,8 +2,8 @@
 
 - Updated UTC: 2026-09-23 10:15Z
 - Branch/worktree: `chore/integrate-industrial-portal` / private integration worktree.
-- Last verified base: `af8d761` from `origin/main`; task implementation `f78d8a7`, validated handoff `60d8b5a` pushed and verified on `origin/feat/industrial-portal`. Integration has only a reconciled STATE.md conflict.
-- Owner/status: Codex, industrial UI + RU/KK/EN + themes + mandatory sign-in; implementation and combined-code validation passed; integration worktree checks passed; main push pending.
+- Verified remote: `origin/main` at integration `a2c9077`; task implementation `f78d8a7` and handoff `60d8b5a` are verified ancestors. Task branch `origin/feat/industrial-portal` remains at `60d8b5a`.
+- Owner/status: Codex, industrial UI + RU/KK/EN + themes + mandatory sign-in; complete: implementation, combined checks and main push verified. This follow-up records the verified remote result.
 - Demo: production preview on `http://localhost:3107/login`; random local administrator credentials live only in ignored `.env.local`. Sign in opens the requested dashboard route. Fixture forecast/import/report/journal flows work; real data API alignment remains a separate integration gate.
 
 ## Implemented and verified
@@ -39,6 +39,6 @@
 
 ## Next actions
 
-1. Push validated integration HEAD to origin/main, verify task ancestry and record the remote result.
+1. Open the retained local preview at http://localhost:3107/login. Configure deployment administrator/session secrets before serving the portal elsewhere.
 2. Implement agent audit priorities and pass AT-AG-01–AT-AG-18 with production adapters; configure TEST_DATABASE_URL for its PostgreSQL checks.
 3. Separate follow-up: align S05 adapters with S02/S04/S08 real payloads, wire S07 tick and S03 weather; run real database/UI integration before operational use.
