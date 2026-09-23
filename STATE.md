@@ -1,7 +1,7 @@
 # Project state
 
-Updated UTC: 2026-09-23T09:01:47.665832+00:00
-Branch: `docs/s09-reproducibility`; last verified base `c2b4003`; changes `uncommitted`.
+Updated UTC: 2026-09-23T09:02:29.377804+00:00
+Branch: `docs/s09-reproducibility`; last verified implementation `c8ced69413a3179de26e5eef1df79d2285f10126`; base `0d251d6`; pending state-only update.
 Owner: S09 / Codex. Status: BLOCKED for final acceptance; early handoff validated.
 
 ## Verified demo path
@@ -28,6 +28,6 @@ S09 reproducibility: README, Makefile, docs/demo.md, docs/acceptance.md, tests/a
 2. S09 reruns docs/demo.md in clean Docker environment, records actual IDs/hashes/durations, restoration and all 16 AC. Full data permissions/time conventions/weather archive must be established by S00/S03.
 3. Compare model with baseline on identical February pairs; do not claim improvement without numerical evidence. Final S09 is not complete.
 
-Remote: fetch succeeds. Latest observed origin/main advanced to `0d251d6` (AGENTS/SLICES documentation updates); integrate before push. No verified task push yet.
+Remote: rebased onto `0d251d6` (AGENTS/SLICES-only changes), harness rerun PASS. Verified with `git ls-remote`: `origin/docs/s09-reproducibility` = `c8ced69413a3179de26e5eef1df79d2285f10126`; working tree clean before this state update. Final S09 remains BLOCKED and is not integrated into main. Task scope explicitly includes Makefile; no foreign implementation changed. New repository main-integration rule applies to completed tasks; this is an early blocked handoff.
 
 Tangible milestone: reproducibility handoff, safe command wrappers, deterministic synthetic data and passing harness tests. No deployment or PR.
