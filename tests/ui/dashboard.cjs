@@ -79,6 +79,18 @@ async function visible(locator) { await locator.waitFor({ state: 'visible' }); }
     assert.equal(await page.getByRole('checkbox').isChecked(), false);
     await page.screenshot({ path: '.next/ui-qa/sources.png', fullPage: true });
     pass('CSV preview, mapping, confirmation invalidation and import report');
+    await page.getByRole('button',{name:'Проверить доступ',exact:true}).first().click();
+    await visible(page.getByText('Доступ подтверждён',{exact:true}).first());
+    await page.getByLabel('Oracle · исторические данные · Поле времени').selectOption('EVENT_TIME');
+    await page.getByLabel('Oracle · исторические данные · Поле мощности').selectOption('ACTIVE_POWER_NORM');
+    await page.getByRole('button',{name:'Включить загрузку истории',exact:true}).click();
+    await visible(page.getByText('История загружается',{exact:true}));
+    await page.getByRole('button',{name:'Проверить доступ',exact:true}).last().click();
+    await page.getByLabel('Siemens WinCC · текущие данные · Тег мощности').selectOption('TURBINE_01.ActivePower');
+    await page.getByLabel('Siemens WinCC · текущие данные · Тег скорости ветра').selectOption('TURBINE_01.WindSpeed');
+    await page.getByRole('button',{name:'Включить получение обновлений',exact:true}).click();
+    await visible(page.getByText('Обновления поступают',{exact:true}));
+    pass('Oracle history and Siemens WinCC live connector workflows');
     await page.getByRole('link', { name: 'Журнал агента', exact: true }).click();
     await visible(page.getByRole('heading', { name: 'fetch_weather_run' }));
     assert.equal(await page.locator('.timeline li').count(), 4);
