@@ -1,9 +1,9 @@
-# Project state — backend integrity and agent runtime
+# Project state — overview redesign implementation
 
-- Updated UTC: 2026-09-23 11:21Z
-- Branch/worktree: `chore/integrate-backend-spec-audit` / private integration worktree.
-- Base/integration: backend-audit task `580fd3d` and merge `37a3a21` were integrated with the latest agent-remediation documentation; remote `main` reached `5ab785f` before this final handoff update.
-- Owner/status: Codex; final checks pass, the task branch is remote, and `580fd3d` was verified as an ancestor of `origin/main`.
+- Updated UTC: 2026-09-23 11:42Z
+- Branch/worktree: `feat/terra-overview-redesign` / `terra-overview-redesign` worktree.
+- Base/integration: local `main` at `4ed268c`; `origin` is currently unavailable (`Repository not found`).
+- Owner/status: Codex; overview implementation is complete and production build passes; commit and local-main integration are pending.
 
 ## Integrated implementation
 
@@ -39,9 +39,19 @@
 ## UI/UX prototype
 
 - Added 2026-09-23 11:25Z: `docs/design/terra-redesign.html` — standalone static HTML proposal for the dashboard (overview, forecast, sources, run log) with a demo/real data toggle. Synthetic data only; not wired into `src/` and not part of the build.
+- Implemented the prototype's overview hierarchy in the live `/overview` route: forecast heading, four derived KPI cards, current/previous forecast chart, data-quality alerts, source actions, and a real-data onboarding state.
+- Preserved canonical normalized units: the UI does not invent MW/MWh while the asset nominal capacity is unconfirmed.
+- Touched paths: `src/components/dashboard/overview.tsx`, `src/app/globals.css`.
+
+## Overview validation
+
+- PASS: `npm run typecheck`.
+- PASS: `npm run build` (Next.js 16.3.6 production build, all 19 static pages generated).
+- SKIPPED by explicit task instruction: automated test suites.
+- PASS: `git diff --check`.
 
 ## Next actions
 
-1. After owner data is available, confirm asset/time/power semantics and the historical weather availability policy.
-2. Persist trustworthy archival forecast runs in canonical PostgreSQL and execute the February replay/evaluation.
-3. Wire an approved trained artifact into production inference and add actual-arrival evaluation.
+1. Commit `feat/terra-overview-redesign` and integrate it into local `main` from a private integration worktree.
+2. Retry task-branch and `main` pushes when `origin` access is restored; verify task-commit ancestry on `origin/main`.
+3. After owner data is available, confirm asset/time/power semantics and the historical weather availability policy.
