@@ -1,9 +1,9 @@
 # Project state
 
-- Updated UTC: 2026-09-23 10:30Z.
+- Updated UTC: 2026-09-23 10:35Z.
 - Branch/worktree: `chore/integrate-s03-weather-runs` / private integration worktree.
 - Base: local `main` at `11ed17b`; S03 task branch `origin/feat/s03-weather-runs` at `133e82e`.
-- Active task: integrate the S03 weather-run connector into local `main`; conflict resolution is in progress. No remote push was requested.
+- Active task: S03 merge conflict resolved and integration validated; local `main` fast-forward is next. No remote push was requested.
 - Demo: portal preview is available at `http://localhost:3107/login` when locally configured. No weather UI/API is wired.
 
 ## Integrated implementation
@@ -17,13 +17,14 @@
 ## Verification
 
 - PASS on task branch: `node tests/weather/probe.mjs tests/weather/evidence` (five recorded Open-Meteo responses with raw bytes and hashes).
-- PASS on task branch: `node --test tests/weather/weather.test.mjs` (25 tests, offline).
-- PASS on task branch: `npm run lint`, `npm run build`, `npx tsc --noEmit`.
+- PASS in this integration worktree: `npm ci --no-audit --no-fund`.
+- PASS in this integration worktree: `node --test tests/weather/weather.test.mjs` (25 tests, offline).
+- PASS in this integration worktree: `npm run lint`, `npm run typecheck`, `npm run build`.
 - BLOCKED: PostgreSQL write/read/restart integration: S01 weather schema and adapter are absent.
 - NOT_RUN: whole-month archive coverage using confirmed station coordinates and approved issue schedule.
 
 ## Next actions
 
-1. Finish local integration validation, commit the merge, and fast-forward the local `main` to the integration commit.
+1. Fast-forward the local `main` to the verified integration commit; do not push it to `origin` unless requested.
 2. S01/S03 owners: map the port to canonical immutable `WeatherRun` persistence and verify saved fallback after PostgreSQL restart.
 3. Confirm source station, target-time convention and conservative publication delay before exposing weather data in a forecast path.
