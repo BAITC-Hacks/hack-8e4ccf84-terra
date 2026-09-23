@@ -93,3 +93,12 @@
 - BLOCKED historical approval: canonical archived pre-February training forecast snapshots and confirmed data semantics are absent. CSV weather is observed; February actuals remain evaluation-only and unavailable. P6 must preserve temperature and feature height in both snapshot paths and load trusted approved artifacts.
 - BLOCKED remote fetch/push: Repository not found. Local main delivery uses serialized lock and fast-forward; no origin/main claim.
 - Next: P6 connects trained inference in both runtime paths; obtain archived training inputs and run node node_modules/tsx/dist/cli.mjs scripts/train-approved.ts --input manifest.json; P7 performs combined acceptance after all parallel tasks.
+
+## P5 evaluation — local integration
+
+- Updated UTC: 2026-09-23T12:29:06.4028948Z; owner P5/Codex; branch chore/integrate-p5-evaluation; verified task commit 223df62; integration base b82ddbfd6eeb6bab7ec609f05585f33f391ee9ca.
+- Implemented isolated immutable actual revisions, versioned persisted EvaluationReport, explicit February calendar, normalized MAE/RMSE/N/coverage and common-pair baseline, semantic manifest and worker/CLI. See docs/handoffs/parallel-P5.md.
+- PASS on task branch: npm test (49/49 including disposable PostgreSQL); final P5 suite (7/7); lint; typecheck; production build (21 pages); diff/secret review. Initial dependency-related checks recovered after independent npm ci.
+- Integration tests intentionally NOT REPEATED per user's latest instruction to deliver immediately to main. Merge only overlaps STATE.md; all existing P1/P2/P4 handoffs and code are preserved.
+- BLOCKED remote fetch/push: Repository not found. No origin/main claim. Real February actuals and unconfirmed source semantics remain external blockers; P6 worker wiring and P7 E2E remain separate.
+- Next: P6 can call evaluatePublishedForecasts after migration and actual ingestion; obtain confirmed actuals/semantics for official metrics; retry remote sync when available.
