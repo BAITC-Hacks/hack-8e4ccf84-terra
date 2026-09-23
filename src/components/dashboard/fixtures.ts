@@ -1,4 +1,4 @@
-import type { AgentRun, Asset, Connection, Evaluation, Forecast, ImportReport, Mode, Scenario } from "./contracts";
+import type { AgentRun, Asset, Connection, Evaluation, Forecast, ImportReport, Mode, Scenario, Point } from "./contracts";
 export const assets: Asset[] = [{ id: "demo-line", name: "Демо · ряд мощности", timezone: "UTC", unit: "normalized", description: "Демонстрационный объект. Гранулярность и исходная зона требуют подтверждения S00." }];
 export function forecasts(mode: Mode, scenario: Scenario): Forecast[] {
   if (scenario === "empty") return [];
@@ -10,7 +10,7 @@ export function forecasts(mode: Mode, scenario: Scenario): Forecast[] {
       prediction: scenario === "partial" && i > 35 ? null : Number((0.47 + Math.sin(i / 6) * 0.19 + Math.cos(i / 2.8) * 0.055 + version * 0.02).toFixed(3)),
       actual: mode === "backtest" && i < 16 ? Number((0.51 + Math.sin(i / 6) * 0.16).toFixed(3)) : null,
       status: scenario === "partial" && i > 35 ? "missing" : "ready",
-    })),
+    })).map(withDemoInterval),
   }));
 }
 export const connections: Connection[] = [
@@ -40,4 +40,11 @@ export function agentRun(mode: Mode): AgentRun {
     { id: "3", time: "2026-01-31T12:00:02Z", tool: "predict", reason: "Baseline рассчитан на неизменяемом снимке; предыдущая версия сохранена.", duration_ms: 430, status: "succeeded", error: null },
     { id: "4", time: "2026-01-31T12:00:03Z", tool: "explain", reason: "Брифинг составлен по шаблону. Пример работы без LLM.", duration_ms: 35, status: "succeeded", error: null },
   ] };
+}
+
+// Synthetic uncertainty for visual demonstration only; never applied to API responses.
+export function withDemoInterval(point: Point): Point {
+  if (point.prediction == null) return point;
+  const spread = 0.035 + 0.0025 * point.lead_hour;
+  return {...point, interval: [Math.max(0, point.prediction - spread), point.prediction + spread]};
 }
