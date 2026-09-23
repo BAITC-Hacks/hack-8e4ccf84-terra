@@ -1,9 +1,9 @@
 # Project state — local main
 
-- Updated UTC: 2026-09-23 10:02Z
-- Branch/worktree: `chore/integrate-csv-import-quality` / private integration worktree.
-- Last verified integration commit: `c613fb3` on `origin/main`; task branch: `feat/csv-import-quality` at `794b42e`.
-- Active task: completed S02 CSV import and quality workflow integration.
+- Updated UTC: 2026-09-23 09:59Z
+- Branch/worktree: `docs/hackalem-spec` / task worktree.
+- Last verified base commit: `e5b61c4` (`origin/main`, locally cached); remote fetch is BLOCKED because the configured GitHub remote returns `Repository not found`.
+- Active task: convert the HackAlem AI PDF specification to Markdown; extracted and visually checked, pending commit.
 - Demo: S05 fixture dashboard remains at `/overview`, `/forecast`, `/sources`, `/agent-log`. With PostgreSQL and `DATABASE_URL`, run `npm run db:migrate`, then `npm run dev`; CSV APIs are under `/api/v1/imports` and `/api/v1/connections`.
 
 ## Preserved work
@@ -39,9 +39,10 @@
 | Typecheck | PASS |
 | Production build | PASS: Next.js generated CSV and existing routes |
 | Push to `origin/main` | PASS: `c613fb3`; task commit `9259c60` verified as ancestor |
+| PDF extraction and visual source review | PASS: both source PDF pages rendered and checked; Markdown matches headings, requirements, links, and 100-point rubric |
 
 ## Next actions
 
-1. Align the S05 source adapter with the production S02 payloads and run the real UI gate.
-2. Feed canonical observations into S06/S08 through `observationsForPurpose`.
-3. Confirm source time/power/target semantics before making forecast-quality claims.
+1. Commit `docs/hackalem-ai-agentic-wind-forecasting.md` and the verified handoff.
+2. Retry remote fetch/push once repository access is restored, then integrate into `origin/main`.
+3. Align the S05 source adapter with the production S02 payloads and run the real UI gate.
