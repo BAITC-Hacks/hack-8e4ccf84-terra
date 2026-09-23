@@ -118,7 +118,8 @@ test('no future actual-weather fallback request is attempted', async () => {
   const urls = [];
   const c = connector(async url => { urls.push(url); return new Response('unavailable', { status: 503 }); });
   await assert.rejects(selectWeatherRun(c, repository(), T, 24), code('NO_ADMISSIBLE_RUN'));
-  assert.equal(urls.length, 1);
+  assert.equal(urls.length, 3);
+  assert.equal(new Set(urls).size, 1, 'retry only the same archived run');
   assert(urls.every(url => new URL(url).hostname === 'single-runs-api.open-meteo.com'));
 });
 test('persistence failure cannot return an unsaved success', async () => {

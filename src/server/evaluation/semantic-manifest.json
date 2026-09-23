@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "timezone": {"status": "UNKNOWN", "value": null, "source": "resources CSV timestamps have no timezone"},
+  "intervalMeaning": {"status": "UNKNOWN", "value": null, "source": "docs/data-contract.md: source interval meaning unconfirmed"},
+  "availabilityLagMinutes": {"status": "UNKNOWN", "value": null, "source": "resources CSV has no publication or availability timestamp"},
+  "mapping": {"status": "UNKNOWN", "value": null, "source": "CSV source series are not confirmed canonical asset UUIDs"},
+  "coordinates": {"status": "confirmed", "value": [{"sourceSeries": "turbine-1-source", "latitude": 43.645150, "longitude": 78.535604}, {"sourceSeries": "turbine-2-source", "latitude": 43.643198, "longitude": 78.538828}], "source": "docs/data-contract.md: PDF map-link redirects; equipment mapping remains UNKNOWN"},
+  "unit": {"status": "confirmed", "value": "normalized", "source": "CSV header: Нормализованная активная мощность; source scale only"},
+  "normalization": {"status": "UNKNOWN", "value": null, "source": "No normalization formula or physical power conversion supplied"}
+}

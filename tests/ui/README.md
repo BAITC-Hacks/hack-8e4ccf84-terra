@@ -77,6 +77,7 @@ Additional validation:
 
 - `node --test tests/ui/platform.test.cjs tests/ui/client.test.cjs tests/ui/csv.test.mjs`
 - `node tests/ui/platform.cjs` against the production server (default port 3107; `UI_BASE_URL` overrides it).
+- `node tests/ui/readability.cjs` checks all four dashboard routes in the light/dark themes, Russian/Kazakh/English, and 1440/390 pixel viewports. It audits text contrast, clipping, page overflow, the Noto Sans Cyrillic font, and interactive states, and saves review screenshots under `.next/ui-qa/readability/`.
 - Both browser scripts load an ignored `.env.local` if present, or accept `ADMIN_PASSWORD` from the environment. The platform suite also uses `SESSION_SECRET` to test an actually expired signature. Never log or commit those values.
 - `platform.cjs` tests real authentication, protected pages/APIs, wrong credentials, Origin checks, language/theme persistence, all translated pages, mobile navigation, logout, forged/expired sessions and reduced motion.
 - `dashboard.cjs` tests the existing 13 dashboard flows after a real sign-in. Forecast/import API responses in its contract scenarios remain mocked. This does not claim real S02–S04 end-to-end integration.
