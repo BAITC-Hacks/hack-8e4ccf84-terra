@@ -20,6 +20,7 @@
 
 # production
 /build
+/.data
 
 # misc
 .DS_Store
@@ -43,3 +44,4 @@ yarn-error.log*
 next-env.d.ts
 
 .idea
+.worktrees

@@ -1,33 +1,44 @@
-# Project state
+# Project state — industrial portal integration
 
-Updated UTC: 2026-09-23T09:02:29.377804+00:00
-Branch: `docs/s09-reproducibility`; last verified implementation `c8ced69413a3179de26e5eef1df79d2285f10126`; base `0d251d6`; pending state-only update.
-Owner: S09 / Codex. Status: BLOCKED for final acceptance; early handoff validated.
+- Updated UTC: 2026-09-23 10:15Z
+- Branch/worktree: `chore/integrate-industrial-portal` / private integration worktree.
+- Verified remote: `origin/main` at integration `a2c9077`; task implementation `f78d8a7` and handoff `60d8b5a` are verified ancestors. Task branch `origin/feat/industrial-portal` remains at `60d8b5a`.
+- Owner/status: Codex, industrial UI + RU/KK/EN + themes + mandatory sign-in; complete: implementation, combined checks and main push verified. This follow-up records the verified remote result.
+- Demo: production preview on `http://localhost:3107/login`; random local administrator credentials live only in ignored `.env.local`. Sign in opens the requested dashboard route. Fixture forecast/import/report/journal flows work; real data API alignment remains a separate integration gate.
 
-## Verified demo path
+## Implemented and verified
 
-`npm ci`, `npm run build`, `npm run start -- --hostname 127.0.0.1`: starter at `/`; no integrated wind forecast API. Earlier STATE scaffold/untracked and inaccessible-remote claims are stale: base is tracked and fetch succeeds. S01–S08 integration is absent in inspected base. Other owners' branch progress UNKNOWN; no claims made about their completion.
+- Industrial navigation, responsive dashboard, turbine illustration, 2-second skippable entrance, reduced-motion support.
+- Russian default, Kazakh and English across four pages, login, forms, statuses and synthetic explanations. Locale-aware number/date display; Kazakh months handled explicitly for browsers with incomplete ICU data.
+- Light/dark theme and language cookies applied by the server to initial HTML and retained across reloads.
+- Existing signed administrator session now protects dashboard pages in proxy and server layout as well as APIs. Login/logout and live session checks use `/api/auth/session`; HttpOnly cookie, safe return-path allowlist, no client-only bypass or bundled password.
+- Touched: `src/app`, `src/components`, `src/lib/i18n`, `src/lib/navigation.ts`, root login bridge, session GET, `proxy.ts`, `tests/ui`, this handoff. No forecasting/import/agent business logic changed.
 
-## Current task / touched paths
+## Preserved work and boundaries
 
-S09 reproducibility: README, Makefile, docs/demo.md, docs/acceptance.md, tests/acceptance, samples, STATE.md. Acceptance requires AC-01…AC-16, real model/baseline report, restore verification and clean Docker forecast. All product AC BLOCKED. Synthetic 48-hour import fixture is CC0 and is not quality evidence. Wrappers fail closed on missing owner implementations.
+- S00 data audit; S01 contracts/migrations/Compose/session/token bridge; S04 immutable as-of baseline; S05 fixtures/dashboard; S06 model training; S07 durable jobs/replay; S08 backtest/evaluation/export are retained from the base.
+- S02 CSV import/connection/hourly-quality code, the verified HackAlem specification transcription, the latest specification/router cleanup, and `SLICE_RULE.md` are preserved from latest main. Combined S02/backtest/ML tests, foundation, UI/agent/forecast tests, lint, typecheck and production build passed after rebase.
+- Root `app/` is the effective router; root UI files re-export canonical `src/app` components.
+- Source timezone/interval, physical units/normalization and target semantics remain unconfirmed. No MW/MWh or official quality claim. February actuals remain evaluation-only.
+- Demo examples stay explicitly synthetic. Server-returned data retains its source language. Existing shared administrator role is reused; multi-user registration was not requested.
 
-## Checks
+- Agent audit `f436946` / integration `d2d4454` is preserved in `docs/agent-system-problems.md`: production agent wiring, automated tick and durable replay remain incomplete. Its PostgreSQL test was skipped without TEST_DATABASE_URL; this portal task does not claim those runtime gaps are fixed.
 
-- PASS `node --test tests/acceptance/harness.test.mjs`: 2 tests, 0.47 s (fixture SHA/time/value integrity; missing scripts and invalid input).
-- PASS `npm run lint`: 4.19 s.
-- PASS `npm run build`: 10.52 s, TypeScript and starter routes.
-- PASS `npm ci --no-audit --no-fund`: 25 s; unrs-resolver install-script warning recorded in acceptance report.
-- BLOCKED `node tests/acceptance/run.mjs verify`: exit 2, missing script/Compose.
-- BLOCKED `docker compose up --build`: Docker unavailable; Compose absent.
-- NOT_RUN model comparison, backup/restore and product AC; see docs/acceptance.md.
+## Validation
 
-## Constraints / next actions
+- Integration worktree: PASS fresh npm ci, all 54 automated tests, lint, production build and typecheck. Runtime/UI files and dependencies exactly match the browser-tested task branch; additional main changes are documentation only.
 
-1. Owners S01–S08 integrate implementations and fixed CLI contracts requested in docs/acceptance.md. No foreign server/config code changed.
-2. S09 reruns docs/demo.md in clean Docker environment, records actual IDs/hashes/durations, restoration and all 16 AC. Full data permissions/time conventions/weather archive must be established by S00/S03.
-3. Compare model with baseline on identical February pairs; do not claim improvement without numerical evidence. Final S09 is not complete.
+- PASS: `npm run lint`, `npm run typecheck`, `npm run build` (production App Router build).
+- PASS: `npm test` (28: S02/backtest/ML), `npm run test:foundation` (3).
+- PASS: `node --test tests/agent/workflow.test.cjs tests/forecast/service.test.cjs` (13).
+- PASS: `node --test tests/ui/platform.test.cjs tests/ui/client.test.cjs tests/ui/csv.test.mjs` (10).
+- PASS: `node tests/ui/dashboard.cjs` (13 browser scenarios, authenticated session; data API cases mocked).
+- PASS: `node tests/ui/platform.cjs` (10 browser scenarios: actual login, redirects, Origin checks, defaults/persistence, English/Kazakh pages, mobile, logout, tampered/expired cookies, open-page expiry, reduced motion).
+- PASS: visual review of light/dark login and Kazakh dark dashboard; no page overflow or browser exceptions. Browser locale review found ICU month fallback; fixed, unit-tested and browser suite rerun afterward.
+- NOT_RUN: production PostgreSQL/data-source end-to-end flow; no database configured for this UI preview.
 
-Remote: rebased onto `0d251d6` (AGENTS/SLICES-only changes), harness rerun PASS. Verified with `git ls-remote`: `origin/docs/s09-reproducibility` = `c8ced69413a3179de26e5eef1df79d2285f10126`; working tree clean before this state update. Final S09 remains BLOCKED and is not integrated into main. Task scope explicitly includes Makefile; no foreign implementation changed. New repository main-integration rule applies to completed tasks; this is an early blocked handoff.
+## Next actions
 
-Tangible milestone: reproducibility handoff, safe command wrappers, deterministic synthetic data and passing harness tests. No deployment or PR.
+1. Open the retained local preview at http://localhost:3107/login. Configure deployment administrator/session secrets before serving the portal elsewhere.
+2. Implement agent audit priorities and pass AT-AG-01–AT-AG-18 with production adapters; configure TEST_DATABASE_URL for its PostgreSQL checks.
+3. Separate follow-up: align S05 adapters with S02/S04/S08 real payloads, wire S07 tick and S03 weather; run real database/UI integration before operational use.

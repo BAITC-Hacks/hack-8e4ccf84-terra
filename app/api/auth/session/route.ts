@@ -1,9 +1,19 @@
 import { z } from "zod";
 import { NextResponse } from "next/server";
-import { checkAdminPassword, createSession, SESSION_COOKIE } from "@/src/server/auth/session";
+import { checkAdminPassword, createSession, SESSION_COOKIE, validSession } from "@/src/server/auth/session";
+import { cookies } from "next/headers";
 import { apiError } from "@/src/server/auth/response";
 
 const credentials = z.object({ password: z.string().min(1) }).strict();
+
+export async function GET() {
+  try {
+    const active = validSession((await cookies()).get(SESSION_COOKIE)?.value);
+    return NextResponse.json({ authenticated: active, role: active ? "admin" : null }, {
+      status: active ? 200 : 401, headers: { "Cache-Control": "private, no-store" },
+    });
+  } catch { return apiError(503, "SERVICE_UNAVAILABLE", "Authentication is not configured"); }
+}
 
 export async function POST(request: Request) {
   const origin = request.headers.get("origin");

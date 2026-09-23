@@ -1,58 +1,55 @@
 # Terra — прогнозирование выработки ВЭС
 
-Next.js / TypeScript / PostgreSQL. Требования: [PLAN.md](PLAN.md), распределение ответственности: [SLICES.md](SLICES.md).
+Hackathon team repository for Terra
 
-**Статус S09: ранний комплект сдачи, итоговая приёмка BLOCKED.** В проверенной базе `c2b4003` есть стартовая страница Next.js и модули демонстрационного агента. S01–S08 не интегрированы: прогноз ВЭС, импорт, обучение, бэктест и Docker-запуск не доступны. Наличие Makefile не означает готовность этих функций.
+## CSV imports
 
-## Запуск доступного каркаса
+The CSV ingestion API requires PostgreSQL and a writable artifact directory:
 
-Проверенная локальная среда: Windows, Node.js 24.19.0, npm 11.17.0. Зависимости устанавливаются по `package-lock.json`:
-
-```sh
-npm ci
-npm run lint
-npm run build
-npm run start -- --hostname 127.0.0.1
+```powershell
+$env:DATABASE_URL = "postgres://user:password@localhost:5432/terra"
+$env:ARTIFACT_ROOT = ".data/artifacts"
+npm run db:migrate
+npm run dev
 ```
 
-Открыть http://localhost:3000. Это стартовая страница, не демонстрационный прогноз. `npm run dev -- --hostname 127.0.0.1` — режим разработки. Для установки требуется доступ к npm registry. Не требуется ключ LLM для сборки. Версии Docker/PostgreSQL и контейнерный Node пока не закреплены владельцем S01.
+`POST /api/v1/imports` accepts multipart fields `file`, `config` (JSON), and optional
+`connectionId`. Send `confirmed: false` first to obtain a preview without persisting data. After
+the user confirms the exact mapping, IANA time zone, timestamp meaning, source interval, availability
+assumption, and units, repeat with `confirmed: true`.
 
-## Окружение и данные
-
-Создайте локальный `.env.local` (игнорируется Git). Текущий `src/lib/env.ts` читает:
-
-| Переменная | Назначение |
-|---|---|
-| `DATABASE_URL` | URL вашей PostgreSQL; обязателен при обращении к серверным модулям БД |
-| `OPENAI_API_KEY` | Необязателен для сборки, нужен текущему демонстрационному агенту |
-| `OPENAI_MODEL` | Необязательное имя модели; default задан в `src/lib/env.ts` |
-
-Не добавляйте секреты в Git. `.env.local` автоматически читает Next.js; будущие CLI обязаны явно загружать окружение. Compose использует отдельный `.env` для подстановок: он не получает переменные Next.js автоматически. `.env.example`, переменные администратора, tick, пути томов и миграции ожидаются от S01; пока не опубликованы, нельзя считать конфигурацию полного продукта известной.
-
-Синтетический разрешённый набор: [samples](samples/README.md). Исходные CSV и PDF находятся в `resources/`; права на их дальнейшее распространение не подтверждены. Координаты, нормализацию и временную шкалу реального объекта фиксирует S00. Архив погоды и условия его получения — S03. Внешняя сеть нужна для скачивания архива; воспроизведение сохранённого снимка должно обходиться без неё.
-
-## Команды сдачи
-
-```sh
-make import
-make train
-make backtest
-make export
-make verify
+```json
+{
+  "assetId": "turbine-1",
+  "dialect": {"encoding": "utf-8", "delimiter": ",", "decimalSeparator": "."},
+  "mapping": {
+    "timestamp": "Статистическое время",
+    "windSpeed": "Средняя скорость ветра(m/s)",
+    "normalizedPower": "Нормализованная активная мощность",
+    "ambientTemperature": "Средняя температура окружающей среды(°C)"
+  },
+  "time": {
+    "format": "yyyy-MM-dd HH:mm:ss",
+    "timeZone": "Asia/Almaty",
+    "timestampMeaning": "interval_start",
+    "sourceIntervalMinutes": 10,
+    "availabilityLagMinutes": 10,
+    "availabilityAssumption": "available after the source interval"
+  },
+  "units": {
+    "windSpeed": "m/s",
+    "normalizedPower": "normalized",
+    "ambientTemperature": "degC"
+  },
+  "hourlyCoverageThreshold": 1,
+  "confirmed": false
+}
 ```
 
-Без GNU Make (например Windows): `node tests/acceptance/run.mjs import` и аналогично `train`, `backtest`, `export`, `verify`. Wrapper вызывает только фиксированные npm scripts `demo:<имя>`. **Сейчас все пять завершаются BLOCKED (код 2)**: scripts ещё отсутствуют. Не добавляйте фиктивные успешные scripts. Код 64 означает неверную команду; код реализации передаётся вызывающему процессу. Время работы реализации выводится в секундах.
+Use `GET /api/v1/imports/{id}` for the accepted/rejected/duplicate report and its error-download
+URL. CSV connections are managed with `GET/POST /api/v1/connections`; upload a sample file to
+`POST /api/v1/connections/{id}/test` to validate its confirmed schema and preview.
 
-Контракт подключения для владельцев slices:
-
-| npm script | Владелец | Обязательный результат |
-|---|---|---|
-| `demo:import` | S02 | Импорт `samples/history.csv`, сохранённый SHA/mapping/отчёт; повтор без удвоения |
-| `demo:train` | S06 | Версия модели, cutoff до февраля, train-only preprocessing; отдельная конфигурация полной истории |
-| `demo:backtest` | S08 | Зафиксированный снимок и расписание, последовательные выпуски с 31 января, отчёт февраля |
-| `demo:export` | S08 | CSV FR-10 и ссылки на модель, снимок и оценку |
-| `demo:verify` | S01–S08 / S09 | Реальные AC-01…AC-16, восстановление и чистый Docker gate; любой непройденный AC даёт ненулевой код |
-
-Это предложенный интерфейс интеграции, а не уже согласованный API. S09 не меняет чужие package/config/server-файлы. Владелец должен документировать конфигурацию и пути результатов до подключения script.
-
-Проверить сам комплект S09: `node --test tests/acceptance/harness.test.mjs`. Успех этих тестов **не равен** прохождению AC. [Сценарий демо и backup/restore](docs/demo.md), [приёмочная матрица, измерения и блокеры](docs/acceptance.md).
+The supplied files currently end at `2026-01-31 09:50:00`; despite their filenames, they contain
+no February 2026 rows. If future files include February targets, normalized active power is stored
+as `evaluation_only` and is filtered from training and feature inputs.
