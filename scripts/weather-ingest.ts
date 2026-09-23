@@ -7,6 +7,7 @@ import { WeatherError } from "../src/server/connectors/weather/types";
 
 const schema = z.object({
   assetIds: z.array(z.uuid()).min(1), start: z.string(), end: z.string(),
+  timeZone: z.literal("UTC"),
   stepHours: z.number().int().min(1).max(168), horizonHours: z.union([z.literal(24), z.literal(48)]),
   mode: z.enum(["official", "research"]),
   availability: z.discriminatedUnion("kind", [z.object({ kind: z.literal("observed") }),

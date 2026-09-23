@@ -138,7 +138,7 @@ test("PostgreSQL atomic rollback, visibility, concurrent idempotency, restart an
     try {
       const filename = join(directory, "config.json");
       await writeFile(filename, JSON.stringify({ assetIds: [asset.id], start: issue, end: "2026-02-02T12:00:00.000Z",
-        stepHours: 24, horizonHours: 48, mode: "official", availability: { kind: "observed" } }));
+        timeZone: "UTC", stepHours: 24, horizonHours: 48, mode: "official", availability: { kind: "observed" } }));
       const cli = new URL("../../scripts/weather-ingest.ts", import.meta.url).href;
       const fixtureUrl = new URL("./evidence/feb-start.raw.json", import.meta.url).href;
       // Mock network only; execute the real CLI and PostgreSQL writer. Every run has synthetic test provenance.

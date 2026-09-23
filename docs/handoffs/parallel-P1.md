@@ -28,6 +28,7 @@ DATABASE_URL must reference the intended canonical database. JSON example (repla
   "assetIds": ["00000000-0000-0000-0000-000000000001"],
   "start": "2026-01-31T12:00:00.000Z",
   "end": "2026-02-28T12:00:00.000Z",
+  "timeZone": "UTC",
   "stepHours": 24,
   "horizonHours": 48,
   "mode": "official",
@@ -35,7 +36,7 @@ DATABASE_URL must reference the intended canonical database. JSON example (repla
 }
 ```
 
-The range is inclusive and UTC-hour-aligned; no OS timezone inference. JSONL reports one row per asset/issue, coverage, stored run ID, inserted/reused state and exact safe blocker. Exit 2 means historical eligibility is blocked (including complete archived coverage); exit 1 means configuration/database failure. A missing archive is never replaced with actual weather. Research mode permits an explicit assumed policy with delayHours/rationale/approvalReference but remains officially BLOCKED. The existing 48-hour lookback selects candidates; the first complete retrieved run is stored. No automatic production wiring is added (P6 ownership).
+The range is inclusive and UTC-hour-aligned; timeZone must explicitly name the IANA zone UTC. Other calendars are rejected; no OS timezone inference. JSONL reports one row per asset/issue, coverage, stored run ID, inserted/reused state and exact safe blocker. Exit 2 means historical eligibility is blocked (including complete archived coverage); exit 1 means configuration/database failure. A missing archive is never replaced with actual weather. Research mode permits an explicit assumed policy with delayHours/rationale/approvalReference but remains officially BLOCKED. The existing 48-hour lookback selects candidates; the first complete retrieved run is stored. No automatic production wiring is added (P6 ownership).
 
 ## Validation
 
