@@ -35,6 +35,10 @@
 - Candidate turbine coordinates from the PDF remain unconfirmed configuration.
 - Development `test` credentials remain local-only and are not committed.
 
+## UI/UX prototype
+
+- Added 2026-09-23 11:25Z: `docs/design/terra-redesign.html` — standalone static HTML proposal for the dashboard (overview, forecast, sources, run log) with a demo/real data toggle. Synthetic data only; not wired into `src/` and not part of the build.
+
 ## Next actions
 
 1. After owner data is available, confirm asset/time/power semantics and the historical weather availability policy.

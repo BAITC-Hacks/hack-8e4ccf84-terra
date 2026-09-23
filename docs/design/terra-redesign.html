@@ -1,0 +1,1019 @@
+<title>TERRA редизайн</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#F2F5F6; --surface:#FFFFFF; --surface-2:#F7FAFA; --ink:#13232E; --muted:#5C6F79; --faint:#8A9BA3;
+  --line:#DDE5E8; --line-2:#E9EEF0;
+  --accent:#0B7A80; --accent-ink:#FFFFFF; --accent-soft:#E2F2F2; --accent-strong:#085F64;
+  --fact:#C27C1E; --prev:#7E93A6;
+  --good:#1D7F52; --good-soft:#E3F3EA;
+  --warn:#9A6100; --warn-soft:#FCF1DC; --warn-line:#EBCB8B;
+  --bad:#B53A33; --bad-soft:#FBE7E5;
+  --side:#0E2233; --side-2:#132C40; --side-ink:#E6EEF2; --side-muted:#8CA3B2; --side-line:#1E3A50;
+  --shadow:0 1px 2px rgba(19,35,46,.05),0 4px 16px rgba(19,35,46,.05);
+  --font-d:"Manrope","Segoe UI",system-ui,sans-serif;
+  --font-b:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --font-m:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --ground:#0A151D; --surface:#102130; --surface-2:#0D1C28; --ink:#E2EBEF; --muted:#94A8B2; --faint:#6D828D;
+    --line:#1F3444; --line-2:#182B39;
+    --accent:#35B8B4; --accent-ink:#04191B; --accent-soft:#12343A; --accent-strong:#5CD0CB;
+    --fact:#E3A54A; --prev:#8499AB;
+    --good:#4CC38A; --good-soft:#123326;
+    --warn:#E9B45A; --warn-soft:#2E2514; --warn-line:#5C4722;
+    --bad:#F07A70; --bad-soft:#3A1B19;
+    --side:#07111A; --side-2:#0E1E2B; --side-ink:#E2EBEF; --side-muted:#7F95A3; --side-line:#172B3A;
+    --shadow:0 1px 2px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --ground:#0A151D; --surface:#102130; --surface-2:#0D1C28; --ink:#E2EBEF; --muted:#94A8B2; --faint:#6D828D;
+  --line:#1F3444; --line-2:#182B39;
+  --accent:#35B8B4; --accent-ink:#04191B; --accent-soft:#12343A; --accent-strong:#5CD0CB;
+  --fact:#E3A54A; --prev:#8499AB;
+  --good:#4CC38A; --good-soft:#123326;
+  --warn:#E9B45A; --warn-soft:#2E2514; --warn-line:#5C4722;
+  --bad:#F07A70; --bad-soft:#3A1B19;
+  --side:#07111A; --side-2:#0E1E2B; --side-ink:#E2EBEF; --side-muted:#7F95A3; --side-line:#172B3A;
+  --shadow:0 1px 2px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--ground);color:var(--ink);font:14px/1.5 var(--font-b);-webkit-font-smoothing:antialiased}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+.num{font-variant-numeric:tabular-nums}
+.mono{font-family:var(--font-m);font-size:12px}
+h1,h2,h3{font-family:var(--font-d);margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:26px;font-weight:800}
+h2{font-size:17px;font-weight:700}
+h3{font-size:15px;font-weight:700}
+p{margin:0}
+.sr{position:absolute;opacity:0;width:1px;height:1px}
+
+/* демо / реальные данные: один переключатель управляет всем */
+body.real [data-demo]{display:none!important}
+body:not(.real) [data-real]{display:none!important}
+
+/* ---------- shell ---------- */
+.app{display:grid;grid-template-columns:232px 1fr;min-height:100%}
+.side{background:var(--side);color:var(--side-ink);display:flex;flex-direction:column;gap:24px;padding:20px 14px;position:sticky;top:env(safe-area-inset-top,0px);height:100vh}
+.brand{display:flex;align-items:center;gap:10px;padding:0 6px}
+.brand-mark{width:34px;height:34px;border-radius:9px;background:var(--side-2);border:1px solid var(--side-line);display:grid;place-items:center}
+.brand b{font-family:var(--font-d);font-size:19px;letter-spacing:.08em;display:block;line-height:1}
+.brand small{font-size:9.5px;letter-spacing:.16em;color:var(--side-muted);text-transform:uppercase}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav button{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:9px;border:0;background:none;color:var(--side-muted);text-align:left;font-weight:500}
+.nav button:hover{background:var(--side-2);color:var(--side-ink)}
+.nav button[aria-current="page"]{background:var(--side-2);color:var(--side-ink);box-shadow:inset 0 0 0 1px var(--side-line)}
+.nav button[aria-current="page"] svg{color:var(--accent)}
+.nav .badge{margin-left:auto;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--warn-soft);color:var(--warn);font-size:11px;font-weight:600;display:grid;place-items:center}
+.health{margin-top:auto;border:1px solid var(--side-line);border-radius:11px;padding:12px;display:grid;gap:8px;font-size:12.5px}
+.health-row{display:flex;gap:8px;align-items:flex-start;color:var(--side-muted)}
+.health-row b{color:var(--side-ink);font-weight:500}
+.health .link{color:#5CD0CB}
+.dot{width:8px;height:8px;border-radius:50%;flex:none;margin-top:6px;background:var(--good)}
+.dot.warn{background:#E0A43C}
+.dot.off{background:var(--side-muted)}
+.user{display:flex;align-items:center;gap:10px;padding:0 6px;font-size:13px}
+.avatar{width:32px;height:32px;border-radius:8px;background:var(--side-2);display:grid;place-items:center;font-size:12px;font-weight:600}
+.user small{display:block;color:var(--side-muted);font-size:11.5px}
+
+.main{min-width:0;display:flex;flex-direction:column}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.top-row{display:flex;align-items:center;gap:12px;padding:10px 28px;flex-wrap:wrap}
+.crumb{font-size:13px;color:var(--muted);margin-right:auto}
+.crumb b{color:var(--ink);font-weight:600}
+.ctl{display:flex;align-items:center;gap:6px;height:34px;padding:0 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);font-size:13px}
+.ctl select{border:0;background:none;padding:0;font-weight:500;cursor:pointer}
+.ctl-label{color:var(--muted);font-size:12px}
+.seg{display:inline-flex;padding:3px;border-radius:9px;background:var(--surface-2);border:1px solid var(--line)}
+.seg button{border:0;background:none;padding:4px 10px;border-radius:6px;font-size:12.5px;color:var(--muted);font-weight:500}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.seg.data button[data-mode="demo"][aria-pressed="true"]{background:var(--warn-soft);color:var(--warn)}
+.mode-chip{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:14px;background:var(--accent-soft);color:var(--accent-strong);font-size:12.5px;font-weight:600;cursor:help}
+.icon-btn{width:34px;height:34px;display:grid;place-items:center;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.demo-strip{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:6px 28px;background:var(--warn-soft);color:var(--warn);font-size:12.5px;border-top:1px solid var(--warn-line)}
+.demo-strip b{font-weight:600}
+.demo-strip .link{color:var(--warn);margin-left:auto}
+
+.page{padding-block:24px 48px;padding-inline:28px;display:grid;gap:20px;max-width:1320px;width:100%}
+.page[hidden]{display:none!important}
+.page-head{display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap}
+.page-head > div:first-child{margin-right:auto;display:grid;gap:4px}
+.sub{color:var(--muted)}
+
+/* ---------- blocks ---------- */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:var(--shadow);min-width:0}
+.panel-head{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.panel-head > div:first-child{margin-right:auto;display:grid;gap:2px}
+.btn{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 14px;border-radius:9px;border:1px solid var(--line);background:var(--surface);font-weight:600;font-size:13px;white-space:nowrap}
+.btn:hover:not([disabled]){border-color:var(--accent);color:var(--accent-strong)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover:not([disabled]){background:var(--accent-strong);color:var(--accent-ink)}
+.btn.sm{height:30px;padding:0 10px;font-size:12.5px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.link{color:var(--accent-strong);font-weight:600;background:none;border:0;padding:0;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+.chip{display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 8px;border-radius:11px;font-size:11.5px;font-weight:600;white-space:nowrap}
+.chip.good{background:var(--good-soft);color:var(--good)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}
+.chip.bad{background:var(--bad-soft);color:var(--bad)}
+.chip.neutral{background:var(--surface-2);color:var(--muted);border:1px solid var(--line)}
+.info{display:inline-grid;place-items:center;width:15px;height:15px;border-radius:50%;border:1px solid var(--faint);color:var(--faint);font-size:10px;font-weight:600;cursor:help;vertical-align:1px}
+
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;gap:4px;align-content:start}
+.kpi-label{font-size:12.5px;color:var(--muted);display:flex;gap:6px;align-items:center}
+.kpi-value{font-family:var(--font-d);font-size:28px;font-weight:700;line-height:1.15;display:flex;align-items:baseline;gap:6px}
+.kpi-value small{font:500 13px var(--font-b);color:var(--muted)}
+.kpi-foot{font-size:12.5px;color:var(--muted)}
+.kpi.warn{border-color:var(--warn-line);background:linear-gradient(var(--warn-soft),var(--surface) 70%)}
+.kpi.warn .kpi-value{color:var(--warn)}
+
+.grid-2{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start}
+
+/* chart */
+.legend{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.lg{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--surface);border-radius:16px;padding:3px 10px;font-size:12.5px}
+.lg[aria-pressed="false"]{opacity:.45}
+.lg i{width:18px;height:0;border-top:2.5px solid;display:inline-block}
+.lg .main{border-color:var(--accent)} .lg .cmp{border-color:var(--prev);border-top-style:dashed}
+.lg .fa{border-color:var(--fact)} .lg .bd{height:10px;border:0;background:var(--accent);opacity:.18;border-radius:2px}
+.lg .df{height:10px;border:0;background:var(--warn);opacity:.25;border-radius:2px}
+.chart{position:relative;margin-top:10px}
+.chart svg{display:block;width:100%;overflow:visible}
+.chart text{fill:var(--muted);font:11px var(--font-b);font-variant-numeric:tabular-nums}
+.chart .grid{stroke:var(--line-2);stroke-width:1}
+.chart .base{stroke:var(--line);stroke-width:1}
+.chart .s-main{stroke:var(--accent);stroke-width:2.5;fill:none;stroke-linejoin:round}
+.chart .s-cmp{stroke:var(--prev);stroke-width:1.75;fill:none;stroke-dasharray:5 4}
+.chart .s-fa{stroke:var(--fact);stroke-width:2.25;fill:none}
+.chart .band{fill:var(--accent);opacity:.12}
+.chart .diff{fill:var(--warn);opacity:.2}
+.chart .mark{stroke:var(--ink);stroke-width:1;stroke-dasharray:3 3;opacity:.55}
+.chart .mark-t{fill:var(--ink);font-weight:600}
+.chart .guide{stroke:var(--ink);stroke-width:1;opacity:.35}
+.chart .end{fill:var(--accent);stroke:var(--surface);stroke-width:2}
+.chart .hv{stroke:var(--surface);stroke-width:2}
+.chart .demo-mark{fill:var(--warn);font-weight:600;letter-spacing:.08em}
+.tip{position:absolute;top:0;pointer-events:none;background:var(--surface);border:1px solid var(--line);box-shadow:0 6px 24px rgba(0,0,0,.12);border-radius:10px;padding:10px 12px;font-size:12.5px;min-width:190px;display:grid;gap:4px;z-index:5}
+.tip b{font-weight:600}
+.tip-row{display:flex;gap:10px;align-items:center}
+.tip-row span:last-child{margin-left:auto;font-variant-numeric:tabular-nums;font-weight:600}
+.sw{width:10px;height:3px;border-radius:2px;display:inline-block}
+.chart-foot{display:flex;gap:16px;flex-wrap:wrap;justify-content:space-between;margin-top:12px;font-size:12px;color:var(--muted)}
+
+/* alerts */
+.alerts{display:grid;gap:10px}
+.alert{border:1px solid var(--line);border-left:3px solid var(--warn);border-radius:10px;padding:12px 14px;display:grid;gap:6px;background:var(--surface)}
+.alert.good-a{border-left-color:var(--good)}
+.alert h3{font-size:14px}
+.alert p{color:var(--muted);font-size:13px}
+.alert .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+
+/* empty / onboarding */
+.empty-state{display:grid;gap:14px;justify-items:start;padding:32px}
+.empty-state .ico{width:48px;height:48px;border-radius:12px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center}
+.empty-state p{color:var(--muted);max-width:60ch}
+.onb{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:10px;width:100%;max-width:720px}
+.onb li{display:grid;grid-template-columns:30px 1fr auto;gap:12px;align-items:center;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2)}
+.onb li > b{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--surface);border:1px solid var(--line);font-size:13px}
+.onb li small{display:block;color:var(--muted);font-size:12.5px}
+.row-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+/* table */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;max-height:460px}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:8px 12px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line-2)}
+th:first-child,td:first-child{text-align:left}
+thead th{position:sticky;top:0;background:var(--surface-2);font-weight:600;color:var(--muted);font-size:12px;z-index:1}
+thead select{border:1px solid var(--line);border-radius:6px;background:var(--surface);padding:2px 4px;font-weight:500}
+tbody tr:hover{background:var(--surface-2)}
+td.up{color:var(--good)} td.down{color:var(--bad)}
+tr.big td{background:var(--warn-soft)}
+
+.controls{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.field{display:grid;gap:5px;min-width:0}
+.field label{font-size:12px;color:var(--muted);font-weight:500}
+.field select,.field input[type=text]{height:38px;border:1px solid var(--line);border-radius:9px;background:var(--surface);padding:0 10px;min-width:170px;max-width:100%}
+
+/* sources */
+.src-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.src{display:grid;gap:12px;align-content:start}
+.src-top{display:flex;align-items:flex-start;gap:10px}
+.src-top > div{margin-right:auto}
+.src-top small{color:var(--muted);display:block}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:13px;margin:0}
+.kv dt{color:var(--muted)} .kv dd{margin:0;text-align:right;font-weight:500}
+.cov{display:grid;grid-template-columns:repeat(30,1fr);gap:2px;height:22px}
+.cov i{border-radius:2px;background:var(--good);opacity:.75}
+.cov i.p{background:var(--warn);opacity:.9}
+.cov i.m{background:var(--bad);opacity:.8}
+.cov-legend{display:flex;justify-content:space-between;gap:8px;font-size:11.5px;color:var(--faint)}
+.src-note{font-size:13px;border-radius:9px;padding:10px 12px;background:var(--surface-2)}
+.src-note.warn{background:var(--warn-soft);color:var(--ink)}
+.empty{border:1.5px dashed var(--line);border-radius:10px;padding:18px;text-align:center;display:grid;gap:8px;justify-items:center;color:var(--muted);font-size:13px}
+
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.step{display:flex;gap:10px;align-items:center;font-size:13px;color:var(--muted);padding:10px 12px;border-radius:9px;background:var(--surface-2);border:1px solid var(--line)}
+.step.on{color:var(--ink);border-color:var(--accent);background:var(--accent-soft)}
+.step b{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--surface);border:1px solid var(--line);font-size:12px;flex:none}
+.step.on b{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.drop{display:grid;gap:10px;justify-items:center;text-align:center;padding:28px 16px;border:1.5px dashed var(--accent);border-radius:12px;background:var(--surface-2);cursor:pointer;transition:background .15s}
+.drop:hover,.drop.over{background:var(--accent-soft)}
+.drop strong{font-size:15px;word-break:break-all}
+.drop small{color:var(--muted)}
+.template{display:grid;gap:8px;font-size:13px;align-content:start}
+pre.code{margin:0;padding:10px 12px;border-radius:9px;background:var(--surface-2);border:1px solid var(--line);font:12px/1.6 var(--font-m);overflow-x:auto}
+.checks{display:grid;gap:6px;font-size:13px}
+.checks div{display:flex;gap:8px;align-items:flex-start}
+.checks .ok{color:var(--good)} .checks .wn{color:var(--warn)}
+.demo-lock{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--warn);background:var(--warn-soft);border-radius:9px;padding:10px 12px}
+.demo-lock .link{color:var(--warn)}
+
+/* runs */
+.runs-layout{display:grid;grid-template-columns:320px minmax(0,1fr);gap:20px;align-items:start}
+.runs{display:grid;gap:6px}
+.run{display:grid;grid-template-columns:auto 1fr auto;gap:2px 10px;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 12px;font-size:13px}
+.run:hover{border-color:var(--accent)}
+.run[aria-current="true"]{border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
+.run .dot{margin-top:6px}
+.run .dot.bad{background:var(--bad)}
+.run b{font-weight:600}
+.run small{grid-column:2/4;color:var(--muted)}
+.search{position:relative}
+.search input{width:100%;height:36px;border:1px solid var(--line);border-radius:9px;background:var(--surface);padding:0 10px 0 32px}
+.search svg{position:absolute;left:10px;top:10px;color:var(--faint)}
+.run-summary{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--muted)}
+.run-summary b{color:var(--ink);font-weight:600}
+.timeline{display:grid;margin-top:14px}
+.tl{display:grid;grid-template-columns:28px minmax(0,1fr) 180px;gap:12px;padding:12px 0;border-top:1px solid var(--line-2);align-items:start}
+.tl-ico{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--good-soft);color:var(--good)}
+.tl-ico.warn{background:var(--warn-soft);color:var(--warn)}
+.tl-ico.bad{background:var(--bad-soft);color:var(--bad)}
+.tl-ico.skip{background:var(--surface-2);color:var(--faint)}
+.tl-main{display:grid;gap:3px}
+.tl-main h3{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tl-main .mono{color:var(--faint);font-weight:400}
+.tl-main p{color:var(--muted);font-size:13px}
+.tl details{font-size:12.5px;margin-top:4px}
+.tl summary{cursor:pointer;color:var(--accent-strong);font-weight:500}
+.tl details pre{margin-top:6px}
+.gantt{display:grid;gap:4px;font-size:12px;color:var(--muted);text-align:right}
+.gantt-track{height:8px;border-radius:4px;background:var(--surface-2);border:1px solid var(--line-2);position:relative;overflow:hidden}
+.gantt-track i{position:absolute;top:0;bottom:0;border-radius:4px;background:var(--accent)}
+.result{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:14px;border-radius:10px;background:var(--accent-soft);margin-top:10px}
+.result.bad{background:var(--bad-soft)}
+.result p{margin-right:auto;font-size:13px}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:10px 16px;border-radius:10px;font-size:13px;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.2);max-width:calc(100% - 32px)}
+
+/* responsive */
+@media (max-width:1100px){
+  .grid-2{grid-template-columns:1fr}
+  .src-grid{grid-template-columns:1fr 1fr}
+  .runs-layout{grid-template-columns:1fr}
+}
+@media (max-width:860px){
+  .app{grid-template-columns:1fr}
+  .side{position:static;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 16px}
+  .nav{flex-direction:row;overflow-x:auto;width:100%;order:3}
+  .nav button{white-space:nowrap;padding:8px 10px}
+  .health,.user{display:none}
+  .top{position:static}
+  .top-row,.demo-strip{padding-inline:16px}
+  .page{padding-inline:16px}
+  .kpis{grid-template-columns:1fr 1fr}
+  .src-grid,.steps{grid-template-columns:1fr}
+  .tl{grid-template-columns:28px minmax(0,1fr)}
+  .gantt{grid-column:2}
+  .empty-state{padding:20px}
+  .onb li{grid-template-columns:30px 1fr}
+  .onb li > :last-child{grid-column:2}
+}
+@media (max-width:480px){
+  .kpis{grid-template-columns:1fr}
+  .kpi-value{font-size:24px}
+  .crumb{width:100%}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="app">
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="side">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#35B8B4" stroke-width="1.8" stroke-linecap="round"><path d="M3 8h10a3 3 0 1 0-3-3"/><path d="M3 12h15a3 3 0 1 1-3 3"/><path d="M3 16h7"/></svg>
+      </div>
+      <div><b>TERRA</b><small>Energy Intelligence</small></div>
+    </div>
+    <nav class="nav" aria-label="Разделы">
+      <button data-go="overview" aria-current="page">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Обзор</button>
+      <button data-go="forecast">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 3v18h18"/><path d="m6 15 4-5 4 3 6-7"/></svg>
+        Прогноз</button>
+      <button data-go="sources">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="5.5" rx="7.5" ry="2.8"/><path d="M4.5 5.5v13c0 1.5 3.4 2.8 7.5 2.8s7.5-1.3 7.5-2.8v-13"/><path d="M4.5 12c0 1.5 3.4 2.8 7.5 2.8s7.5-1.3 7.5-2.8"/></svg>
+        Источники <span class="badge" data-demo title="1 источник требует внимания">1</span></button>
+      <button data-go="runs">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg>
+        Журнал запусков</button>
+    </nav>
+    <div class="health" id="health" aria-label="Состояние системы"></div>
+    <div class="user"><div class="avatar">AD</div><div>Администратор<small>Оператор ВЭС</small></div></div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main">
+    <header class="top">
+      <div class="top-row">
+        <div class="crumb" id="crumb"></div>
+        <div class="seg data" role="group" aria-label="Данные">
+          <button data-mode="demo" aria-pressed="true">Демо</button><button data-mode="real" aria-pressed="false">Реальные данные</button>
+        </div>
+        <label class="ctl"><span class="ctl-label">Объект</span><select id="obj" aria-label="Объект"></select></label>
+        <span class="mode-chip" id="mode-chip" tabindex="0"></span>
+        <div class="seg" role="group" aria-label="Часовой пояс">
+          <button aria-pressed="true" data-tz="0">UTC</button><button aria-pressed="false" data-tz="5">Алматы</button>
+        </div>
+        <button class="icon-btn" id="theme" aria-label="Сменить тему">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
+        </button>
+      </div>
+      <div class="demo-strip" role="note" data-demo>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+        <span><b>Демо-режим.</b> Синтетические данные, не результаты работы ВЭС. Действия не сохраняются.</span>
+        <button class="link" data-set-mode="real">Перейти к реальным данным</button>
+      </div>
+    </header>
+
+    <!-- ============ OVERVIEW ============ -->
+    <section class="page" id="p-overview" data-title="Обзор">
+      <div data-demo style="display:grid;gap:20px">
+        <div class="page-head">
+          <div>
+            <h1>Прогноз на 48 часов</h1>
+            <p class="sub" id="ov-sub"></p>
+          </div>
+          <button class="btn primary" data-go="forecast">Открыть подробный прогноз →</button>
+        </div>
+
+        <div class="kpis" id="kpis"></div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-head">
+              <div><h2>Ожидаемая мощность</h2><span class="sub" style="font-size:12.5px">% от номинальной мощности (100% = 48 МВт)</span></div>
+              <div class="legend" data-legend="ov"></div>
+            </div>
+            <div class="chart" id="chart-ov"></div>
+            <div class="chart-foot"><span>Наведите на график, чтобы увидеть значения за час.</span><span>Пропуски в данных не заменяются нулями.</span></div>
+          </div>
+
+          <div class="alerts">
+            <h2 style="display:flex;gap:8px;align-items:center">Требует внимания <span class="chip warn">2</span></h2>
+            <div class="alert">
+              <h3>Прогноз погоды устарел</h3>
+              <p>Последний прогон получен за 6 ч до выпуска. Точность прогноза может быть ниже.</p>
+              <div class="row"><button class="btn sm" data-go="sources">Проверить источник</button></div>
+            </div>
+            <div class="alert">
+              <h3>Прогноз сильно изменился</h3>
+              <p id="al-diff-text"></p>
+              <div class="row"><button class="btn sm" data-go="runs">Почему? Открыть журнал</button><button class="btn sm" data-go="forecast">Сравнить версии</button></div>
+            </div>
+            <div class="alert good-a">
+              <h3>История измерений в порядке</h3>
+              <p>Покрытие 97% за 30 дней. Обновлено за 20 мин до выпуска.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel empty-state" data-real>
+        <div class="ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 3v18h18"/><path d="m6 15 4-5 4 3 6-7"/></svg></div>
+        <h1>Данных пока нет</h1>
+        <p>Чтобы получить первый прогноз выработки, подключите данные. Это три шага, прогресс сохраняется.</p>
+        <ol class="onb">
+          <li><b>1</b><div>Загрузите историю измерений<small>CSV с почасовой мощностью, от 30 дней</small></div><button class="btn sm primary" data-go="sources" data-anchor="import">Загрузить CSV</button></li>
+          <li><b>2</b><div>Подключите прогноз погоды<small>Weather API: ключ и координаты объекта</small></div><button class="btn sm" data-go="sources">Настроить</button></li>
+          <li><b>3</b><div>Запустите первый прогноз<small>Станет доступно после шагов 1 и 2</small></div><button class="btn sm" disabled>Запустить</button></li>
+        </ol>
+        <div class="row-actions sub" style="font-size:13px">Сначала посмотреть, как это выглядит? <button class="link" data-set-mode="demo">Открыть демо</button></div>
+      </div>
+    </section>
+
+    <!-- ============ FORECAST ============ -->
+    <section class="page" id="p-forecast" data-title="Прогноз" hidden>
+      <div class="page-head">
+        <div>
+          <h1>Почасовой прогноз выработки</h1>
+          <p class="sub">Для каждого часа видно, откуда взяты данные, какая версия и почему значение изменилось.</p>
+        </div>
+        <button class="btn" data-demo data-act="Скачать CSV" title="CSV: время, % и МВт, идентификаторы версий">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 4v11m0 0-4-4m4 4 4-4M5 20h14"/></svg>
+          Скачать CSV</button>
+      </div>
+
+      <div data-demo style="display:grid;gap:20px">
+        <div class="panel">
+          <div class="controls">
+            <div class="field"><label for="f-model">Модель</label><select id="f-model"><option>Baseline</option><option disabled>Gradient Boosting — скоро</option></select></div>
+            <div class="field"><label for="f-ver">Версия прогноза</label><select id="f-ver"></select></div>
+            <div class="field"><label for="f-cmp">Сравнить с</label><select id="f-cmp"></select></div>
+            <div class="field"><label for="f-h">Горизонт</label><select id="f-h"><option value="48">48 часов</option><option value="24">24 часа</option><option value="12">12 часов</option></select></div>
+            <span class="sub" style="font-size:12.5px;padding-bottom:9px">Применяется сразу</span>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div><h2>Ожидаемая мощность</h2><span class="sub" style="font-size:12.5px">% от номинала · 100% = 48 МВт</span></div>
+            <div class="seg" role="group" aria-label="Вид"><button aria-pressed="true" data-view="chart">График</button><button aria-pressed="false" data-view="table">Таблица</button></div>
+          </div>
+          <div class="legend" data-legend="fc"></div>
+          <div id="fc-chart-wrap"><div class="chart" id="chart-fc"></div></div>
+          <div id="fc-table-wrap" hidden><div class="tbl-wrap" style="margin-top:12px"><table><thead id="fc-thead"></thead><tbody id="fc-tbody"></tbody></table></div></div>
+        </div>
+
+        <div class="panel" id="diff-panel"></div>
+      </div>
+
+      <div class="panel empty-state" data-real>
+        <div class="ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 3v18h18"/><path d="m6 15 4-5 4 3 6-7"/></svg></div>
+        <h2>Прогноз ещё не построен</h2>
+        <p>Прогноз появится здесь после первого запуска. Для запуска нужны история измерений и прогноз погоды.</p>
+        <div class="row-actions"><button class="btn primary" data-go="sources">Подключить источники</button><button class="link" data-set-mode="demo">Посмотреть демо</button></div>
+      </div>
+    </section>
+
+    <!-- ============ SOURCES ============ -->
+    <section class="page" id="p-sources" data-title="Источники" hidden>
+      <div class="page-head">
+        <div><h1>Источники данных</h1><p class="sub">Откуда берутся данные для прогноза и можно ли им доверять.</p></div>
+        <button class="btn primary" data-scroll="import">+ Загрузить историю CSV</button>
+      </div>
+
+      <div class="src-grid" data-demo>
+        <div class="panel src">
+          <div class="src-top"><div><h3>История измерений</h3><small>Файл CSV · загружен вручную</small></div><span class="chip good">✓ В порядке</span></div>
+          <dl class="kv"><dt>Обновлено</dt><dd class="num" data-ts="-20"></dd><dt>Свежесть</dt><dd>за 20 мин до выпуска</dd><dt>Покрытие, 30 дн.</dt><dd class="num">97,2%</dd></dl>
+          <div><div class="cov" id="cov-a"></div><div class="cov-legend"><span>1 янв</span><span>2 неполных дня: 14 и 22 янв</span><span>30 янв</span></div></div>
+        </div>
+        <div class="panel src" style="border-color:var(--warn-line)">
+          <div class="src-top"><div><h3>Прогноз погоды</h3><small>Weather API · архивные прогоны</small></div><span class="chip warn">! Устарел</span></div>
+          <dl class="kv"><dt>Последний прогон</dt><dd class="num" data-ts="-360"></dd><dt>Свежесть</dt><dd style="color:var(--warn)">за 6 ч до выпуска</dd><dt>Покрытие, 30 дн.</dt><dd class="num">91%</dd></dl>
+          <div><div class="cov" id="cov-b"></div><div class="cov-legend"><span>1 янв</span><span>4 дня с проблемами</span><span>30 янв</span></div></div>
+          <div class="src-note warn"><b>Что это значит:</b> прогноз построен на погоде 6-часовой давности, точность может быть ниже. Ожидался прогон <span data-ts="0" data-short></span>.</div>
+          <div class="row-actions"><button class="btn sm" data-act="Проверить подключение">Проверить подключение</button><button class="btn sm" data-act="История прогонов">История прогонов</button></div>
+        </div>
+        <div class="panel src">
+          <div class="src-top"><div><h3>База данных SCADA</h3><small>PostgreSQL</small></div><span class="chip neutral">Не подключено</span></div>
+          <div class="empty">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><ellipse cx="12" cy="5.5" rx="7.5" ry="2.8"/><path d="M4.5 5.5v13c0 1.5 3.4 2.8 7.5 2.8s7.5-1.3 7.5-2.8v-13"/></svg>
+            <span>Подключите базу данных, чтобы измерения обновлялись автоматически, без ручной загрузки CSV.</span>
+            <button class="btn sm primary" data-act="Настроить подключение">Настроить подключение</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="src-grid" data-real>
+        <div class="panel src">
+          <div class="src-top"><div><h3>История измерений</h3><small>Файл CSV</small></div><span class="chip neutral">Не загружено</span></div>
+          <div class="empty"><span>Загрузите почасовую мощность хотя бы за 30 дней. Это основа для прогноза.</span><button class="btn sm primary" data-scroll="import">Загрузить CSV</button></div>
+        </div>
+        <div class="panel src">
+          <div class="src-top"><div><h3>Прогноз погоды</h3><small>Weather API</small></div><span class="chip neutral">Не подключено</span></div>
+          <div class="empty"><span>Нужен ключ доступа и координаты объекта. Прогоны будут загружаться автоматически.</span><button class="btn sm primary" data-act="Подключить Weather API">Подключить</button></div>
+        </div>
+        <div class="panel src">
+          <div class="src-top"><div><h3>База данных SCADA</h3><small>PostgreSQL · необязательно</small></div><span class="chip neutral">Не подключено</span></div>
+          <div class="empty"><span>Тогда измерения будут обновляться сами, без ручной загрузки CSV.</span><button class="btn sm" data-act="Настроить подключение">Настроить подключение</button></div>
+        </div>
+      </div>
+
+      <div class="panel" id="import">
+        <div class="panel-head"><div><h2>Загрузить историю измерений</h2><span class="sub" style="font-size:12.5px">Исходный файл сохраняется без изменений. Полная проверка выполняется на сервере.</span></div></div>
+        <div class="steps">
+          <div class="step on" id="st-1"><b>1</b>Выберите файл</div>
+          <div class="step" id="st-2"><b>2</b>Сопоставьте колонки</div>
+          <div class="step" id="st-3"><b>3</b>Проверьте и загрузите</div>
+        </div>
+        <div class="grid-2" style="margin-top:16px;grid-template-columns:minmax(0,1fr) minmax(0,320px)">
+          <label class="drop" id="drop" for="file">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round"><path d="M12 16V4m0 0-4 4m4-4 4 4"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+            <strong id="drop-title">Перетащите CSV сюда или нажмите, чтобы выбрать</strong>
+            <small id="drop-sub">До 100 МБ · разделитель определится автоматически</small>
+            <input type="file" id="file" accept=".csv,text/csv" class="sr">
+          </label>
+          <div class="template">
+            <b>Какой нужен формат</b>
+            <pre class="code" id="tpl">timestamp_utc,power_mw
+2026-01-30T00:00:00Z,31.4
+2026-01-30T01:00:00Z,29.8
+2026-01-30T02:00:00Z,</pre>
+            <span class="sub" style="font-size:12.5px">Время в UTC, шаг 1 час. Пустое значение = пропуск, оно не станет нулём.</span>
+            <button class="btn sm" id="copy-tpl" style="justify-self:start">Скопировать шаблон</button>
+          </div>
+        </div>
+        <div style="margin-top:18px;display:grid;gap:12px" id="preview-wrap">
+          <h3>Предпросмотр · первые 5 строк <span class="sub" style="font-weight:400;font-size:12.5px" id="preview-src">(пример)</span></h3>
+          <div class="tbl-wrap"><table><thead id="pv-head"></thead><tbody id="pv-body"></tbody></table></div>
+          <div class="checks" id="pv-checks"></div>
+          <div class="demo-lock" data-demo>В демо-режиме загрузка отключена: файл только проверяется в браузере и никуда не отправляется. <button class="link" data-set-mode="real">Перейти к реальным данным</button></div>
+          <div><button class="btn primary" id="upload" disabled>Загрузить</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ RUNS ============ -->
+    <section class="page" id="p-runs" data-title="Журнал запусков" hidden>
+      <div class="page-head">
+        <div><h1>Журнал запусков</h1><p class="sub">Как агент получил каждую версию прогноза: от выбора погоды до публикации.</p></div>
+      </div>
+
+      <div class="runs-layout" data-demo>
+        <div class="panel" style="padding:14px">
+          <div class="search"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input type="text" id="run-q" placeholder="Поиск по id или дате" aria-label="Поиск запусков"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin:12px 2px 8px"><b style="font-size:13px">Последние запуски</b><span class="sub" style="font-size:12px" id="run-count"></span></div>
+          <div class="runs" id="runs"></div>
+        </div>
+        <div class="panel" id="run-detail"></div>
+      </div>
+
+      <div class="panel empty-state" data-real>
+        <div class="ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg></div>
+        <h2>Запусков пока не было</h2>
+        <p>Первый запуск появится здесь после подключения источников. Для каждого запуска будет видно, какие данные взял агент и почему прогноз изменился.</p>
+        <div class="row-actions"><button class="btn primary" data-go="sources">Подключить источники</button><button class="link" data-set-mode="demo">Посмотреть пример в демо</button></div>
+      </div>
+    </section>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(() => {
+  // ---------- время ----------
+  const H = 3600e3;
+  const REL = Date.UTC(2026, 0, 31, 12);        // выпуск версии №2
+  const BASE = REL + H;                          // первый час прогноза
+  const MON = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
+  const pad = n => String(n).padStart(2, '0');
+  let tz = 0;
+  const tzName = () => tz ? 'Алматы' : 'UTC';
+  function fmtTs(ms, withDay = true) {
+    const d = new Date(ms + tz * H);
+    const hm = pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes());
+    return withDay ? `${d.getUTCDate()} ${MON[d.getUTCMonth()]}, ${hm}` : hm;
+  }
+  const time = (i, withDay = true) => fmtTs(BASE + i * H, withDay);
+
+  // ---------- демо-данные ----------
+  const N = 48, CAP = 48;
+  function interp(keys, n) {
+    const out = [];
+    for (let i = 0; i < n; i++) {
+      let k = 0; while (k < keys.length - 2 && keys[k + 1][0] <= i) k++;
+      const [x0, y0] = keys[k], [x1, y1] = keys[k + 1];
+      const t = Math.min(1, Math.max(0, (i - x0) / (x1 - x0)));
+      out.push(y0 + (y1 - y0) * (1 - Math.cos(Math.PI * t)) / 2);
+    }
+    return out;
+  }
+  const v2 = interp([[0,.56],[5,.62],[12,.66],[17,.63],[22,.45],[27,.27],[30,.29],[36,.45],[41,.56],[47,.68]], N);
+  const v1 = interp([[0,.62],[6,.64],[10,.6],[14,.4],[18,.25],[21,.28],[26,.43],[32,.53],[38,.6],[42,.65]], 42).concat(Array(N - 42).fill(null));
+  const fact = interp([[0,.50],[4,.58],[9,.66],[12,.62]], 13).concat(Array(N - 13).fill(null));
+  const FACT_END = 12;
+  const S = {
+    v2: { name: 'Версия №2', short: '№2', rel: REL, data: v2, lag: 0 },
+    v1: { name: 'Версия №1', short: '№1', rel: REL - 6 * H, data: v1, lag: 6 }
+  };
+  const bandOf = key => S[key].data.map((v, i) => { if (v == null) return null; const w = .035 + .0025 * (i + S[key].lag); return [Math.max(0, v - w), Math.min(1, v + w)]; });
+
+  const pct = v => v == null ? '—' : Math.round(v * 100) + '%';
+  const mw = v => v == null ? '—' : (v * CAP).toFixed(1).replace('.', ',');
+  const sgn = d => (d > 0 ? '+' : d < 0 ? '−' : '') + Math.abs(Math.round(d * 100));
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  function stats(cfg) {
+    const m = S[cfg.main].data, c = cfg.cmp ? S[cfg.cmp].data : null, n = cfg.horizon;
+    const r = { m, c, n, peak: -1, low: -1, maxD: -1, big: 0, ov: 0, sum: 0, en: 0, err: 0, ne: 0 };
+    for (let i = 0; i < n; i++) {
+      const v = m[i]; if (v == null) continue;
+      r.en += v * CAP;
+      if (r.peak < 0 || v > m[r.peak]) r.peak = i;
+      if (r.low < 0 || v < m[r.low]) r.low = i;
+      if (c && c[i] != null) {
+        const d = v - c[i]; r.ov++; r.sum += Math.abs(d);
+        if (Math.abs(d) >= .15) r.big++;
+        if (r.maxD < 0 || Math.abs(d) > Math.abs(m[r.maxD] - c[r.maxD])) r.maxD = i;
+      }
+      if (fact[i] != null) { r.err += Math.abs(v - fact[i]); r.ne++; }
+    }
+    r.d = r.maxD >= 0 ? m[r.maxD] - c[r.maxD] : 0;
+    r.mean = r.ov ? r.sum / r.ov : 0;
+    r.mae = r.ne ? r.err / r.ne : null;
+    return r;
+  }
+
+  const OV = { main: 'v2', cmp: 'v1', horizon: N };
+  const FC = { main: 'v2', cmp: 'v1', horizon: N };
+
+  // ---------- режим данных ----------
+  let demo = true;
+  try { demo = localStorage.getItem('terra-data') !== 'real'; } catch (_) {}
+  function setMode(isDemo) {
+    demo = isDemo;
+    try { localStorage.setItem('terra-data', demo ? 'demo' : 'real'); } catch (_) {}
+    renderAll();
+    toast(demo ? 'Включён демо-режим: синтетические данные, действия не сохраняются' : 'Реальные данные: источники пока не подключены');
+  }
+
+  let toastT;
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.hidden = false;
+    clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 3200);
+  }
+
+  // ---------- шапка, меню, время ----------
+  function renderChrome() {
+    document.body.classList.toggle('real', !demo);
+    document.querySelectorAll('[data-mode]').forEach(b => b.setAttribute('aria-pressed', (b.dataset.mode === 'demo') === demo));
+    const obj = document.getElementById('obj');
+    obj.innerHTML = demo ? '<option>Демо-ВЭС · 48 МВт</option>' : '<option disabled selected>Объект не добавлен</option>';
+    const chip = document.getElementById('mode-chip');
+    chip.innerHTML = demo
+      ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>Бэктест'
+      : '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="4"/></svg>Оперативный';
+    chip.title = demo
+      ? `Бэктест: прогноз строится так, как если бы сейчас было ${fmtTs(REL)} ${tzName()}, и сравнивается с фактом.`
+      : 'Оперативный режим: прогнозы строятся по свежим данным, как только подключены источники.';
+    document.getElementById('health').innerHTML = demo
+      ? `<div class="health-row"><span class="dot"></span><span><b>Версия №2 опубликована</b><br>${fmtTs(REL)} ${tzName()}</span></div>
+         <div class="health-row"><span class="dot warn"></span><span><b>Погода устарела на 6 ч</b><br><button class="link" data-go="sources">Проверить источник</button></span></div>`
+      : `<div class="health-row"><span class="dot off"></span><span><b>Источники не подключены</b><br><button class="link" data-go="sources">Начать настройку</button></span></div>`;
+    document.getElementById('ov-sub').textContent = `Версия №2 · выпущена ${fmtTs(REL)} ${tzName()} · модель Baseline`;
+    document.querySelectorAll('[data-ts]').forEach(el => {
+      const ms = REL + (+el.dataset.ts) * 60e3;
+      el.textContent = 'short' in el.dataset ? `${fmtTs(ms, false)} ${tzName()}` : `${fmtTs(ms)} ${tzName()}`;
+    });
+    setCrumb();
+  }
+  let page = 'overview';
+  function setCrumb() {
+    const objName = demo ? 'Демо-ВЭС' : 'Объект не добавлен';
+    document.getElementById('crumb').innerHTML = `${objName} / <b>${document.getElementById('p-' + page).dataset.title}</b>`;
+  }
+
+  // ---------- KPI и сравнение ----------
+  function renderKPIs() {
+    const s = stats(OV);
+    document.getElementById('kpis').innerHTML = `
+      <div class="kpi"><span class="kpi-label">Пик выработки</span>
+        <span class="kpi-value num">${pct(s.m[s.peak])}<small>${mw(s.m[s.peak])} МВт</small></span>
+        <span class="kpi-foot">${time(s.peak)} ${tzName()}</span></div>
+      <div class="kpi"><span class="kpi-label">Минимум</span>
+        <span class="kpi-value num">${pct(s.m[s.low])}<small>${mw(s.m[s.low])} МВт</small></span>
+        <span class="kpi-foot">${time(s.low)} ${tzName()}</span></div>
+      <div class="kpi warn"><span class="kpi-label">Изменение к версии №1 <span class="info" title="Наибольшая разница между новой и прошлой версией в один и тот же час">i</span></span>
+        <span class="kpi-value num">${sgn(s.d)} п.п.</span>
+        <span class="kpi-foot">${time(s.maxD)} · ${s.big} ч с разницей ≥15 п.п.</span></div>
+      <div class="kpi"><span class="kpi-label">Выработка за 48 ч</span>
+        <span class="kpi-value num">${Math.round(s.en).toLocaleString('ru-RU')}<small>МВт·ч</small></span>
+        <span class="kpi-foot">Средняя мощность ${pct(s.en / N / CAP)} номинала</span></div>`;
+    document.getElementById('al-diff-text').textContent =
+      `В ${time(s.maxD)} ${tzName()} версия №2 ${s.d > 0 ? 'выше' : 'ниже'} версии №1 на ${Math.abs(Math.round(s.d * 100))} п.п. Всего ${s.big} ч с изменением больше 15 п.п.`;
+  }
+  function renderDiff() {
+    const el = document.getElementById('diff-panel');
+    if (!FC.cmp) {
+      el.innerHTML = `<div class="panel-head"><div><h2>Сравнение версий</h2></div></div><p class="sub">Сравнение выключено. Выберите версию в поле «Сравнить с».</p>`;
+      return;
+    }
+    const s = stats(FC), M = S[FC.main], C = S[FC.cmp];
+    el.innerHTML = `
+      <div class="panel-head"><div><h2>${M.name}: отличия от версии ${C.short}</h2><span class="sub" style="font-size:12.5px">За ${s.ov} ч, где есть обе версии, в пределах выбранного горизонта</span></div></div>
+      <div class="kpis">
+        <div class="kpi ${Math.abs(s.d) >= .15 ? 'warn' : ''}"><span class="kpi-label">Наибольшая разница</span><span class="kpi-value num">${s.maxD < 0 ? '—' : sgn(s.d) + ' п.п.'}</span><span class="kpi-foot">${s.maxD < 0 ? 'Нет общих часов' : time(s.maxD) + ' ' + tzName()}</span></div>
+        <div class="kpi"><span class="kpi-label">Часов с разницей ≥15 п.п.</span><span class="kpi-value num">${s.big}<small>из ${s.ov}</small></span><span class="kpi-foot">Подсвечены на графике и в таблице</span></div>
+        <div class="kpi"><span class="kpi-label">Средняя разница</span><span class="kpi-value num">${Math.round(s.mean * 100)} п.п.</span><span class="kpi-foot">По модулю, в среднем за час</span></div>
+        <div class="kpi"><span class="kpi-label">Точность ${M.short} на факте</span><span class="kpi-value num">${s.mae == null ? '—' : '±' + Math.max(1, Math.round(s.mae * 100)) + ' п.п.'}</span><span class="kpi-foot">${s.ne ? `Средняя ошибка за ${s.ne} ч с фактом` : 'Факта в горизонте нет'}</span></div>
+      </div>
+      <p class="sub" style="margin-top:12px;font-size:13px">По пояснению агента, главная причина: новый прогон погоды сдвинул спад ветра примерно на 9 часов позже. <button class="link" data-go="runs">Открыть запуск</button></p>`;
+  }
+
+  // ---------- версии ----------
+  function fillVersionSelects() {
+    const opt = (k, sel, dis) => `<option value="${k}"${sel ? ' selected' : ''}${dis ? ' disabled' : ''}>${S[k].short} · ${fmtTs(S[k].rel)} ${tzName()}${k === 'v2' ? ' (последняя)' : ''}</option>`;
+    document.getElementById('f-ver').innerHTML = opt('v2', FC.main === 'v2') + opt('v1', FC.main === 'v1');
+    document.getElementById('f-cmp').innerHTML = opt('v1', FC.cmp === 'v1', FC.main === 'v1') + opt('v2', FC.cmp === 'v2', FC.main === 'v2') +
+      `<option value=""${!FC.cmp ? ' selected' : ''}>Без сравнения</option>`;
+  }
+  document.getElementById('f-ver').addEventListener('change', e => {
+    FC.main = e.target.value;
+    if (FC.cmp === FC.main) FC.cmp = FC.main === 'v2' ? 'v1' : 'v2';
+    refreshFc();
+  });
+  document.getElementById('f-cmp').addEventListener('change', e => { FC.cmp = e.target.value || null; refreshFc(); });
+  document.getElementById('f-h').addEventListener('change', e => { FC.horizon = +e.target.value; refreshFc(); });
+
+  // ---------- легенда ----------
+  const shown = { main: true, cmp: true, fa: true, bd: true, df: true };
+  function renderLegends() {
+    document.querySelectorAll('[data-legend]').forEach(el => {
+      const cfg = el.dataset.legend === 'ov' ? OV : FC;
+      const items = [['main', 'Прогноз ' + S[cfg.main].short]];
+      if (cfg.cmp) items.push(['cmp', 'Версия ' + S[cfg.cmp].short]);
+      items.push(['fa', 'Факт'], ['bd', 'Диапазон']);
+      if (cfg.cmp) items.push(['df', 'Разница ≥15 п.п.']);
+      el.innerHTML = items.map(([k, l]) => `<button class="lg" data-s="${k}" aria-pressed="${shown[k]}"><i class="${k}"></i>${l}</button>`).join('');
+    });
+  }
+  document.addEventListener('click', e => {
+    const b = e.target.closest('.lg'); if (!b) return;
+    shown[b.dataset.s] = !shown[b.dataset.s]; renderLegends(); drawAll();
+  });
+
+  // ---------- график ----------
+  function drawChart(el, Hh, cfg) {
+    const n = cfg.horizon, main = S[cfg.main], mData = main.data, cData = cfg.cmp ? S[cfg.cmp].data : null, band = bandOf(cfg.main);
+    const W = Math.max(280, el.clientWidth);
+    const m = { l: 42, r: 14, t: 22, b: 30 };
+    const x = i => m.l + i / (n - 1) * (W - m.l - m.r);
+    const y = v => m.t + (1 - v) * (Hh - m.t - m.b);
+    const line = arr => { let d = '', pen = false; for (let i = 0; i < n; i++) { if (arr[i] == null) { pen = false; continue; } d += (pen ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(arr[i]).toFixed(1); pen = true; } return d; };
+    let s = `<svg viewBox="0 0 ${W} ${Hh}" height="${Hh}" role="img" aria-label="График прогноза мощности">`;
+    [0, .25, .5, .75, 1].forEach(t => {
+      s += `<line class="${t ? 'grid' : 'base'}" x1="${m.l}" x2="${W - m.r}" y1="${y(t)}" y2="${y(t)}"/><text x="${m.l - 8}" y="${y(t) + 4}" text-anchor="end">${t * 100}%</text>`;
+    });
+    const step = n <= 12 ? 2 : W < 520 || n <= 24 && W < 700 ? 12 : n <= 24 ? 3 : 6;
+    for (let i = 0; i < n; i++) {
+      const hr = new Date(BASE + (i + tz) * H).getUTCHours();
+      if (hr % step !== 0) continue;
+      const lbl = hr === 0 ? time(i).split(',')[0] : time(i, false);
+      s += `<line class="grid" x1="${x(i)}" x2="${x(i)}" y1="${Hh - m.b}" y2="${Hh - m.b + 4}"/><text x="${x(i)}" y="${Hh - 10}" text-anchor="middle"${hr === 0 ? ' style="font-weight:600;fill:var(--ink)"' : ''}>${lbl}</text>`;
+    }
+    const idx = [...Array(n).keys()].filter(i => mData[i] != null);
+    if (shown.bd && idx.length) {
+      const up = idx.map(i => `${x(i).toFixed(1)},${y(band[i][1]).toFixed(1)}`);
+      const dn = idx.map(i => `${x(i).toFixed(1)},${y(band[i][0]).toFixed(1)}`).reverse();
+      s += `<polygon class="band" points="${up.concat(dn).join(' ')}"/>`;
+    }
+    if (shown.df && cData) {
+      let run = [];
+      const flush = () => { if (run.length > 1) { const a = run.map(i => `${x(i)},${y(mData[i])}`), b = run.map(i => `${x(i)},${y(cData[i])}`).reverse(); s += `<polygon class="diff" points="${a.concat(b).join(' ')}"/>`; } run = []; };
+      for (let i = 0; i < n; i++) { if (mData[i] != null && cData[i] != null && Math.abs(mData[i] - cData[i]) >= .15) run.push(i); else flush(); } flush();
+    }
+    if (FACT_END < n - 1) {
+      s += `<line class="mark" x1="${x(FACT_END)}" x2="${x(FACT_END)}" y1="${m.t - 6}" y2="${Hh - m.b}"/><text class="mark-t" x="${x(FACT_END) + 6}" y="${m.t - 8}">Последний факт · ${time(FACT_END, false)}</text>`;
+    }
+    s += `<text class="demo-mark" x="${W - m.r}" y="${m.t - 8}" text-anchor="end">ДЕМО</text>`;
+    if (shown.cmp && cData) s += `<path class="s-cmp" d="${line(cData)}"/>`;
+    if (shown.fa) s += `<path class="s-fa" d="${line(fact)}"/>`;
+    if (shown.main && idx.length) { const last = idx[idx.length - 1]; s += `<path class="s-main" d="${line(mData)}"/><circle class="end" cx="${x(last)}" cy="${y(mData[last])}" r="4.5"/>`; }
+    s += `<g class="hover" style="display:none"><line class="guide" y1="${m.t}" y2="${Hh - m.b}"/><circle class="hv" r="5" fill="var(--accent)"/></g>`;
+    s += `<rect x="${m.l}" y="0" width="${W - m.l - m.r}" height="${Hh}" fill="transparent"/></svg><div class="tip" hidden></div>`;
+    el.innerHTML = s;
+
+    const svg = el.querySelector('svg'), g = el.querySelector('.hover'), tip = el.querySelector('.tip');
+    const move = ev => {
+      const r = svg.getBoundingClientRect();
+      const px = (ev.touches ? ev.touches[0].clientX : ev.clientX) - r.left;
+      const i = Math.max(0, Math.min(n - 1, Math.round((px - m.l) / (W - m.l - m.r) * (n - 1))));
+      g.style.display = '';
+      g.querySelector('line').setAttribute('x1', x(i)); g.querySelector('line').setAttribute('x2', x(i));
+      const c = g.querySelector('circle');
+      if (mData[i] != null) { c.style.display = ''; c.setAttribute('cx', x(i)); c.setAttribute('cy', y(mData[i])); } else c.style.display = 'none';
+      const d = mData[i] != null && cData && cData[i] != null ? mData[i] - cData[i] : null;
+      tip.innerHTML = `<b>${time(i)} ${tzName()}</b>
+        <div class="tip-row"><span class="sw" style="background:var(--accent)"></span><span>Прогноз ${main.short}</span><span>${mData[i] == null ? 'вне горизонта' : pct(mData[i]) + ' · ' + mw(mData[i]) + ' МВт'}</span></div>
+        ${band[i] ? `<div class="tip-row"><span class="sw" style="background:var(--accent);opacity:.3"></span><span>Диапазон</span><span>${pct(band[i][0])}–${pct(band[i][1])}</span></div>` : ''}
+        ${cData && cData[i] != null ? `<div class="tip-row"><span class="sw" style="background:var(--prev)"></span><span>Версия ${S[cfg.cmp].short}</span><span>${pct(cData[i])}${d != null ? ` <span style="color:${Math.abs(d) >= .15 ? 'var(--warn)' : 'var(--muted)'}">(${sgn(d)})</span>` : ''}</span></div>` : ''}
+        ${fact[i] != null ? `<div class="tip-row"><span class="sw" style="background:var(--fact)"></span><span>Факт</span><span>${pct(fact[i])}</span></div>` : ''}`;
+      tip.hidden = false;
+      const tw = tip.offsetWidth, left = x(i) + 14 + tw > W ? x(i) - tw - 14 : x(i) + 14;
+      tip.style.left = Math.max(0, left) + 'px'; tip.style.top = (m.t + 4) + 'px';
+    };
+    svg.addEventListener('mousemove', move); svg.addEventListener('touchmove', move, { passive: true });
+    svg.addEventListener('mouseleave', () => { g.style.display = 'none'; tip.hidden = true; });
+  }
+  function drawAll() {
+    const ov = document.getElementById('chart-ov'), fc = document.getElementById('chart-fc');
+    if (ov.offsetParent) drawChart(ov, 300, OV);
+    if (fc.offsetParent) drawChart(fc, 360, FC);
+  }
+  function renderTable() {
+    const M = S[FC.main], C = FC.cmp ? S[FC.cmp] : null;
+    document.getElementById('fc-thead').innerHTML = `<tr><th>Час, ${tzName()}</th><th>${M.name}</th><th>МВт</th>${C ? `<th>${C.name}</th><th>Разница</th>` : ''}<th>Факт</th></tr>`;
+    document.getElementById('fc-tbody').innerHTML = M.data.slice(0, FC.horizon).map((v, i) => {
+      const c = C ? C.data[i] : null, d = v != null && c != null ? v - c : null;
+      return `<tr class="${d != null && Math.abs(d) >= .15 ? 'big' : ''}"><td class="num">${time(i)}</td><td class="num">${pct(v)}</td><td class="num">${mw(v)}</td>${C ? `<td class="num">${pct(c)}</td><td class="num ${d > 0 ? 'up' : d < 0 ? 'down' : ''}">${d == null ? '—' : sgn(d) + ' п.п.'}</td>` : ''}<td class="num">${pct(fact[i])}</td></tr>`;
+    }).join('');
+  }
+  function refreshFc() { fillVersionSelects(); renderLegends(); renderDiff(); renderTable(); drawAll(); }
+  document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('[data-view]').forEach(o => o.setAttribute('aria-pressed', o === b));
+    document.getElementById('fc-chart-wrap').hidden = b.dataset.view !== 'chart';
+    document.getElementById('fc-table-wrap').hidden = b.dataset.view !== 'table';
+    drawAll();
+  }));
+
+  // ---------- покрытие ----------
+  function cov(id, bad) {
+    document.getElementById(id).innerHTML = Array.from({ length: 30 }, (_, d) =>
+      `<i class="${bad[d] || ''}" title="${d + 1} янв: ${bad[d] === 'm' ? 'нет данных' : bad[d] === 'p' ? 'неполные данные' : 'полные данные'}"></i>`).join('');
+  }
+  cov('cov-a', { 13: 'p', 21: 'p' });
+  cov('cov-b', { 4: 'p', 11: 'm', 18: 'p', 26: 'p' });
+
+  // ---------- импорт ----------
+  let parsed = null;
+  const SAMPLE = { header: ['timestamp_utc', 'power_mw'], rows: [['2026-01-30 00:00', '31,4'], ['2026-01-30 01:00', '29,8'], ['2026-01-30 02:00', ''], ['2026-01-30 03:00', '27,1'], ['2026-01-30 04:00', '26,5']], total: 8760, empty: 1, delim: ',' };
+  const ROLES = ['Время (UTC)', 'Мощность, МВт', 'Мощность, %', 'Не использовать'];
+  function guessRole(name, j) { return /time|date|врем|дата/i.test(name) ? 0 : j === 1 ? 1 : 3; }
+  function renderPreview() {
+    const p = parsed || SAMPLE;
+    document.getElementById('preview-src').textContent = parsed ? '(ваш файл)' : '(пример)';
+    document.getElementById('pv-head').innerHTML = '<tr>' + p.header.map((h, j) =>
+      `<th><span class="mono" style="display:block;margin-bottom:4px">${esc(h || 'колонка ' + (j + 1))}</span><select aria-label="Назначение колонки ${j + 1}">${ROLES.map((r, k) => `<option${k === guessRole(h, j) ? ' selected' : ''}>${r}</option>`).join('')}</select></th>`).join('') + '</tr>';
+    document.getElementById('pv-body').innerHTML = p.rows.map(r => {
+      const hasEmpty = p.header.some((_, j) => (r[j] ?? '').trim() === '');
+      return `<tr class="${hasEmpty ? 'big' : ''}">${p.header.map((_, j) => { const v = (r[j] ?? '').trim(); return `<td class="${j ? 'num' : 'mono'}">${v === '' ? '— пропуск' : esc(v)}</td>`; }).join('')}</tr>`;
+    }).join('');
+    const delimName = { ',': 'запятая', ';': 'точка с запятой', '\t': 'табуляция' }[p.delim];
+    document.getElementById('pv-checks').innerHTML = `
+      <div><span class="ok">✓</span>Разделитель: ${delimName}, колонок: ${p.header.length}</div>
+      <div><span class="ok">✓</span>Строк с данными: ${p.total.toLocaleString('ru-RU')}${p.partial ? ' (подсчитано по первым 2 МБ)' : ''}</div>
+      <div>${p.empty ? `<span class="wn">!</span>Строк с пустыми значениями: ${p.empty.toLocaleString('ru-RU')}. Они сохранятся как пропуски, не как нули` : '<span class="ok">✓</span>Пустых значений нет'}</div>`;
+    const up = document.getElementById('upload');
+    up.disabled = demo || !parsed;
+    up.textContent = parsed ? `Загрузить ${p.total.toLocaleString('ru-RU')} строк` : 'Загрузить';
+    document.getElementById('st-2').classList.toggle('on', !!parsed);
+    document.getElementById('st-3').classList.toggle('on', !!parsed);
+  }
+  async function readFile(f) {
+    if (!f) return;
+    document.getElementById('drop-title').textContent = f.name;
+    document.getElementById('drop-sub').textContent = (f.size / 1024 / 1024).toFixed(2).replace('.', ',') + ' МБ · проверяем…';
+    try {
+      const txt = await f.slice(0, 2e6).text();
+      const lines = txt.split(/\r?\n/).filter(l => l.trim() !== '');
+      if (f.size > 2e6) lines.pop();
+      if (lines.length < 2) throw new Error('В файле нет строк с данными');
+      const delim = [',', ';', '\t'].reduce((a, d) => lines[0].split(d).length > lines[0].split(a).length ? d : a, ',');
+      const split = l => l.split(delim).map(c => c.replace(/^"|"$/g, ''));
+      const header = split(lines[0]), body = lines.slice(1);
+      parsed = { header, rows: body.slice(0, 5).map(split), total: body.length, partial: f.size > 2e6, delim,
+        empty: body.filter(l => split(l).some((c, j) => j < header.length && c.trim() === '')).length };
+      document.getElementById('drop-sub').textContent = 'Файл прочитан. Проверьте назначение колонок ниже';
+    } catch (err) {
+      parsed = null;
+      document.getElementById('drop-sub').textContent = 'Не удалось прочитать файл: ' + err.message + '. Проверьте, что это CSV в UTF-8.';
+    }
+    renderPreview();
+  }
+  const drop = document.getElementById('drop'), file = document.getElementById('file');
+  file.addEventListener('change', () => readFile(file.files[0]));
+  ['dragenter', 'dragover'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add('over'); }));
+  ['dragleave', 'drop'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove('over'); }));
+  drop.addEventListener('drop', e => readFile(e.dataTransfer.files[0]));
+  document.getElementById('upload').addEventListener('click', () => toast('Это прототип: отправка файла на сервер ещё не подключена'));
+  document.getElementById('copy-tpl').addEventListener('click', e => {
+    const b = e.currentTarget, pre = document.getElementById('tpl');
+    const fallback = () => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = 'Выделено, нажмите Ctrl+C'; };
+    if (navigator.clipboard) navigator.clipboard.writeText(pre.textContent).then(() => b.textContent = 'Скопировано ✓').catch(fallback); else fallback();
+  });
+
+  // ---------- журнал запусков ----------
+  const RUNS = [
+    { id: 'demo-run', when: REL, status: 'ok', result: 'Опубликована версия №2', ms: 1445, ver: 'v2',
+      steps: [
+        ['ok', 'Выбор прогноза погоды', 'fetch_weather_run', () => `Взят последний прогон, доступный до момента выпуска: ${fmtTs(REL - 6 * H)} ${tzName()}.`, 0, 820, 'available_at ≤ 2026-01-31T12:00Z\nrun: gfs-2026013106'],
+        ['warn', 'Проверка входных данных', 'validate_inputs', 'Временная шкала и единицы в порядке, покрытие 97%. Предупреждение: прогон погоды старше 6 ч.', 820, 120, 'coverage: 0.972\nweather_age_h: 6 (порог 3)'],
+        ['ok', 'Расчёт прогноза', 'predict', 'Модель Baseline, входные данные зафиксированы. Версия №1 сохранена для сравнения.', 940, 430, 'model: baseline-demo-1\nhorizon_h: 48'],
+        ['ok', 'Пояснение изменений', 'explain', () => { const s = stats(OV); return `Новый прогон погоды сдвинул спад ветра примерно на 9 ч позже, поэтому в ${time(s.maxD)} прогноз изменился на ${sgn(s.d)} п.п.`; }, 1370, 35, 'template: briefing-v1'],
+        ['ok', 'Публикация', 'publish', 'Версия №2 опубликована и стала основной.', 1405, 40, 'version: demo-backtest-v2']
+      ] },
+    { id: 'run-0131-0600', when: REL - 6 * H, status: 'ok', result: 'Опубликована версия №1', ms: 1210, ver: 'v1',
+      steps: [
+        ['ok', 'Выбор прогноза погоды', 'fetch_weather_run', () => `Взят прогон ${fmtTs(REL - 12 * H)} ${tzName()}.`, 0, 700, 'run: gfs-2026013100'],
+        ['ok', 'Проверка входных данных', 'validate_inputs', 'Нарушений нет.', 700, 110, 'coverage: 0.970'],
+        ['ok', 'Расчёт прогноза', 'predict', 'Модель Baseline.', 810, 350, 'model: baseline-demo-1'],
+        ['ok', 'Публикация', 'publish', 'Версия №1 опубликована.', 1160, 50, 'version: demo-backtest-v1']
+      ] },
+    { id: 'run-0130-1800', when: REL - 18 * H, status: 'bad', result: 'Версия не создана, действует предыдущая', ms: 5000,
+      steps: [
+        ['bad', 'Выбор прогноза погоды', 'fetch_weather_run', 'Weather API не ответил за 5 с. Новый прогон не получен.', 0, 5000, 'error: timeout after 5000 ms\nendpoint: /archive/runs'],
+        ['skip', 'Проверка входных данных', 'validate_inputs', 'Пропущено: нет входных данных.', 5000, 0, ''],
+        ['skip', 'Расчёт прогноза', 'predict', 'Пропущено. Продолжает действовать предыдущая версия.', 5000, 0, '']
+      ] },
+    { id: 'run-0130-1200', when: REL - 24 * H, status: 'ok', result: 'Опубликована версия от 30 янв', ms: 1180,
+      steps: [
+        ['ok', 'Выбор прогноза погоды', 'fetch_weather_run', () => `Взят прогон ${fmtTs(REL - 30 * H)} ${tzName()}.`, 0, 690, ''],
+        ['ok', 'Расчёт прогноза', 'predict', 'Модель Baseline.', 690, 440, ''],
+        ['ok', 'Публикация', 'publish', 'Версия опубликована.', 1130, 50, '']
+      ] }
+  ];
+  let cur = 'demo-run';
+  const ICO = {
+    ok: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="m5 12 5 5 9-10"/></svg>',
+    warn: '<b style="font-size:13px">!</b>', bad: '<b style="font-size:14px">×</b>', skip: '<b>–</b>'
+  };
+  const secs = ms => (ms / 1000).toFixed(1).replace('.', ',') + ' с';
+  function renderRuns() {
+    const q = document.getElementById('run-q').value.trim().toLowerCase();
+    const list = RUNS.filter(r => !q || (r.id + ' ' + fmtTs(r.when)).toLowerCase().includes(q));
+    document.getElementById('run-count').textContent = list.length + ' из ' + RUNS.length;
+    document.getElementById('runs').innerHTML = list.map(r => `
+      <button class="run" data-run="${r.id}" aria-current="${r.id === cur}">
+        <span class="dot ${r.status === 'bad' ? 'bad' : r.steps.some(s => s[0] === 'warn') ? 'warn' : ''}"></span>
+        <b class="num">${fmtTs(r.when)}</b><span class="sub num" style="font-size:12px">${secs(r.ms)}</span>
+        <small>${r.result}</small></button>`).join('') || '<p class="sub" style="padding:8px">Ничего не найдено</p>';
+    const r = RUNS.find(x => x.id === cur);
+    const warns = r.steps.filter(s => s[0] === 'warn').length;
+    document.getElementById('run-detail').innerHTML = `
+      <div class="panel-head"><div>
+        <h2>Запуск ${fmtTs(r.when)} ${tzName()}</h2>
+        <span class="mono" style="color:var(--faint)">${r.id}</span></div>
+        ${r.status === 'bad' ? '<span class="chip bad">Ошибка</span>' : warns ? `<span class="chip warn">Готово · ${warns} предупреждение</span>` : '<span class="chip good">Готово</span>'}
+      </div>
+      <div class="run-summary"><span>Режим: <b>Бэктест</b></span><span>Длительность: <b class="num">${secs(r.ms)}</b></span><span>Шагов: <b>${r.steps.length}</b></span></div>
+      <div class="timeline">
+        ${r.steps.map(([st, name, code, text, t0, dur, io]) => `
+          <div class="tl">
+            <span class="tl-ico ${st === 'ok' ? '' : st}">${ICO[st]}</span>
+            <div class="tl-main">
+              <h3>${name} <span class="mono">${code}</span>${st === 'warn' ? '<span class="chip warn">Предупреждение</span>' : st === 'bad' ? '<span class="chip bad">Ошибка</span>' : st === 'skip' ? '<span class="chip neutral">Пропущено</span>' : ''}</h3>
+              <p>${typeof text === 'function' ? text() : text}</p>
+              ${io ? `<details><summary>Технические детали</summary><pre class="code">${io}</pre></details>` : ''}
+            </div>
+            <div class="gantt"><div class="gantt-track"><i style="left:${Math.min(98.5, t0 / r.ms * 100)}%;width:${dur ? Math.max(1.5, dur / r.ms * 100) : 0}%;${st === 'bad' ? 'background:var(--bad)' : st === 'warn' ? 'background:var(--warn)' : ''}"></i></div><span class="num">${dur ? dur.toLocaleString('ru-RU') + ' мс' : '—'}</span></div>
+          </div>`).join('')}
+      </div>
+      <div class="result ${r.status === 'bad' ? 'bad' : ''}">
+        <p><b>Итог:</b> ${r.result}.${r.status === 'bad' ? ' Прогноз для операторов не изменился.' : ''}</p>
+        ${r.status === 'bad'
+          ? '<button class="btn sm" data-go="sources">Проверить источник погоды</button><button class="btn sm primary" data-act="Перезапустить">Перезапустить</button>'
+          : r.ver ? `<button class="btn sm primary" data-open-ver="${r.ver}">Открыть версию ${S[r.ver].short} на графике →</button>` : ''}
+      </div>`;
+  }
+  document.getElementById('run-q').addEventListener('input', renderRuns);
+
+  // ---------- навигация ----------
+  const PAGES = ['overview', 'forecast', 'sources', 'runs'];
+  function go(p, anchor) {
+    if (!PAGES.includes(p)) p = 'overview';
+    page = p;
+    PAGES.forEach(k => document.getElementById('p-' + k).hidden = k !== p);
+    document.querySelectorAll('.nav [data-go]').forEach(b => b.dataset.go === p ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current'));
+    setCrumb();
+    try { history.replaceState(null, '', '#' + p); } catch (_) {}
+    if (anchor) document.getElementById(anchor).scrollIntoView({ behavior: 'smooth' }); else window.scrollTo(0, 0);
+    drawAll();
+  }
+
+  // единый обработчик кликов
+  document.addEventListener('click', e => {
+    const t = e.target;
+    const run = t.closest('[data-run]'); if (run) { cur = run.dataset.run; renderRuns(); return; }
+    const ver = t.closest('[data-open-ver]');
+    if (ver) { FC.main = ver.dataset.openVer; FC.cmp = FC.main === 'v2' ? 'v1' : null; refreshFc(); go('forecast'); return; }
+    const sm = t.closest('[data-set-mode]'); if (sm) { setMode(sm.dataset.setMode === 'demo'); return; }
+    const md = t.closest('[data-mode]'); if (md) { if ((md.dataset.mode === 'demo') !== demo) setMode(md.dataset.mode === 'demo'); return; }
+    const sc = t.closest('[data-scroll]'); if (sc) { document.getElementById(sc.dataset.scroll).scrollIntoView({ behavior: 'smooth' }); return; }
+    const act = t.closest('[data-act]');
+    if (act) { toast(demo ? `Демо-режим: «${act.dataset.act}» не выполняется, данные синтетические` : `Это прототип: «${act.dataset.act}» ещё не подключено`); return; }
+    const g = t.closest('[data-go]'); if (g) { e.preventDefault(); go(g.dataset.go, g.dataset.anchor); }
+  });
+
+  // ---------- часовой пояс / тема ----------
+  document.querySelectorAll('[data-tz]').forEach(b => b.addEventListener('click', () => {
+    tz = +b.dataset.tz;
+    document.querySelectorAll('[data-tz]').forEach(o => o.setAttribute('aria-pressed', o === b));
+    renderAll();
+  }));
+  document.getElementById('theme').addEventListener('click', () => {
+    const r = document.documentElement;
+    const dark = r.dataset.theme ? r.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    r.dataset.theme = dark ? 'light' : 'dark';
+  });
+
+  function renderAll() { renderChrome(); renderKPIs(); refreshFc(); renderRuns(); renderPreview(); drawAll(); }
+  renderAll();
+  go(location.hash.slice(1) || 'overview');
+  let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(drawAll, 120); });
+})();
+</script>
