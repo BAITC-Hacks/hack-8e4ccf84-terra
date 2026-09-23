@@ -1,0 +1,226 @@
+[
+  {
+    "name": "feb-start",
+    "checked_at": "2026-09-23T08:51:02.137Z",
+    "url": "https://single-runs-api.open-meteo.com/v1/forecast?latitude=43.25&longitude=76.95&models=ecmwf_ifs&run=2026-02-01T00%3A00&hourly=temperature_2m%2Cwind_speed_10m%2Cwind_speed_100m%2Cwind_direction_100m&wind_speed_unit=ms&temperature_unit=celsius&timezone=GMT&forecast_hours=120",
+    "status": 200,
+    "sha256": "9ccddfe0b422a4b718abc77b1c10252ea688f9cd742e1cfea83ff2c2e0cbe8c5",
+    "bytes": 4810,
+    "keys": [
+      "latitude",
+      "longitude",
+      "generationtime_ms",
+      "utc_offset_seconds",
+      "timezone",
+      "timezone_abbreviation",
+      "elevation",
+      "hourly_units",
+      "hourly"
+    ],
+    "first": "2026-02-01T00:00",
+    "last": "2026-02-05T23:00",
+    "count": 120,
+    "fields": {
+      "temperature_2m": {
+        "unit": "°C",
+        "count": 120,
+        "non_null": 120
+      },
+      "wind_speed_10m": {
+        "unit": "m/s",
+        "count": 120,
+        "non_null": 120
+      },
+      "wind_speed_100m": {
+        "unit": "m/s",
+        "count": 120,
+        "non_null": 120
+      },
+      "wind_direction_100m": {
+        "unit": "°",
+        "count": 120,
+        "non_null": 120
+      }
+    },
+    "issue_for_coverage": "2026-02-01T12:00:00.000Z",
+    "coverage": {
+      "24": true,
+      "48": true
+    }
+  },
+  {
+    "name": "jan-evening",
+    "checked_at": "2026-09-23T08:51:02.641Z",
+    "url": "https://single-runs-api.open-meteo.com/v1/forecast?latitude=43.25&longitude=76.95&models=ecmwf_ifs&run=2026-01-31T18%3A00&hourly=temperature_2m%2Cwind_speed_10m%2Cwind_speed_100m%2Cwind_direction_100m&wind_speed_unit=ms&temperature_unit=celsius&timezone=GMT&forecast_hours=120",
+    "status": 200,
+    "sha256": "f05983f29c1a13473ee8c35ef71e9f4afefe4eac0365441033fe133115fffc0f",
+    "bytes": 4807,
+    "keys": [
+      "latitude",
+      "longitude",
+      "generationtime_ms",
+      "utc_offset_seconds",
+      "timezone",
+      "timezone_abbreviation",
+      "elevation",
+      "hourly_units",
+      "hourly"
+    ],
+    "first": "2026-01-31T18:00",
+    "last": "2026-02-05T17:00",
+    "count": 120,
+    "fields": {
+      "temperature_2m": {
+        "unit": "°C",
+        "count": 120,
+        "non_null": 120
+      },
+      "wind_speed_10m": {
+        "unit": "m/s",
+        "count": 120,
+        "non_null": 120
+      },
+      "wind_speed_100m": {
+        "unit": "m/s",
+        "count": 120,
+        "non_null": 120
+      },
+      "wind_direction_100m": {
+        "unit": "°",
+        "count": 120,
+        "non_null": 120
+      }
+    },
+    "issue_for_coverage": "2026-02-01T06:00:00.000Z",
+    "coverage": {
+      "24": true,
+      "48": true
+    }
+  },
+  {
+    "name": "feb-end",
+    "checked_at": "2026-09-23T08:51:02.824Z",
+    "url": "https://single-runs-api.open-meteo.com/v1/forecast?latitude=43.25&longitude=76.95&models=ecmwf_ifs&run=2026-02-28T00%3A00&hourly=temperature_2m%2Cwind_speed_10m%2Cwind_speed_100m%2Cwind_direction_100m&wind_speed_unit=ms&temperature_unit=celsius&timezone=GMT&forecast_hours=120",
+    "status": 200,
+    "sha256": "4d15e112b98738b8d6d5084780db41d652f3cdd26cb9142bd28624a38eb9734b",
+    "bytes": 4825,
+    "keys": [
+      "latitude",
+      "longitude",
+      "generationtime_ms",
+      "utc_offset_seconds",
+      "timezone",
+      "timezone_abbreviation",
+      "elevation",
+      "hourly_units",
+      "hourly"
+    ],
+    "first": "2026-02-28T00:00",
+    "last": "2026-03-04T23:00",
+    "count": 120,
+    "fields": {
+      "temperature_2m": {
+        "unit": "°C",
+        "count": 120,
+        "non_null": 120
+      },
+      "wind_speed_10m": {
+        "unit": "m/s",
+        "count": 120,
+        "non_null": 120
+      },
+      "wind_speed_100m": {
+        "unit": "m/s",
+        "count": 120,
+        "non_null": 120
+      },
+      "wind_direction_100m": {
+        "unit": "°",
+        "count": 120,
+        "non_null": 120
+      }
+    },
+    "issue_for_coverage": "2026-02-28T12:00:00.000Z",
+    "coverage": {
+      "24": true,
+      "48": true
+    }
+  },
+  {
+    "name": "heights",
+    "checked_at": "2026-09-23T08:51:02.969Z",
+    "url": "https://single-runs-api.open-meteo.com/v1/forecast?latitude=43.25&longitude=76.95&models=ecmwf_ifs&run=2026-02-01T00%3A00&hourly=wind_speed_80m%2Cwind_speed_120m%2Cwind_speed_180m%2Cwind_speed_200m%2Ctemperature_80m&wind_speed_unit=ms&temperature_unit=celsius&timezone=GMT&forecast_hours=120",
+    "status": 200,
+    "sha256": "b8fcae0fd262492dd0dcdf81bb4b3163c4ffb1ae392afdc9f4df216c2ceb1dae",
+    "bytes": 5726,
+    "keys": [
+      "latitude",
+      "longitude",
+      "generationtime_ms",
+      "utc_offset_seconds",
+      "timezone",
+      "timezone_abbreviation",
+      "elevation",
+      "hourly_units",
+      "hourly"
+    ],
+    "first": "2026-02-01T00:00",
+    "last": "2026-02-05T23:00",
+    "count": 120,
+    "fields": {
+      "wind_speed_80m": {
+        "unit": "m/s",
+        "count": 120,
+        "non_null": 120
+      },
+      "wind_speed_120m": {
+        "unit": "m/s",
+        "count": 120,
+        "non_null": 120
+      },
+      "wind_speed_180m": {
+        "unit": "m/s",
+        "count": 120,
+        "non_null": 120
+      },
+      "wind_speed_200m": {
+        "unit": "m/s",
+        "count": 120,
+        "non_null": 120
+      },
+      "temperature_80m": {
+        "unit": "undefined",
+        "count": 120,
+        "non_null": 0
+      }
+    },
+    "issue_for_coverage": "2026-02-01T12:00:00.000Z",
+    "coverage": {
+      "24": false,
+      "48": false
+    }
+  },
+  {
+    "name": "before-archive",
+    "checked_at": "2026-09-23T08:51:03.171Z",
+    "url": "https://single-runs-api.open-meteo.com/v1/forecast?latitude=43.25&longitude=76.95&models=ecmwf_ifs&run=2023-03-11T00%3A00&hourly=temperature_2m%2Cwind_speed_100m&wind_speed_unit=ms&temperature_unit=celsius&timezone=GMT&forecast_hours=120",
+    "status": 400,
+    "sha256": "9fdb40bda6477c2c93928cbe8a27982ad6408a65710d2793ae73d69c83dcfad7",
+    "bytes": 108,
+    "keys": [
+      "error",
+      "reason"
+    ],
+    "count": 0,
+    "fields": {
+      "temperature_2m": {},
+      "wind_speed_100m": {}
+    },
+    "issue_for_coverage": "2023-03-11T12:00:00.000Z",
+    "coverage": {
+      "24": false,
+      "48": false
+    },
+    "error": "The requested model run is not available. Model: ecmwf_ifs, run: 2023-03-11T00:00Z"
+  }
+]
