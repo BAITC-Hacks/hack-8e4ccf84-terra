@@ -1,9 +1,9 @@
 # Project state — S09 reproducibility integration
 
-- Updated UTC: 2026-09-23 10:35Z
-- Branch/worktree: local `main` target; verified S09 integration commit: `b226fb1`. This state update is pending its local-main fast-forward.
-- Local base before integration: `main` at `11ed17b`; S09 source: `docs/s09-reproducibility` at `6302571`. Remote synchronization and push were intentionally not performed for this user-requested local-only integration.
-- Owner/status: Codex. Industrial UI integration remains present; S09 reproducibility handoff is integrated on the local main history. Final product acceptance remains BLOCKED pending the owner implementations recorded in `docs/acceptance.md`.
+- Updated UTC: 2026-09-23 10:40Z
+- Branch/worktree: `chore/integrate-s09-reproducibility`; verified integration: `2119fc6` (S09 merge `b226fb1` plus latest local main `8d25bab`). This state update is pending its local-main fast-forward.
+- Local base before final integration: `main` at `8d25bab`; S09 source: `docs/s09-reproducibility` at `6302571`. Remote synchronization and push were intentionally not performed for this user-requested local-only integration.
+- Owner/status: Codex. Industrial UI and the latest S05 dashboard merge remain present; S09 reproducibility handoff is validated for integration on local main. Final product acceptance remains BLOCKED pending the owner implementations recorded in `docs/acceptance.md`.
 - Demo: production preview on `http://localhost:3107/login`; random local administrator credentials live only in ignored `.env.local`. Sign in opens the requested dashboard route. Fixture forecast/import/report/journal flows work; real data API alignment remains a separate integration gate.
 
 ## Implemented and verified
@@ -37,7 +37,7 @@
 - PASS: `node tests/ui/platform.cjs` (10 browser scenarios: actual login, redirects, Origin checks, defaults/persistence, English/Kazakh pages, mobile, logout, tampered/expired cookies, open-page expiry, reduced motion).
 - PASS: visual review of light/dark login and Kazakh dark dashboard; no page overflow or browser exceptions. Browser locale review found ICU month fallback; fixed, unit-tested and browser suite rerun afterward.
 - NOT_RUN: production PostgreSQL/data-source end-to-end flow; no database configured for this UI preview.
-- PASS: `node --test tests/acceptance/harness.test.mjs` (2 tests); `npm run lint`; `npm run typecheck`; `npm run build`.
+- PASS: `node --test tests/acceptance/harness.test.mjs` (2 tests); `npm test` (28 tests); `npm run lint`; `npm run typecheck`; `npm run build` after incorporating `8d25bab`.
 - PASS (expected failure mode): `node tests/acceptance/run.mjs verify` exits 2 with `BLOCKED` because `demo:verify` is absent; it must not be treated as product acceptance.
 
 ## Next actions
