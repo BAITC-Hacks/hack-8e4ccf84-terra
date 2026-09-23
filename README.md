@@ -4,12 +4,13 @@ TERRA — прототип платформы, которая формирует
 
 Проект создан для кейса HackAlem AI. Краткое ТЗ находится в [docs/hackalem-ai-agentic-wind-forecasting.md](docs/hackalem-ai-agentic-wind-forecasting.md), оригинальный PDF и два набора данных — в [resources/](resources/).
 
-> **Важно:** репозиторий содержит рабочий вертикальный срез и синтетический UI-режим для демонстрации. В исходных CSV нет фактической выработки за февраль 2026 года, а у погодных прогонов нет доказанного исторического времени публикации. Поэтому официальный февральский результат и превосходство модели над baseline пока воспроизвести нельзя.
+> **Статус на 23 сентября 2026:** по статическому анализу кода реализованы основные компоненты, но полный исторический сценарий ТЗ не подтверждён. В исходных CSV нет фактической выработки за февраль 2026 года, а у загружаемых погодных прогонов нет доказанного исторического времени публикации. Официальный февральский результат и превосходство модели над baseline не установлены. При этом ревью тесты, сборка и приложение не запускались; наличие кода не означает проверенную работоспособность.
 
 ## Содержание
 
 - [Задача и подход](#задача-и-подход)
 - [Что реализовано](#что-реализовано)
+- [Соответствие требованиям кейса](#соответствие-требованиям-кейса)
 - [Как работает система](#как-работает-система)
 - [Архитектура](#архитектура)
 - [Быстрый запуск в Docker](#быстрый-запуск-в-docker)
@@ -30,7 +31,7 @@ TERRA — прототип платформы, которая формирует
 
 1. обучить модель на истории работы ВЭС с марта 2023 года по 31 января 2026 года;
 2. получать для координат ВЭС прогноз погоды, который был доступен в момент выпуска;
-3. каждый час формировать прогноз мощности на следующие 24–48 часов;
+3. формировать прогноз мощности на следующие 24–48 часов с почасовой детализацией;
 4. повторять цикл при появлении нового погодного прогона;
 5. последовательно воспроизвести выпуски с 31 января по 28 февраля 2026 года без использования будущей информации;
 6. сохранить происхождение данных, параметры, версии модели и журнал решений агента.
@@ -48,25 +49,45 @@ TERRA — прототип платформы, которая формирует
 | Канонические наблюдения | Реализовано | Training-строки попадают в `observations`, evaluation-only данные изолированы |
 | Снимок входов и прогноз | Реализовано | Проверка доступности данных, 24/48 точек, версии и CSV export |
 | Baseline | Реализовано | Production persistence-модель использует последнее допустимое наблюдение |
-| ML training | Частично | Ridge, power curve, временная валидация и artifacts есть; ridge ещё не подключён к production inference |
+| ML training и inference | Реализованы в коде, историческая модель не подтверждена | Ridge, power curve, временная валидация, сравнение с persistence; approved artifact подключён к синхронному и агентному пути |
 | Agent jobs | Реализовано | PostgreSQL queue, checkpoint, journal, lease/fencing, retry, cancel и restart recovery |
-| Replay | Реализовано как runtime | Виртуальные часы и постановка agent jobs; нужны реальные архивные weather rows |
-| Open-Meteo Single Runs | Проверен как коннектор | Проверка циклов/raw/hash и evidence; нет production-моста в canonical weather tables |
+| Replay | Runtime и пакетный CLI | Preflight, resume, manifests, 29 дней × 2 объекта × 2 горизонта = 116 выпусков при полном наборе входов |
+| Open-Meteo Single Runs | Коннектор и запись в PostgreSQL | Raw/hash, `weather_runs/weather_values`; исторические `published_at/available_at` остаются NULL и блокируют официальный расчёт |
+| Пересчёт при новых входах | Частично | Durable input events и закреплённые snapshots; trigger сохраняет только ветер, чего недостаточно для trained inference с температурой |
+| Оценка опубликованных прогнозов | Worker и PostgreSQL реализованы | Изолированные revisions факта, версии MAE/RMSE/N/coverage; HTTP endpoint пока читает legacy backtest registry |
+| Deployment workers | Описаны в Compose | Базовый dispatcher; input-trigger и evaluation включаются дополнительным Compose-файлом |
 | Oracle / Siemens WinCC | Реализованы gateway-контракты | Test/discover/enable; промышленные секреты не попадают в браузер |
 | Официальный февральский backtest | Заблокирован данными | Нет факта за февраль и доказанного `published_at` архивной погоды |
 
-Проверенная матрица backend-требований: [docs/backend-spec-audit.md](docs/backend-spec-audit.md).
+Предыдущий аудит: [docs/backend-spec-audit.md](docs/backend-spec-audit.md). Более поздние изменения описаны в [handoff P1–P6](docs/handoffs/); актуальная статическая оценка приведена ниже.
+
+## Соответствие требованиям кейса
+
+Оценка относится к исходникам локального `main` на базе `18b8a28`, а не к запущенной системе. Отчёты прежних проверок в handoff-документах не считаются повторно выполненными проверками этого ревью.
+
+| Требование ТЗ | Что сделано и где | Что ещё не подтверждено или не завершено |
+|---|---|---|
+| Обучение на истории до февраля 2026 | [CSV import](src/server/data/import/service.ts), [training](src/server/ml/training/approved.ts), [CLI](scripts/train-approved.ts): cutoff, временная валидация, сравнение с persistence | Не предоставлены канонические архивные training snapshots и реальный approved artifact; synthetic evidence не даёт approval |
+| Самостоятельное получение доступного на момент выпуска прогноза погоды | [Open-Meteo](src/server/connectors/weather/open-meteo.ts), [ingestion](src/server/connectors/weather/ingestion.ts), [CLI](scripts/weather-ingest.ts): координаты, raw/hash, транзакционная запись | Наличие архивного run не доказывает время его публикации. Текущий ingestion сохраняет NULL для исторической доступности; официальный режим блокируется |
+| Почасовой прогноз на 24–48 часов | [Forecast service](src/server/forecast/service.ts), [approved inference](src/server/forecast/approved-inference.ts): persistence либо approved model, версии и экспорт | Прогноз обученной модели на реальных входах не продемонстрирован; ошибка artifact не заменяется baseline |
+| Агентный цикл: подготовка → модель → анализ → повторный расчёт | [Workflow](src/server/agent/workflow.ts), [adapters](src/server/agent/adapters.ts), [triggers](src/server/triggers/discovery.ts): durable jobs, checkpoint, журнал, опциональный LLM | Weather ingestion — отдельный CLI; единый цикл его автономного запуска агентом не подтверждён. Trigger snapshot не включает температуру, необходимую trained inference |
+| Последовательное воспроизведение 31 января — 28 февраля | [Batch replay](src/server/replay/batch/index.ts), [CLI](scripts/replay-february.ts): явный календарь, preflight, resume, manifests | Реальные 116 выпусков и общий E2E не подтверждены; допустимые weather runs и модель обязательны до запуска |
+| Использование архивных прогнозов, а не позднего факта | [As-of selection](src/server/data/weather/selection.ts), [features](src/server/ml/inference/features.ts), [evaluation](src/server/evaluation/worker.ts): границы времени и изоляция evaluation-only | Защитные проверки есть в коде, но не создают отсутствующих доказательств происхождения данных |
+
+**Вывод по требованиям:** реализована значительная часть инфраструктуры и вычислительного пути; полное соответствие основному сценарию пока частичное. Отсутствие февральского факта блокирует оценку качества, но само по себе не мешает выпуску прогнозов. Выпуск сейчас ограничивают прежде всего доступность архивной погоды, approved model и неполный trigger snapshot.
+
+По критериям жюри: соответствие и работоспособность (25) требуют демонстрации полного цикла; техническая реализация (25) представлена кодом, но имеет указанные разрывы; README и воспроизводимость (25) обеспечены инструкциями и контрактами, однако реальный результат не воспроизведён; применимость (15) ограничена неподтверждённой семантикой и отсутствием оценки точности; потенциал развития (10) поддерживают replay, происхождение данных и версионирование. Числовой итог из 100 без запуска и результатов не присваивается.
 
 ## Как работает система
 
 1. Администратор регистрирует станцию, турбину или линию.
 2. Загружает CSV и подтверждает столбцы, часовой пояс, смысл метки времени, задержку доступности и единицы.
 3. Импорт сохраняет raw-файл и хеш, проверяет строки и создаёт канонические наблюдения.
-4. Погодный коннектор должен сохранить архивный прогноз с `issued_at`, `published_at` либо явным допущением о доступности.
+4. Отдельный weather CLI сохраняет архивный прогноз и происхождение. Для допуска в runtime нужны доказанные `published_at/available_at`; исследовательское допущение их не заменяет.
 5. Агент фиксирует неизменяемый снимок входов и проверяет `available_at <= issued_at`.
 6. Детерминированная модель формирует ровно 24 или 48 часовых точек либо возвращает явный неполный результат.
 7. Прогноз сохраняется как новая версия, решения и ошибки — в журнале агента.
-8. Новый допустимый погодный run запускает повторный расчёт. Идемпотентность не допускает двойную публикацию.
+8. При включённом input-trigger worker новый допустимый набор входов ставит задачу повторного расчёта. Идемпотентность защищает от повторной публикации; ограничение trained snapshot указано выше.
 9. Replay последовательно воспроизводит исторические события с виртуальным временем.
 
 Режимы работы:
@@ -94,7 +115,7 @@ flowchart LR
     JOBS --> AGENT[Agent workflow]
     DB --> SNAPSHOT[Снимок available_at <= issued_at]
     SNAPSHOT --> AGENT
-    AGENT --> MODEL[Persistence / модель]
+    AGENT --> MODEL[Persistence / approved artifact]
     MODEL --> FORECAST[(Версии прогнозов)]
     AGENT --> JOURNAL[(Checkpoint и журнал)]
     FORECAST --> UI[Dashboard / CSV]
@@ -144,7 +165,7 @@ AGENT_LLM_ENABLED=false
 docker compose up --build
 ```
 
-Контейнер приложения перед стартом применит миграции. Проверьте здоровье:
+Отдельный сервис `migrate` применяет миграции; приложение ждёт его успешного завершения. Проверьте здоровье:
 
 ```bash
 curl http://localhost:3000/api/health
@@ -158,17 +179,15 @@ curl http://localhost:3000/api/health
 
 Откройте <http://localhost:3000> и войдите как `admin` с `ADMIN_PASSWORD`. Имя можно изменить через `ADMIN_USERNAME`.
 
-### 3. Запустите dispatcher для agent jobs
+### 3. Фоновые процессы
 
-`compose.yaml` пока запускает приложение и БД, но не отдельный dispatcher. Для `/api/v1/agent-runs` откройте второй терминал в локальном checkout с установленными зависимостями:
+`compose.yaml` уже включает dispatcher для `/api/v1/agent-runs`; он ждёт готовности приложения. Дополнительные input-trigger и evaluation workers описаны в `compose.workers.yaml`:
 
-```powershell
-$env:JOB_TICK_SECRET = "local-job-tick-secret"
-$env:JOB_DISPATCHER_BASE_URL = "http://localhost:3000"
-node scripts/job-dispatcher.mjs
+```bash
+docker compose -f compose.yaml -f compose.workers.yaml up --build -d
 ```
 
-Dashboard в fixture-режиме и синхронный `/api/v1/forecast-jobs` dispatcher не требуют.
+Перед этим задайте `INPUT_TRIGGER_CONFIG` и `EVALUATION_CONFIG` — пути к существующим JSON-конфигурациям с явными объектами, моделью, календарём и параметрами оценки. Они монтируются только для чтения. Форматы: [P3](docs/handoffs/parallel-P3.md), [P5](docs/handoffs/parallel-P5.md), [P6](docs/handoffs/parallel-P6.md). Эти workers не запускают загрузку погоды автоматически. Команды приведены для самостоятельного воспроизведения и в рамках этого ревью не выполнялись.
 
 Остановка без удаления данных:
 
@@ -326,7 +345,7 @@ curl -b terra.cookies \
 | `GET /api/v1/forecasts` | Поиск сохранённых прогнозов |
 | `GET /api/v1/forecasts/{id}/export` | Воспроизводимый CSV export |
 | `POST /api/v1/backtest-jobs` | Последовательный backtest |
-| `GET /api/v1/evaluations/{id}` | MAE, RMSE, baseline, N, покрытие |
+| `GET /api/v1/evaluations/{id}` | Legacy backtest report; persisted evaluation worker reports пока не подключены |
 | `POST /api/v1/agent-runs` | Durable agent job |
 | `GET /api/v1/jobs/{id}` | Статус и текущий шаг |
 | `POST /api/v1/replay-sessions` | Создание replay session |
@@ -388,9 +407,29 @@ OPENAI_REASONING_EFFORT=medium
 - фактическая погода не заменяет архивный forecast;
 - выбор модели по февральской метрике запрещён.
 
-Сейчас production inference поддерживает persistence. Неподдерживаемый trained artifact завершается явной ошибкой.
+Production inference поддерживает явно выбранный persistence и approved trained artifact. Загрузчик сверяет approval в реестре, версию, cutoff, SHA-256 файла и checksum artifact; файл должен находиться внутри `ARTIFACT_ROOT`. Ошибка trained inference не приводит к скрытому переходу на baseline. Создание artifact через CLI само по себе не регистрирует его в production: нужны запись `model_versions`, связанный `raw_artifacts` и доступный runtime файл.
+
+### Исторический сценарий через CLI
+
+Ниже указаны существующие entry points, а не свидетельство выполненного прогона. Нужны мигрированная БД, зарегистрированные UUID объектов, подтверждённая семантика и конфигурации. Сначала загружаются история и погода, затем обучается и регистрируется допустимая модель; для replay должны работать приложение и dispatcher.
+
+```bash
+node --import tsx scripts/weather-ingest.ts weather-config.json
+node --import tsx scripts/train-approved.ts --input training-manifest.json --out .data/ml/approved
+node --import tsx scripts/replay-february.ts --assets <uuid1>,<uuid2> --model <approved-model-uuid> --timezone Asia/Almaty --issue-hour 0 --mode replay --from 2026-01-31 --to 2026-02-28 --output .data/replay
+node --import tsx scripts/evaluate-forecasts.ts evaluation-request.json actuals.json
+```
+
+`Asia/Almaty` здесь пример явного календаря, а не подтверждение timezone исходных CSV. Форматы входов и порядок регистрации описаны в [P1](docs/handoffs/parallel-P1.md), [P2](docs/handoffs/parallel-P2.md), [P4](docs/handoffs/parallel-P4.md), [P5](docs/handoffs/parallel-P5.md), [P6](docs/handoffs/parallel-P6.md).
+
+- Weather CLI сохраняет архивные данные, но возвращает код 2 при недоказанной исторической доступности; их нельзя автоматически считать пригодными для следующего шага.
+- Training без исторических snapshots не даёт подтверждённую модель. Синтетические входы остаются `candidate`.
+- Batch replay сохраняет manifests и почасовой JSON с происхождением; повтор той же команды возобновляет пакет. Его `officialResult` всегда `false`: успешное исполнение ещё не подтверждает официальный результат.
+- Evaluation использует отдельные revisions факта и сохраняет версии отчёта в PostgreSQL. Требуется подтверждённый semantic manifest; шаблон [semantic-manifest.json](src/server/evaluation/semantic-manifest.json) содержит `UNKNOWN`. Нет пар — нет числовой метрики.
 
 ## Проверки
+
+Во время обновления README выполнено только чтение исходников и ревью diff. Тесты, lint, typecheck, сборка, Docker и проект **не запускались по просьбе пользователя**. Следующие команды — инструкция для будущей проверки, не список PASS.
 
 Основной набор:
 
@@ -432,7 +471,7 @@ node --test tests/acceptance/harness.test.mjs
 node tests/acceptance/run.mjs verify
 ```
 
-Harness проверяет fail-closed контракт `import/train/backtest/export/verify`. Пока `demo:*` scripts не интегрированы, `verify` ожидаемо завершается кодом 2. Это не ошибка harness и не подтверждение полного E2E.
+Harness проверяет fail-closed контракт `import/train/backtest/export/verify`. В проверенном коммите `18b8a28` scripts `demo:*` отсутствуют, поэтому полного E2E через этот контракт нет. При ревью в основной рабочей копии также обнаружены незакоммиченные `scripts/demo-acceptance.mjs`, `tests/acceptance/demo.test.mjs` и изменения `package.json`: по чтению это запуск компонентных проверок на синтетических входах, с явным `endToEndStatus: BLOCKED`. Эти изменения не входят в данный README-коммит и не выполнялись; их наличие не подтверждает общий исторический прогон.
 
 ## Структура репозитория
 
@@ -448,8 +487,10 @@ src/server/jobs/              Durable jobs, lease, checkpoint и runner
 src/server/ml/                Baseline, features, ridge и training
 src/server/replay/            Виртуальные часы и replay sessions
 src/server/backtest/          Backtest и leakage gates
+src/server/triggers/          Обнаружение новых входов и durable input events
+src/server/evaluation/        Изолированный факт и persisted evaluation reports
 tests/                        Unit, integration, UI и acceptance tests
-scripts/                      Миграции и job dispatcher
+scripts/                      Миграции, dispatcher, weather/training/replay/evaluation CLI
 resources/                    ТЗ и исходные CSV
 docs/                         Контракты, аудиты и demo-инструкции
 samples/                      Synthetic CC0 smoke fixture
@@ -483,6 +524,9 @@ samples/                      Synthetic CC0 smoke fixture
 | `AGENT_HEARTBEAT_MS` | Нет | Heartbeat, по умолчанию 15000 |
 | `JOB_DISPATCHER_BASE_URL` | Нет | App URL, по умолчанию `http://localhost:3000` |
 | `JOB_DISPATCHER_INTERVAL_MS` | Нет | Пауза ticks, по умолчанию 1000 |
+| `INPUT_TRIGGER_CONFIG` | Для worker Compose | Путь к JSON с объектами, моделью и календарём input-trigger |
+| `EVALUATION_CONFIG` | Для worker Compose | Путь к JSON с forecastRunIds, calendarTimezone и manifest |
+| `EVALUATION_POLL_MS` | Нет | Пауза evaluation worker, по умолчанию 30000 |
 | `ORACLE_CONNECTOR_GATEWAY_URL/TOKEN` | Для Oracle | URL и token server gateway |
 | `WINCC_CONNECTOR_GATEWAY_URL/TOKEN` | Для WinCC | URL и token server gateway |
 
@@ -492,11 +536,11 @@ samples/                      Synthetic CC0 smoke fixture
 
 1. В CSV нет февральского факта, поэтому официальный MAE/RMSE за 1–28 февраля не вычисляется.
 2. Open-Meteo evidence не доказывает исторический момент публикации weather run.
-3. Weather connector ещё не пишет в production `weather_runs/weather_values`.
-4. Production inference использует persistence; ridge artifact пока не подключён.
-5. Training/backtest stores локальные/in-memory и не имеют гарантий durable agent queue.
-6. Fixture UI полностью демонстрирует UX, но часть real-API ответов имеет envelope, ещё не согласованный с dashboard adapter.
-7. Dispatcher не включён в Compose и запускается отдельным процессом.
+3. Weather ingestion пишет в canonical tables, но оставляет исторические `published_at/available_at` NULL; production runtime такие runs не допускает.
+4. Trained inference подключён, но реальный approved artifact и его качество не подтверждены. Input-trigger snapshot содержит только ветер, без требуемой температуры.
+5. Legacy training/backtest stores остаются локальными/in-memory. Новый evaluation worker сохраняет отчёты в PostgreSQL, но `/api/v1/evaluations/{id}` всё ещё читает legacy registry.
+6. Dashboard adapters согласованы с canonical envelopes в коде; HTTP/browser E2E в этом ревью не проверялся. Синтетический UI не доказывает работу на реальных данных.
+7. Dispatcher включён в Compose; автоматический input-trigger и evaluation требуют отдельного worker-конфига, а weather ingestion остаётся отдельным шагом.
 8. Без подтверждения семантики нельзя переводить мощность в MW/MWh или суммировать два ряда.
 
 Проект не маскирует эти ограничения синтетическими результатами и не подменяет архивный прогноз фактической погодой.
@@ -516,4 +560,4 @@ samples/                      Synthetic CC0 smoke fixture
 
 ## Дальнейшее развитие
 
-TERRA уже даёт безопасный импорт, версионированные данные, 24/48-часовой contract, durable agent, replay и наблюдаемость. Следующий приоритет: подтвердить семантику источника, загрузить доказуемо доступные архивные weather runs в PostgreSQL, подключить ridge artifact к production inference и получить закрытые февральские targets только на этапе оценки.
+Следующие шаги для соответствия ТЗ: сохранять полный набор trained features в input-trigger snapshot; подключить persisted evaluations к API; связать получение погоды с автономным циклом; подтвердить семантику источника и историческую доступность weather runs; обучить и зарегистрировать реальный artifact; воспроизвести последовательность февральских выпусков и отдельно оценить их по закрытому факту. Изменения этих компонентов в рамках обновления README не выполнялись.
