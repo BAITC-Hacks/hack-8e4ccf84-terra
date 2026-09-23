@@ -61,3 +61,11 @@
 - PASS: seven task sections and existing repository references checked; git diff --check. Application tests/build not run: documentation-only change.
 - Remote fetch BLOCKED: Repository not found. User requests local main delivery; no remote completion claimed.
 - Next: dispatch P1-P6 when requested; run P7 after their integration. Preserve historical-viewer state above.
+
+## P1 canonical weather ingestion — task branch
+
+- Updated UTC: 2026-09-23T12:11:00Z; branch feat/p1-weather-ingestion; verified base 1923ce2, implementation uncommitted. Owner: P1/Codex. Local integration pending; other parallel tasks remain independent.
+- Implemented: archived Single Runs fetch with bounded retry, raw/hash plus canonical weather rows in one transaction, immutable/idempotent repeats, strict validation, UTC range CLI with per-asset/issue coverage. Paths: weather connector, scripts/weather-ingest.ts, tests/weather, docs/handoffs/parallel-P1.md.
+- PASS: weather 25/25; P1 PostgreSQL 16 integration 3/3 (atomic visibility/rollback, concurrent duplicate prevention, consumer gates, two-issue CLI rerun); npm test 44 passed / 1 DB skip (DB tested separately); agent 12/12; foundation 4/4; lint, typecheck and production build. Final post-review lint/typecheck/build rerun PASS.
+- Constraint: unknown historical published_at/available_at stay NULL; research assumptions remain isolated metadata. Archived ingestion works, official historical consumption is BLOCKED. Consumer success test supplies clearly test-only publication evidence; no actual publication timestamps fabricated in production.
+- Remote fetch BLOCKED: Repository not found. Next: finish final checks, commit P1, integrate through private worktree/shared lock into local main, retry remote delivery. No combined P7 E2E claimed.
