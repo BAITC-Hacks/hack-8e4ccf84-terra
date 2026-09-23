@@ -11,13 +11,13 @@ function equal(left: string, right: string): boolean {
 
 function secret(): string {
   const value = process.env.SESSION_SECRET;
-  if (!value || value.length < 32) throw new Error("SESSION_SECRET must contain at least 32 characters");
+  if (!value || value.length < 32 || value.startsWith("replace-with-")) throw new Error("SESSION_SECRET must contain at least 32 non-placeholder characters");
   return value;
 }
 
 export function checkAdminPassword(password: string): boolean {
   const configured = process.env.ADMIN_PASSWORD;
-  if (!configured || configured.length < 12) throw new Error("ADMIN_PASSWORD must contain at least 12 characters");
+  if (!configured || configured.length < 12 || configured.startsWith("replace-with-")) throw new Error("ADMIN_PASSWORD must contain at least 12 non-placeholder characters");
   return equal(createHash("sha256").update(password).digest("hex"), createHash("sha256").update(configured).digest("hex"));
 }
 
@@ -38,7 +38,7 @@ export function validSession(token: string | undefined, now = Date.now()): boole
 
 export function validTickSecret(header: string | null): boolean {
   const configured = process.env.JOB_TICK_SECRET;
-  if (!configured || configured.length < 12) throw new Error("JOB_TICK_SECRET must contain at least 12 characters");
+  if (!configured || configured.length < 12 || configured.startsWith("replace-with-")) throw new Error("JOB_TICK_SECRET must contain at least 12 non-placeholder characters");
   if (!header?.startsWith("Bearer ")) return false;
   return equal(createHash("sha256").update(header.slice(7)).digest("hex"), createHash("sha256").update(configured).digest("hex"));
 }
