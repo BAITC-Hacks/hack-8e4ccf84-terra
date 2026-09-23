@@ -1,4 +1,4 @@
-# hack-8e4ccf84-terra
+# Terra — прогнозирование выработки ВЭС
 
 Hackathon team repository for Terra
 
@@ -53,3 +53,19 @@ URL. CSV connections are managed with `GET/POST /api/v1/connections`; upload a s
 The supplied files currently end at `2026-01-31 09:50:00`; despite their filenames, they contain
 no February 2026 rows. If future files include February targets, normalized active power is stored
 as `evaluation_only` and is filtered from training and feature inputs.
+
+## S09: reproducibility handoff
+
+The reproducibility harness and fixture are an integration contract, not proof that the product
+acceptance gates pass. Run the harness with:
+
+```sh
+node --test tests/acceptance/harness.test.mjs
+```
+
+The documented end-to-end actions are `make import`, `make train`, `make backtest`, `make export`,
+and `make verify` (or `node tests/acceptance/run.mjs <action>` on Windows). Each invokes only its
+allowlisted `demo:<action>` npm script and fails closed with exit code 2 until the corresponding
+owner supplies it. The acceptance matrix and clean-environment/backup procedure are in
+[docs/acceptance.md](docs/acceptance.md) and [docs/demo.md](docs/demo.md). The CC0 synthetic smoke
+fixture is documented in [samples/README.md](samples/README.md); it is not forecast-quality evidence.

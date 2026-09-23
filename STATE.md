@@ -1,9 +1,9 @@
-# Project state — industrial portal integration
+# Project state — S09 reproducibility integration
 
-- Updated UTC: 2026-09-23 10:15Z
-- Branch/worktree: `chore/integrate-industrial-portal` / private integration worktree.
-- Verified remote: `origin/main` at integration `a2c9077`; task implementation `f78d8a7` and handoff `60d8b5a` are verified ancestors. Task branch `origin/feat/industrial-portal` remains at `60d8b5a`.
-- Owner/status: Codex, industrial UI + RU/KK/EN + themes + mandatory sign-in; complete: implementation, combined checks and main push verified. This follow-up records the verified remote result.
+- Updated UTC: 2026-09-23 10:35Z
+- Branch/worktree: `chore/integrate-s09-reproducibility` / private integration worktree; last verified commit: `uncommitted`.
+- Local base: `main` at `11ed17b`; S09 source: `docs/s09-reproducibility` at `6302571`. Remote synchronization intentionally not performed for this user-requested local-only integration.
+- Owner/status: Codex. Industrial UI integration remains present; S09 reproducibility handoff is merged locally. Final product acceptance remains BLOCKED pending the owner implementations recorded in `docs/acceptance.md`.
 - Demo: production preview on `http://localhost:3107/login`; random local administrator credentials live only in ignored `.env.local`. Sign in opens the requested dashboard route. Fixture forecast/import/report/journal flows work; real data API alignment remains a separate integration gate.
 
 ## Implemented and verified
@@ -23,10 +23,11 @@
 - Demo examples stay explicitly synthetic. Server-returned data retains its source language. Existing shared administrator role is reused; multi-user registration was not requested.
 
 - Agent audit `f436946` / integration `d2d4454` is preserved in `docs/agent-system-problems.md`: production agent wiring, automated tick and durable replay remain incomplete. Its PostgreSQL test was skipped without TEST_DATABASE_URL; this portal task does not claim those runtime gaps are fixed.
+- S09 adds a deterministic CC0 synthetic 48-hour smoke fixture, Makefile targets, fail-closed command wrapper, acceptance matrix, and clean-environment/backup procedure. It does not assert model quality or successful AC-01–AC-16.
 
 ## Validation
 
-- Integration worktree: PASS fresh npm ci, all 54 automated tests, lint, production build and typecheck. Runtime/UI files and dependencies exactly match the browser-tested task branch; additional main changes are documentation only.
+- Previous industrial integration: PASS fresh npm ci, all 54 automated tests, lint, production build and typecheck. Runtime/UI files and dependencies exactly match the browser-tested task branch; additional main changes are documentation only.
 
 - PASS: `npm run lint`, `npm run typecheck`, `npm run build` (production App Router build).
 - PASS: `npm test` (28: S02/backtest/ML), `npm run test:foundation` (3).
@@ -36,9 +37,11 @@
 - PASS: `node tests/ui/platform.cjs` (10 browser scenarios: actual login, redirects, Origin checks, defaults/persistence, English/Kazakh pages, mobile, logout, tampered/expired cookies, open-page expiry, reduced motion).
 - PASS: visual review of light/dark login and Kazakh dark dashboard; no page overflow or browser exceptions. Browser locale review found ICU month fallback; fixed, unit-tested and browser suite rerun afterward.
 - NOT_RUN: production PostgreSQL/data-source end-to-end flow; no database configured for this UI preview.
+- PASS: `node --test tests/acceptance/harness.test.mjs` (2 tests); `npm run lint`; `npm run typecheck`; `npm run build`.
+- PASS (expected failure mode): `node tests/acceptance/run.mjs verify` exits 2 with `BLOCKED` because `demo:verify` is absent; it must not be treated as product acceptance.
 
 ## Next actions
 
-1. Open the retained local preview at http://localhost:3107/login. Configure deployment administrator/session secrets before serving the portal elsewhere.
-2. Implement agent audit priorities and pass AT-AG-01–AT-AG-18 with production adapters; configure TEST_DATABASE_URL for its PostgreSQL checks.
-3. Separate follow-up: align S05 adapters with S02/S04/S08 real payloads, wire S07 tick and S03 weather; run real database/UI integration before operational use.
+1. Review and commit this merge, then fast-forward local `main` to the validated integration commit.
+2. Owners S01–S08 must supply the fixed `demo:*` CLI contracts and pass AC-01–AC-16, restore verification, and the clean Docker gate.
+3. Align S05 adapters with S02/S04/S08 real payloads, wire S07 tick and S03 weather, and run a production database/UI integration before operational use.
