@@ -20,7 +20,7 @@ assumption, and units, repeat with `confirmed: true`.
 
 ```json
 {
-  "assetId": "turbine-1",
+  "assetId": "<UUID returned by POST /api/v1/assets>",
   "dialect": {"encoding": "utf-8", "delimiter": ",", "decimalSeparator": "."},
   "mapping": {
     "timestamp": "Статистическое время",
@@ -50,7 +50,11 @@ Use `GET /api/v1/imports/{id}` for the accepted/rejected/duplicate report and it
 URL. CSV connections are managed with `GET/POST /api/v1/connections`; upload a sample file to
 `POST /api/v1/connections/{id}/test` to validate its confirmed schema and preview.
 
-The supplied files currently end at `2026-01-31 09:50:00`; despite their filenames, they contain
+Accepted training rows are also written transactionally to the canonical `observations` table used
+by snapshots, forecasts, and the agent runtime. Rows marked `evaluation_only` are never mirrored
+into that training path.
+
+The supplied files currently end at `2026-01-31 23:50:00`; despite their filenames, they contain
 no February 2026 rows. If future files include February targets, normalized active power is stored
 as `evaluation_only` and is filtered from training and feature inputs.
 
@@ -100,3 +104,41 @@ npm run test:agent:integration # requires a disposable local TEST_DATABASE_URL c
 npm run test:agent:replay
 npm run test:agent:openai      # SKIP unless RUN_OPENAI_SMOKE=1
 ```
+
+## Backend verification
+
+```powershell
+npm ci
+npm test
+npm run test:foundation
+npm run test:agent
+npm run test:agent:replay
+node --test tests/weather/weather.test.mjs
+node --test tests/acceptance/harness.test.mjs
+npm run lint
+npm run typecheck
+npm run build
+docker compose config --quiet
+docker compose build app
+```
+
+`npm run test:postgres` and `npm run test:agent:integration` require a disposable PostgreSQL
+database. The latter deliberately refuses a URL whose database name does not contain `test`.
+
+## Known MVP limitations
+
+- The S03 Open-Meteo Single Runs connector validates cycles and keeps raw provenance, but has no
+  production adapter that persists its output into canonical `weather_runs`/`weather_values`.
+- The provider does not prove when a historical run became available. A run without
+  `published_at` is eligible only when an explicit, reviewed availability assumption is stored.
+- Only the persistence model has a production inference adapter; trained ridge artifacts are not
+  yet wired into the agent runtime.
+- Training and backtest jobs still use their existing local/in-memory execution paths rather than
+  the durable wind-agent dispatcher.
+- The supplied CSV files contain no February 2026 actual power, so the official February scoring
+  and an honest 24/48-hour comparison cannot be reproduced from this repository alone.
+- Turbine-to-coordinate mapping, source timezone, interval convention, hub height, and the physical
+  meaning/nominal scale of normalized power require owner confirmation before official scoring.
+
+The detailed requirement matrix and evidence are in
+[docs/backend-spec-audit.md](docs/backend-spec-audit.md).

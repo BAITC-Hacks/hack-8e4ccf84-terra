@@ -74,3 +74,18 @@ test("evaluation-only policy is unavailable to forecast production", async () =>
   await assert.rejects(service.run({...request(), dataPolicy: "evaluation_only"}),
     /EVALUATION_DATA_FORBIDDEN/);
 });
+
+test("unknown prediction units and unproven weather publication are not published", async () => {
+  const invalidUnit = fixture();
+  invalidUnit.data.observations[0].unit = "MW";
+  const unitResult = await invalidUnit.service.run(request());
+  assert.equal(unitResult.status, "incomplete");
+  assert.deepEqual(unitResult.values, []);
+  assert.ok(unitResult.incompleteReasons.includes("points:turbine-1"));
+
+  const unknownPublication = fixture();
+  unknownPublication.data.runs[0].publishedAt = null;
+  const weatherResult = await unknownPublication.service.run(request());
+  assert.equal(weatherResult.status, "incomplete");
+  assert.ok(weatherResult.incompleteReasons.includes("weather:turbine-1"));
+});
