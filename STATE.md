@@ -1,9 +1,11 @@
 # UI content cleanup
 
-- Updated UTC: 2026-09-23T12:28:45.739Z; branch refactor/ui-content-cleanup; verified task cc655b1; merging main ce623b4.
+- Updated UTC: 2026-09-23T12:28:45.739Z; branch refactor/ui-content-cleanup; verified task cc655b1; integrated main ce623b4. Task/integration 744f404 verified on origin/refactor/ui-content-cleanup.
 - Simplified copy in RU/EN/KK; removed duplicate marketing and instructions; technical details use disclosures. Main actions, errors, units and timezones remain visible.
 - PASS before integration: build, typecheck, lint, core 42, UI unit 13, dashboard 14, history browser suite, UX 30 combinations; visual forecast review. Preview http://localhost:3115/history.
 - Preserved latest main login hero and job refresh behavior; PASS integration: production build (includes TypeScript), lint and 14 UI unit tests. No dependency or API changes.
+
+- Remote main publication: BLOCKED by automatic command policy; task branch pushed successfully. Next: review task branch and integrate into main.
 
 ## Preserved upstream handoff
 
