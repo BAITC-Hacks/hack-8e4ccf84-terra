@@ -1,7 +1,7 @@
 # Project state — all connector workspace
 
 - Updated UTC: 2026-09-23 11:53Z.
-- Branch: `chore/integrate-all-connectors`; latest main `ab2622c`; task `458ef18` verified on `origin/feat/all-connectors`. Integration checks passed; pending main push.
+- Branch: `chore/integrate-all-connectors`; latest main `ab2622c`; task `458ef18` verified on `origin/feat/all-connectors`. Integration commit `6546ace` verified on origin/main; task `458ef18` is its ancestor. Checks passed.
 - Owner: Codex. User narrowed full redesign to connectors, then selected all five connector types.
 - Demo: `http://localhost:3111/sources` in this integration worktree; auth remains required. Default synthetic mode is explicit.
 - Implemented: reference-styled CSV/Weather/PostgreSQL-SCADA/Oracle/WinCC catalog; three gateway setup workflows; weather probe; canonical CSV request/report adapter; RU/EN/KK and both themes.
@@ -13,7 +13,7 @@
 - BLOCKED live industrial verification: no configured PostgreSQL/Oracle/WinCC gateways; each actual route safely returns `not_configured`. These are external gateway adapters, not bundled database/SCADA drivers.
 - NOT RUN: full browser-to-PostgreSQL CSV persistence (no configured disposable DB; `docker` unavailable in this shell). Canonical CSV wire UI and existing import service tests pass.
 - Constraint: Weather probe does not schedule or persist runs. CSV mapping is stored with imports, not a recurring schedule. Historical backend provenance/February blockers below remain.
-- Integration preserves the concurrent overview redesign `e9dfb21`, already verified on origin/main at `ab2622c`; its previous remote blocker is resolved. Both scoped CSS blocks retained; overview implementation is unchanged. Added missing EN/KK overview catalog entries and adjusted the heading assertion to the merged design. PASS after integration: core 37, UI unit 8, lint, typecheck, production build, connector browser 4 groups and dashboard browser 14 at port 3111. Next: push main, verify remote ancestry.
+- Integration preserves the concurrent overview redesign `e9dfb21`, already verified on origin/main at `ab2622c`; its previous remote blocker is resolved. Both scoped CSS blocks retained; overview implementation is unchanged. Added missing EN/KK overview catalog entries and adjusted the heading assertion to the merged design. PASS after integration: core 37, UI unit 8, lint, typecheck, production build, connector browser 4 groups and dashboard browser 14 at port 3111. Remote main push and ancestry verified. Next: configure real industrial gateways and a disposable database for live CSV persistence verification; retain historical weather/data provenance blockers below.
 
 ## Preserved overview handoff
 
