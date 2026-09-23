@@ -3,7 +3,7 @@
 - Updated UTC: 2026-09-23 11:21Z
 - Branch/worktree: `chore/integrate-backend-spec-audit` / private integration worktree.
 - Base/integration: fetched `origin/main` at `cee93a6`; backend-audit task `580fd3d` and merge `37a3a21` are incorporated with the latest agent-remediation documentation.
-- Owner/status: Codex; merge conflict was reconciled without discarding either task. Final affected checks and remote `main` push are pending.
+- Owner/status: Codex; merge conflict was reconciled without discarding either task and final checks pass. Remote `main` push is pending.
 
 ## Integrated implementation
 
@@ -19,7 +19,7 @@
 - PASS on the audit branch and before latest-main merge: core (32), foundation (4), agent (12), replay (1), weather (25), forecast (7), acceptance harness (2), lint, typecheck, and production build.
 - PASS before latest-main merge: Compose config/build/startup and application/database healthchecks; `/api/health` returned `database=ready`.
 - PASS before latest-main merge: disposable PostgreSQL 16 migrations; CSV import produced three canonical observations and a persisted 24-point forecast; a separate clean database passed agent claim/fencing/checkpoint/restart integration.
-- PENDING after incorporating `cee93a6`: affected checks for the documentation-only remote change.
+- PASS after incorporating `cee93a6`: core (32), foundation (4), agent (12), replay (1), weather (25), forecast (7), acceptance harness (2), lint, typecheck, and production build.
 - FAIL (pre-existing, unrelated): UI localization suite reports missing English/Kazakh translation for Russian `Проверяем…`; the audit does not change frontend/i18n.
 - EXPECTED BLOCKED: `node tests/acceptance/run.mjs verify` reports missing `demo:verify`; the fail-closed harness itself passes.
 - BLOCKED by inputs/provenance: no February actuals, no provider-proven historical publication time, and unconfirmed turbine/time/power semantics.
@@ -37,6 +37,6 @@
 
 ## Next actions
 
-1. Complete the merge and rerun affected checks.
-2. Push integration HEAD to `origin/main` without rewriting history and verify `580fd3d` ancestry.
+1. Push integration HEAD to `origin/main` without rewriting history and verify `580fd3d` ancestry.
+2. Confirm the task branch and canonical `STATE.md` are both present remotely.
 3. After owner data is available, confirm asset/time/power semantics, persist trustworthy archival forecast runs, and execute the February replay/evaluation.
