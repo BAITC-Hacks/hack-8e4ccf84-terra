@@ -1,6 +1,6 @@
 import { translate, type Locale } from "../../lib/i18n";
 import { z } from "zod";
-import { agentRunSchema, assetSchema, connectionSchema, evaluationSchema, forecastSchema, importReportSchema, jobSchema, type Mode, type Scenario, type Transport } from "./contracts";
+import { agentRunSchema, assetSchema, connectionSchema, evaluationSchema, forecastSchema, importReportSchema, industrialResponseSchema, jobSchema, type IndustrialAction, type IndustrialKind, type Mode, type Scenario, type Transport } from "./contracts";
 import * as fixture from "./fixtures";
 
 // Only this UI adapter knows the provisional wire shape. No server modules enter the bundle.
@@ -48,6 +48,14 @@ export function createClient(transport: Transport, mode: Mode, scenario: Scenari
     evaluation: (id: string, signal?: AbortSignal) => transport === "fixture" ? demo(fixture.evaluation, signal) : api(`/evaluations/${encodeURIComponent(id)}`, evaluationSchema, signal),
     job: (id: string, signal?: AbortSignal) => api(`/jobs/${encodeURIComponent(id)}`, jobSchema, signal),
     importCsv: (body: FormData) => transport === "fixture" ? demo({ job_id: "demo-import-job" }) : api("/imports", z.object({ job_id: z.string() }), undefined, { method: "POST", headers: { "Idempotency-Key": crypto.randomUUID() }, body }),
+    industrial: (kind: IndustrialKind, action: IndustrialAction) => {
+      if (transport === "fixture") {
+        if (action.action === "test") return demo({ action: "test" as const, status: "healthy" as const, checkedAt: new Date().toISOString(), message: `Демо-доступ к ${kind === "oracle" ? "Oracle" : "Siemens WinCC"} подтверждён.` });
+        if (action.action === "discover") return demo({ action: "discover" as const, resources: fixture.industrialResources[kind].map(resource => ({ name: resource.name, fields: [...resource.fields] })) });
+        return demo({ action: "enable" as const, enabled: true as const, mode: kind === "oracle" ? "history" as const : "stream" as const, startedAt: new Date().toISOString(), cursor: kind === "oracle" ? "history:0" : null });
+      }
+      return api(`/industrial-connectors/${kind}`, industrialResponseSchema, undefined, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(action) });
+    },
     startForecast: (body: { asset_ids: string[]; issued_at: string; horizon_hours: number; mode: Mode; model_version: string; data_policy: "history_only" }, backtest: boolean) => transport === "fixture" ? demo({ job_id: "demo-forecast-job" }) : api(backtest ? "/backtest-jobs" : "/forecast-jobs", z.object({ job_id: z.string() }), undefined, { method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": crypto.randomUUID() }, body: JSON.stringify(body) }),
     exportCsv: async (id: string) => {
       const response = await fetch(`/api/v1/forecasts/${encodeURIComponent(id)}/export`, { credentials: "same-origin", cache: "no-store", signal: AbortSignal.timeout(20_000) }).catch(() => { throw new Error(t("Не удалось связаться с API экспорта.")); });

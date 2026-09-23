@@ -17,7 +17,19 @@ export const connections: Connection[] = [
   { id: "demo-csv", name: "История измерений · CSV", type: "CSV", status: "ready", updated_at: "2026-01-31T11:40:00Z", coverage: 0.972, error: null },
   { id: "demo-weather", name: "Архивные прогоны погоды", type: "Weather API", status: "stale", updated_at: "2026-01-31T06:00:00Z", coverage: 0.91, error: "Пример: ожидается новый допустимый прогон. Подключение не проверено." },
   { id: "planned-postgres", name: "PostgreSQL", type: "Database", status: "planned", updated_at: null, coverage: null, error: null },
+  { id: "demo-oracle", name: "Oracle · исторические данные", type: "Database gateway", status: "ready", updated_at: "2026-01-31T11:40:00Z", coverage: 1, error: null },
+  { id: "demo-wincc", name: "Siemens WinCC · текущие данные", type: "SCADA gateway", status: "ready", updated_at: "2026-01-31T11:40:00Z", coverage: 1, error: null },
 ];
+
+export const industrialResources = {
+  oracle: [
+    { name: "SCADA_HISTORY", fields: ["EVENT_TIME", "ACTIVE_POWER_NORM", "WIND_SPEED_MS", "AIR_TEMP_C"] },
+    { name: "TURBINE_10MIN", fields: ["MEASURED_AT", "POWER_VALUE", "WIND_SPEED", "TEMPERATURE"] },
+  ],
+  wincc: [
+    { name: "WINCC_TAGS", fields: ["TURBINE_01.ActivePower", "TURBINE_01.WindSpeed", "TURBINE_01.NacelleTemp", "TURBINE_01.Timestamp"] },
+  ],
+} as const;
 export const report: ImportReport = { id: "demo-import", status: "succeeded", read: 144, accepted: 140, rejected: 2, duplicates: 2, issues: [{ row: 18, reason: "Пример: отсутствует скорость ветра" }, { row: 73, reason: "Пример: неверный формат времени" }] };
 export const evaluation: Evaluation = { id: "demo-evaluation", n: 16, coverage: 16 / 48, mae: 0.048, rmse: 0.059, baseline_mae: 0.061, exclusions: ["32 часа без доступного факта. Все метрики демонстрационные."] };
 export function agentRun(mode: Mode): AgentRun {

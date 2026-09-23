@@ -53,3 +53,10 @@ URL. CSV connections are managed with `GET/POST /api/v1/connections`; upload a s
 The supplied files currently end at `2026-01-31 09:50:00`; despite their filenames, they contain
 no February 2026 rows. If future files include February targets, normalized active power is stored
 as `evaluation_only` and is filtered from training and feature inputs.
+
+## Industrial connectors
+
+`/sources` includes complete setup flows for Oracle history and Siemens WinCC live tags: test
+access, discover tables/tags, map fields to a turbine, and enable history or updates. Fixture mode
+uses clearly labelled synthetic metadata. API mode requires the server-only gateway variables in
+`.env.example`; see `docs/industrial-connectors.md` for the gateway contract.
