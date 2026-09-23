@@ -17,7 +17,9 @@ export async function api(operation: () => Promise<Response>) {
                     ? 404
                     : error.code === "conflict"
                         ? 409
-                        : 400
+                        : ["not_configured", "connector_unavailable", "invalid_connector_response"].includes(error.code)
+                            ? 503
+                            : 400
                 : 503;
     return jsonResponse({error: normalizeError(error)}, status);
   }

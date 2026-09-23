@@ -1,32 +1,36 @@
-# Project state
+# Project state — wind forecast agent runtime
 
-- Updated UTC: 2026-09-23 10:49Z.
-- Branch/worktree: `chore/integrate-test-login` / private integration worktree; last verified task commit `5a3264f`, integration state update pending.
-- Base: local and last-known `origin/main` at `0433640`; direct fetch/push is BLOCKED because GitHub reports `Repository not found`.
-- Active task: local demo sign-in with editable username and `test` / `test` credentials is integrated and validated; remote synchronization remains.
-- Demo: development server is running at `http://localhost:3000/login`; `test` / `test` signs in and opens `/overview`.
+- Updated UTC: 2026-09-23 10:59Z.
+- Branch/worktree: `chore/integrate-test-login` / private integration worktree; merge with latest local `main` is pending commit.
+- Base: local `main` at `46f9fe8`; last-known `origin/main` at `0433640`. Fresh remote fetch/push is BLOCKED because GitHub reports `Repository not found`.
+- Verified task commits: agent runtime `8b33b1e`; test login `5a3264f`.
+- Active task: editable `test` / `test` development sign-in is reconciled with the latest local agent runtime. Remote publication remains blocked.
+- Demo: development server is running from the test-login worktree at `http://localhost:3000/login`; `test` / `test` opens `/overview`.
 
 ## Integrated implementation
 
-- S03 adds an Open-Meteo Single Runs connector, cycle selection, provenance/raw-byte hashing, availability policy, complete 24/48-hour target validation, and admissible saved fallback behavior.
-- S09 adds a deterministic CC0 48-hour smoke fixture, Makefile targets, fail-closed verification wrapper, acceptance matrix, and clean-environment/backup procedure. It does not assert model quality or successful AC-01–AC-16.
-- S03 persistence remains an injected test-only in-memory port; PostgreSQL restart recovery and canonical S01 `WeatherRun` integration are unimplemented.
-- Probe coordinates `43.25, 76.95` are not a confirmed station. Historical publication timestamp, production availability delay, source timezone, interval, and target semantics need owner confirmation.
-- Existing S00/S01/S02/S04/S05/S06/S07/S08 and protected multilingual portal work are retained.
-- Authentication now validates an explicit username and password. Short demo passwords are accepted only outside production; production still requires a non-placeholder password of at least 12 characters.
+- Preserved S03 Open-Meteo Single Runs connector, provenance/hash and admissible saved-fallback policy. Its persistence adapter remains test-only and is not canonical production weather history.
+- Preserved S09 deterministic smoke fixture, fail-closed acceptance harness and reproducibility documentation; these do not prove product acceptance or forecast quality.
+- Agent runtime provides protected one-step ticks, durable enqueue/status/journal/cancel APIs, PostgreSQL production ports, publication lease fencing, deterministic data gates, strict-schema OpenAI adapters and durable replay sessions.
+- Authentication validates an explicit username and password. Short demo passwords are accepted only outside production; production still requires a non-placeholder password of at least 12 characters.
 
-## Verification
+## Validation
 
-- PASS after S03/S09 reconciliation: `node --test tests/weather/weather.test.mjs` (25 offline tests), `node --test tests/acceptance/harness.test.mjs` (2 tests), `npm run lint`, `npm run typecheck`, and `npm run build`.
-- PASS for test login: `node --test tests/foundation/session.test.mjs` (4 tests), `node --test tests/ui/platform.test.cjs` (4 tests), `npm run lint`, `npm run typecheck`, and `npm run build`.
-- PASS repository suite: `npm test` (28 tests).
+- PASS after latest-main reconciliation: foundation (4), agent (12), replay (1), weather (25), acceptance (2), `npm test` (31), lint, typecheck and production build.
 - PASS manual HTTP flow: `test` / `test` returns 200, authenticated `/overview` returns 200, and a wrong username returns 401.
-- PASS expected fail-closed behavior: `node tests/acceptance/run.mjs verify` exits 2 / `BLOCKED` without a `demo:verify` contract; this is not product acceptance.
-- BLOCKED: PostgreSQL weather persistence/restart validation and actual station/month coverage.
-- BLOCKED: remote fetch/push because `origin` currently responds with `Repository not found`.
+- PASS for agent runtime on local `main`: foundation, agent, replay, forecast, weather and acceptance suites; lint, typecheck, production build and disposable PostgreSQL 16 integration.
+- BLOCKED: real OpenAI smoke without explicit opt-in and a verified key/model.
+- BLOCKED: real February historical E2E until trustworthy archival forecasts and February actuals exist in canonical storage.
+- BLOCKED: remote fetch/push because `origin` responds with `Repository not found`.
+
+## Decisions and boundaries
+
+- Test credentials are configured only in ignored local `.env.local`; no credential is committed.
+- The primary forecast path does not evaluate future actuals before publication. Durable actual-arrival evaluation remains follow-up work.
+- S03 connector output must be integrated into canonical `weather_runs`/`weather_values` before production agent use.
 
 ## Next actions
 
-1. Advance local `main` and push the integration commit when the checked-out primary worktree and GitHub access allow it.
-2. Verify `5a3264f` is an ancestor of `origin/main` after remote synchronization.
-3. Implement canonical immutable `WeatherRun` persistence via S01 and verify saved fallback after PostgreSQL restart.
+1. Complete reconciliation checks, commit the integration, and advance local `main` without overwriting unrelated primary-worktree edits.
+2. When GitHub access returns, fetch/reconcile and push local `main` to `origin/main`, then verify `5a3264f` ancestry.
+3. Integrate S03 output into canonical weather tables, add actual-arrival evaluation, then run historical and opt-in OpenAI smoke gates.

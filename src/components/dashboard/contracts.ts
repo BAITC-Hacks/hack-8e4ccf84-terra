@@ -13,6 +13,15 @@ export const importReportSchema = z.object({ id: z.string(), status: z.enum(["ru
 export const evaluationSchema = z.object({ id: z.string(), n: z.number().int().nonnegative(), coverage: z.number().min(0).max(1), mae: z.number().nonnegative().nullable(), rmse: z.number().nonnegative().nullable(), baseline_mae: z.number().nonnegative().nullable(), exclusions: z.array(z.string()) });
 export const agentRunSchema = z.object({ id: z.string(), mode: modeSchema, status: z.string(), forecast_id: z.string().nullable(), steps: z.array(z.object({ id: z.string(), time: timestamp, tool: z.string(), reason: z.string(), duration_ms: z.number().nonnegative(), status: z.enum(["succeeded", "running", "failed"]), error: z.string().nullable() })) });
 export const jobSchema = z.object({ id: z.string(), status: z.enum(["queued", "running", "succeeded", "failed", "cancelled"]), progress: z.number().min(0).max(1), result_id: z.string().nullable(), error: z.string().nullable() });
+export const industrialResourceSchema = z.object({ name: z.string(), fields: z.array(z.string()).min(1) });
+export const industrialResponseSchema = z.discriminatedUnion("action", [
+  z.object({ action: z.literal("test"), status: z.literal("healthy"), checkedAt: timestamp, message: z.string() }),
+  z.object({ action: z.literal("discover"), resources: z.array(industrialResourceSchema).min(1) }),
+  z.object({ action: z.literal("enable"), enabled: z.literal(true), mode: z.enum(["history", "stream"]), startedAt: timestamp, cursor: z.string().nullable() }),
+]);
+export type IndustrialKind = "oracle" | "wincc";
+export type IndustrialAction = { action: "test" | "discover" } | { action: "enable"; assetId: string; resource: string; fields: string[]; mapping: Record<string, string> };
+export type IndustrialResponse = z.infer<typeof industrialResponseSchema>;
 export type Asset = z.infer<typeof assetSchema>;
 export type Forecast = z.infer<typeof forecastSchema>;
 export type Point = z.infer<typeof pointSchema>;

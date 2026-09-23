@@ -69,3 +69,34 @@ allowlisted `demo:<action>` npm script and fails closed with exit code 2 until t
 owner supplies it. The acceptance matrix and clean-environment/backup procedure are in
 [docs/acceptance.md](docs/acceptance.md) and [docs/demo.md](docs/demo.md). The CC0 synthetic smoke
 fixture is documented in [samples/README.md](samples/README.md); it is not forecast-quality evidence.
+
+## Wind forecast agent runtime
+
+Apply migrations and configure `DATABASE_URL`, `JOB_TICK_SECRET`, and the agent variables shown in
+`.env.example`. `POST /api/v1/agent-runs` accepts the forecast request contract plus an
+`Idempotency-Key` header and returns a durable job. Run `node scripts/job-dispatcher.mjs` beside the
+application; each protected tick claims and completes exactly one resumable step. Inspect progress
+with `GET /api/v1/jobs/{id}` and the decision journal with `GET /api/v1/agent-runs/{id}`.
+
+The production adapter reads only persisted `weather_runs`, `weather_values`, and eligible
+observations, uses the approved persistence model through the existing snapshot/forecast stores,
+and publishes with a lease-fenced idempotency key. It does not silently fetch demo weather. A real
+historical run therefore requires an upstream connector to have populated archival forecast runs.
+
+OpenAI is opt-in: set `AGENT_LLM_ENABLED=true`, `OPENAI_API_KEY`, and an explicitly verified
+`OPENAI_MODEL`. With the flag off or a transient invalid response, deterministic gates remain in
+control and the audit log records the fallback. The API key is never part of a job or checkpoint.
+
+Durable replay sessions are created through `POST /api/v1/replay-sessions`, inspected through
+`GET /api/v1/replay-sessions/{id}`, and advanced monotonically through
+`POST /api/v1/replay-sessions/{id}/advance`. Session cursor advancement and replay job enqueue occur
+in one PostgreSQL transaction.
+
+Agent checks:
+
+```powershell
+npm run test:agent
+npm run test:agent:integration # requires a disposable local TEST_DATABASE_URL containing "test"
+npm run test:agent:replay
+npm run test:agent:openai      # SKIP unless RUN_OPENAI_SMOKE=1
+```

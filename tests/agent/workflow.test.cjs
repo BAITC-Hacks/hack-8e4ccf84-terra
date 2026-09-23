@@ -79,7 +79,8 @@ test('new weather makes a new version; repeated event is idempotent; LLM failure
   assert.equal((await f.store.get(first.id)).status, 'completed');
   assert.equal(f.saved.size, 1);
   const events = await f.store.events(first.id);
-  assert.deepEqual(events.filter((item) => item.kind === 'fallback').map((item) => item.step), ['explain']);
+  assert.deepEqual(events.filter((item) => item.kind === 'fallback').map((item) => item.step),
+    ['select_strategy', 'explain']);
   assert.equal(events.at(-1).step, 'publish');
   const second = await triggerInput(f.store, request, { id: 'evt2', kind: 'weather',
     availableAt: issue, weatherRunId: 'w2' }, issue);
