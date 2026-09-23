@@ -14,7 +14,8 @@ export interface StoredForecast extends Omit<ForecastRun, "idempotencyKey" | "in
 }
 
 export interface ForecastStore {
-  publish(input: Omit<StoredForecast, "id" | "version" | "previousVersionId">): Promise<StoredForecast>;
+  publish(input: Omit<StoredForecast, "id" | "version" | "previousVersionId">,
+    guard?: { jobId: string; leaseToken: string; now: string }): Promise<StoredForecast>;
   list(filter?: {assetId?: string; issuedAt?: string; mode?: ForecastRequest["mode"];
     horizonHours?: 24 | 48}): Promise<StoredForecast[]>;
 }

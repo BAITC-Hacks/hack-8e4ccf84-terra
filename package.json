@@ -12,7 +12,11 @@
     "typecheck": "tsc --noEmit",
     "db:migrate": "node scripts/migrate.mjs",
     "test:foundation": "node --test tests/foundation/*.test.mjs",
-    "test:postgres": "tsx tests/import/postgres-smoke.ts"
+    "test:postgres": "tsx tests/import/postgres-smoke.ts",
+    "test:agent": "node --test tests/agent/workflow.test.cjs tests/agent/reliability.test.cjs",
+    "test:agent:integration": "node --test tests/agent/postgres.test.cjs",
+    "test:agent:replay": "node --test tests/agent/replay.test.cjs",
+    "test:agent:openai": "node --test tests/agent/openai-smoke.test.cjs"
   },
   "dependencies": {
     "@openai/agents": "^0.18.0",

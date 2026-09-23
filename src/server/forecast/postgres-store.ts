@@ -15,7 +15,8 @@ const series = (request: ForecastRequest) => JSON.stringify([
 export class PostgresForecastStore implements ForecastStore {
   constructor(private readonly sql: Sql) {}
 
-  async publish(input: Omit<StoredForecast, "id" | "version" | "previousVersionId">): Promise<StoredForecast> {
+  async publish(input: Omit<StoredForecast, "id" | "version" | "previousVersionId">,
+    guard?: { jobId: string; leaseToken: string; now: string }): Promise<StoredForecast> {
     if (input.status === "published" &&
       (input.snapshot.missing.length || validateForecastValues(input.request, input.values).length ||
         input.publishedAt === null)) throw new Error("INCOMPLETE_FORECAST");
@@ -24,6 +25,12 @@ export class PostgresForecastStore implements ForecastStore {
     }
     const assetIds = [...input.request.assetIds].sort();
     return this.sql.begin(async (tx) => {
+      if (guard) {
+        const owned = await tx`SELECT id FROM jobs WHERE id = ${guard.jobId} AND kind = 'agent'
+          AND status = 'running' AND lease_until > ${guard.now}
+          AND checkpoint->>'leaseToken' = ${guard.leaseToken} FOR UPDATE`;
+        if (!owned.length) throw new Error("LEASE_LOST");
+      }
       // Serialize a forecast series before checking the snapshot hash and assigning its version.
       await tx`SELECT pg_advisory_xact_lock(hashtextextended(${series(input.request)}, 0))`;
       const snapshotRows = await tx`
@@ -40,7 +47,12 @@ export class PostgresForecastStore implements ForecastStore {
         (await tx`SELECT id FROM input_snapshots WHERE sha256 = ${input.snapshot.sha256}`)[0].id as string;
       const existing = await tx`
         SELECT id FROM forecast_runs WHERE idempotency_key = ${input.idempotencyKey}`;
-      if (existing.length) return this.loadOne(tx, existing[0].id as string);
+      if (existing.length) {
+        if (guard) await tx`UPDATE jobs SET checkpoint = jsonb_set(checkpoint,
+          '{data,publicationCommitted}', to_jsonb(${existing[0].id as string}::text), true)
+          WHERE id = ${guard.jobId}`;
+        return this.loadOne(tx, existing[0].id as string);
+      }
       const previous = await tx`
         SELECT id, version FROM forecast_runs
         WHERE issued_at = ${input.request.issuedAt}
@@ -65,6 +77,8 @@ export class PostgresForecastStore implements ForecastStore {
           value, unit, quality_flag) VALUES (${id}, ${value.assetId},
           ${value.targetTime}, ${value.value}, ${value.unit}, ${value.qualityFlag})`;
       }
+      if (guard) await tx`UPDATE jobs SET checkpoint = jsonb_set(checkpoint,
+        '{data,publicationCommitted}', to_jsonb(${id}::text), true) WHERE id = ${guard.jobId}`;
       return {...input, id, version, previousVersionId: previous[0]?.id ?? null,
         inputSnapshotId: snapshotId};
     });

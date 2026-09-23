@@ -2,6 +2,7 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
+const path = require('node:path');
 const ts = require('typescript');
 const postgres = require('postgres');
 
@@ -12,27 +13,19 @@ require.extensions['.ts'] = (module, filename) => {
   }}).outputText, filename);
 };
 const { PostgresJobStore } = require('../../src/server/jobs/postgres-store.ts');
+const { PostgresReplayStore } = require('../../src/server/replay/store.ts');
 
 const url = process.env.TEST_DATABASE_URL;
 test('PostgreSQL claim, fencing, checkpoint and restart on S01 jobs schema', { skip: !url }, async () => {
   const parsed = new URL(url);
   assert.ok(['127.0.0.1', 'localhost'].includes(parsed.hostname), 'test database must be local');
+  assert.match(parsed.pathname, /test/i, 'test database name must contain "test"');
   const sql = postgres(url, { max: 3 });
   try {
-    await sql.unsafe(`CREATE TABLE IF NOT EXISTS jobs (
-      id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-      kind text NOT NULL, status text NOT NULL, attempt integer NOT NULL DEFAULT 0,
-      lease_until timestamptz, heartbeat_at timestamptz,
-      checkpoint jsonb NOT NULL DEFAULT '{}'::jsonb, error_code text,
-      idempotency_key text, request_hash text,
-      created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NOT NULL DEFAULT now(),
-      UNIQUE (kind, idempotency_key));
-      CREATE TABLE IF NOT EXISTS agent_events (
-        id uuid PRIMARY KEY DEFAULT gen_random_uuid(), job_id uuid NOT NULL REFERENCES jobs(id),
-        sequence integer NOT NULL, step text NOT NULL, kind text NOT NULL,
-        reason text, details jsonb NOT NULL DEFAULT '{}'::jsonb,
-        created_at timestamptz NOT NULL DEFAULT now(), UNIQUE (job_id, sequence));`);
-    await sql`TRUNCATE agent_events, jobs`;
+    for (const name of ['0001_foundation.sql', '0002_agent_replay.sql']) {
+      await sql.unsafe(fs.readFileSync(path.join(__dirname, '../../src/server/db/migrations', name), 'utf8'));
+    }
+    await sql`TRUNCATE replay_input_events, replay_sessions, agent_events, jobs CASCADE`;
     const store = new PostgresJobStore(sql);
     const now = '2026-01-31T00:00:00.000Z';
     const payload = { assetIds: ['line'], issuedAt: now, horizonHours: 24, mode: 'replay',
@@ -54,12 +47,36 @@ test('PostgreSQL claim, fencing, checkpoint and restart on S01 jobs schema', { s
     assert.notEqual(recovered.leaseToken, one.leaseToken);
     assert.equal(await store.advance(job.id, one.leaseToken, afterLease, {}, 1), false);
     assert.equal(await restartedStore.advance(job.id, recovered.leaseToken, afterLease,
-      { weather: 'w1' }, 1), true);
+      { weather: 'w1' }, 1, undefined, { jobId: job.id, step: 'fetch_weather_run',
+        kind: 'completed', reason: 'fetched', details: { runId: 'w1' }, createdAt: afterLease }), true);
     assert.deepEqual((await store.get(job.id)).checkpoint, { weather: 'w1' });
-    const event = await store.appendEvent({ jobId: job.id, step: 'fetch_weather_run',
-      kind: 'completed', reason: 'fetched', details: { runId: 'w1' }, createdAt: afterLease });
+    const event = (await restartedStore.events(job.id))[0];
     assert.equal(event.sequence, 1);
     assert.equal((await restartedStore.events(job.id))[0].reason, 'fetched');
+    assert.equal((await restartedStore.cancel(job.id, afterLease)).status, 'cancelled');
+
+    const [asset] = await sql`INSERT INTO assets (kind, name) VALUES ('turbine', 'Replay turbine') RETURNING id`;
+    const [artifact] = await sql`INSERT INTO raw_artifacts (sha256, path, source)
+      VALUES (${'a'.repeat(64)}, '/test/weather.json', 'test') RETURNING id`;
+    const [runOne] = await sql`INSERT INTO weather_runs (asset_id, provider, published_at, available_at,
+      raw_artifact_id) VALUES (${asset.id}, 'test', ${now}, ${now}, ${artifact.id}) RETURNING id`;
+    const twoHours = new Date(Date.parse(now) + 2 * 3_600_000).toISOString();
+    const replay = new PostgresReplayStore(sql);
+    const session = await replay.create({ assetIds: [asset.id], horizonHours: 24,
+      modelVersionId: '00000000-0000-0000-0000-000000000001', configVersion: 'v1',
+      dataPolicy: 'history_only' }, now, [
+      { id: 'event-1', availableAt: now, issuedAt: now, weatherRunId: runOne.id },
+      { id: 'event-2', availableAt: twoHours, issuedAt: twoHours, weatherRunId: runOne.id },
+    ]);
+    const firstAdvance = await replay.advance(session.id, now, now);
+    assert.equal(firstAdvance.jobIds.length, 1);
+    const restartedReplay = new PostgresReplayStore(sql);
+    const secondAdvance = await restartedReplay.advance(session.id, twoHours, twoHours);
+    assert.equal(secondAdvance.jobIds.length, 1);
+    assert.equal(secondAdvance.session.cursor, 2);
+    const repeated = await restartedReplay.advance(session.id, twoHours, twoHours);
+    assert.deepEqual(repeated.jobIds, []);
+    assert.equal((await restartedReplay.get(session.id)).cursor, 2);
   } finally {
     await sql.end();
   }
