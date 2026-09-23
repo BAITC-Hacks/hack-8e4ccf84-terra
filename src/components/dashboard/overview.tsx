@@ -31,7 +31,8 @@ export function Overview() {
   const low = points.reduce<(typeof points)[number] | undefined>((best, point) => !best || point.prediction < best.prediction ? point : best, undefined);
   const largestChange = comparisons.reduce<(typeof comparisons)[number] | undefined>((best, item) => !best || Math.abs(item.difference) > Math.abs(best.difference) ? item : best, undefined);
   const largeChanges = comparisons.filter((item) => Math.abs(item.difference) >= 0.15).length;
-  const normalizedEnergy = points.reduce((sum, point) => sum + point.prediction, 0);
+  const normalizedEnergy = points.length === latest?.horizon_hours ? points.reduce((sum, point) => sum + point.prediction, 0) : null;
+  const historySource = sources.data?.find(source => source.type.toLowerCase() === "csv" && source.status === "ready");
   const staleWeather = sources.data?.find((source) => source.status === "stale");
 
   if (!forecasts.loading && !forecasts.error && !latest) {
@@ -47,7 +48,7 @@ export function Overview() {
     </section>;
   }
 
-  const percent = (value?: number) => value == null ? "—" : `${numberLabel(value * 100, 0)}%`;
+  const power = (value?: number) => value == null ? "—" : numberLabel(value, 3);
   const change = largestChange?.difference;
 
   return <div className="overview-redesign">
@@ -64,23 +65,23 @@ export function Overview() {
 
     {latest && <>
       <div className="overview-kpis" aria-label={t("Ключевые показатели прогноза")}>
-        <article className="overview-kpi"><span>{t("Пик выработки")}</span><strong>{percent(peak?.prediction)}</strong><small>{peak ? `${dateLabel(peak.target_time, timezone)} · ${t("от номинала")}` : t("Нет данных")}</small></article>
-        <article className="overview-kpi"><span>{t("Минимум")}</span><strong>{percent(low?.prediction)}</strong><small>{low ? `${dateLabel(low.target_time, timezone)} · ${t("от номинала")}` : t("Нет данных")}</small></article>
-        <article className={`overview-kpi ${change != null && Math.abs(change) >= .15 ? "attention" : ""}`}><span>{t("Изменение к прошлой версии")}</span><strong>{change == null ? "—" : `${change > 0 ? "+" : "−"}${numberLabel(Math.abs(change) * 100, 0)} п.п.`}</strong><small>{largestChange ? `${dateLabel(largestChange.point.target_time, timezone)} · ${largeChanges} ${t("ч с разницей ≥15 п.п.")}` : t("Нет общей части горизонта")}</small></article>
+        <article className="overview-kpi"><span>{t("Пик выработки")}</span><strong>{power(peak?.prediction)}</strong><small>{peak ? `${dateLabel(peak.target_time, timezone)} · ${t("исходная шкала")}` : t("Нет данных")}</small></article>
+        <article className="overview-kpi"><span>{t("Минимум")}</span><strong>{power(low?.prediction)}</strong><small>{low ? `${dateLabel(low.target_time, timezone)} · ${t("исходная шкала")}` : t("Нет данных")}</small></article>
+        <article className={`overview-kpi ${change != null && Math.abs(change) >= .15 ? "attention" : ""}`}><span>{t("Изменение к прошлой версии")}</span><strong>{change == null ? "—" : `${change > 0 ? "+" : "−"}${numberLabel(Math.abs(change), 3)}`}</strong><small>{largestChange ? `${dateLabel(largestChange.point.target_time, timezone)} · ${largeChanges} ${t("ч с разницей ≥0,15 в исходной шкале")}` : t("Нет общей части горизонта")}</small></article>
         <article className="overview-kpi"><span>{t("Сумма за горизонт")}</span><strong>{numberLabel(normalizedEnergy, 1)}<em>{t("норм.-ч")}</em></strong><small>{t("Нормализованная энергия; номинал объекта не задан")}</small></article>
       </div>
 
       <div className="overview-main-grid">
         <section className="panel overview-chart-panel">
-          <div className="overview-panel-heading"><div><h2>{t("Ожидаемая мощность")}</h2><p>{t("Доля номинальной мощности; пропуски не заменяются нулями")}</p></div></div>
+          <div className="overview-panel-heading"><div><h2>{t("Ожидаемая мощность")}</h2><p>{t("Нормализованная мощность в исходной шкале; пропуски не заменяются нулями")}</p></div></div>
           <ForecastChart points={latest.points} previous={previous} timezone={timezone} />
         </section>
 
         <aside className="overview-alerts" aria-label={t("Требует внимания")}>
           <h2>{t("Требует внимания")} <span>{Number(Boolean(staleWeather)) + Number(largeChanges > 0)}</span></h2>
           {staleWeather && <article className="overview-alert warning-alert"><h3>{t("Прогноз погоды устарел")}</h3><p>{staleWeather.error || t("Свежесть погодных данных ниже ожидаемой. Точность прогноза может быть ниже.")}</p><Link href="/sources">{t("Проверить источник")}</Link></article>}
-          {largeChanges > 0 && <article className="overview-alert warning-alert"><h3>{t("Прогноз сильно изменился")}</h3><p>{largestChange ? `${t("Максимальное изменение")} ${numberLabel(Math.abs(largestChange.difference) * 100, 0)} ${t("п.п. в")} ${dateLabel(largestChange.point.target_time, timezone)}.` : ""}</p><div><Link href="/agent-log">{t("Почему? Открыть журнал")}</Link><Link href="/forecast">{t("Сравнить версии")}</Link></div></article>}
-          {!sources.loading && !sources.error && <article className="overview-alert success-alert"><h3>{t("История измерений в порядке")}</h3><p>{sources.data?.find((source) => source.status === "ready")?.coverage != null ? `${t("Покрытие")} ${numberLabel((sources.data?.find((source) => source.status === "ready")?.coverage ?? 0) * 100, 1)}%.` : t("Источник готов к расчёту.")}</p></article>}
+          {largeChanges > 0 && <article className="overview-alert warning-alert"><h3>{t("Прогноз сильно изменился")}</h3><p>{largestChange ? `${t("Максимальное изменение")} ${numberLabel(Math.abs(largestChange.difference), 3)} ${t("в исходной шкале ·")} ${dateLabel(largestChange.point.target_time, timezone)}.` : ""}</p><div><Link href="/agent-log">{t("Почему? Открыть журнал")}</Link><Link href="/forecast">{t("Сравнить версии")}</Link></div></article>}
+          {!sources.loading && !sources.error && historySource && <article className="overview-alert success-alert"><h3>{t("История измерений в порядке")}</h3><p>{historySource.coverage != null ? `${t("Покрытие")} ${numberLabel((sources.data?.find((source) => source.status === "ready")?.coverage ?? 0) * 100, 1)}%.` : t("Источник готов к расчёту.")}</p></article>}
           {sources.loading && <div className="notice loading"><span className="spinner" />{t(" Загружаем данные…")}</div>}
           {transport === "api" && sources.error && <div className="notice danger">{t(sources.error)}</div>}
         </aside>

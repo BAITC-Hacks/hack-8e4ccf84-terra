@@ -72,3 +72,11 @@ test('canonical assets, connections and synchronous CSV reports are adapted', as
     await assert.rejects(client.industrial('postgres',{action:'test'}),/Серверный шлюз не настроен/);
   } finally {global.fetch=original;}
 });
+
+test('forecast uncertainty bounds are optional, finite and ordered', () => {
+  const point=fixture.forecasts('backtest','ready')[0].points[0];
+  assert.ok(point.interval[0]<=point.prediction && point.interval[1]>=point.prediction);
+  assert.equal(schema.pointSchema.safeParse({...point,interval:undefined}).success,true);
+  assert.equal(schema.pointSchema.safeParse({...point,interval:[1,0]}).success,false);
+  assert.equal(schema.pointSchema.safeParse({...point,interval:[0,Infinity]}).success,false);
+});

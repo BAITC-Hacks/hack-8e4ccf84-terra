@@ -1,6 +1,12 @@
 // User-facing copy. Russian is the source locale.
 import { historyMessages } from "./history-messages";
 export const messages: Record<string, { en: string; kk: string }> = {
+"Диапазон": {en:"Range",kk:"Аралық"},
+"Наведите, коснитесь графика или используйте стрелки клавиатуры.": {en:"Hover, touch the chart or use the arrow keys.",kk:"Меңзерді апарыңыз, графикті түртіңіз немесе бағыттау пернелерін қолданыңыз."},
+"исходная шкала": {"en":"source scale","kk":"бастапқы шкала"},
+"ч с разницей ≥0,15 в исходной шкале": {"en":"h with a difference ≥0.15 on the source scale","kk":"сағ айырмасы бастапқы шкалада ≥0,15"},
+"Нормализованная мощность в исходной шкале; пропуски не заменяются нулями": {"en":"Normalized power on the source scale; gaps are not replaced with zero","kk":"Бастапқы шкаладағы нормаланған қуат; бос мәндер нөлмен алмастырылмайды"},
+"в исходной шкале ·": {"en":"on the source scale ·","kk":"бастапқы шкалада ·"},
   ...historyMessages,
 "Данных пока нет": {"en":"No data yet","kk":"Деректер әлі жоқ"},
 "Чтобы получить первый прогноз выработки, подключите историю измерений и прогноз погоды.": {"en":"Connect measurement history and weather forecasts to generate your first power forecast.","kk":"Алғашқы қуат болжамын алу үшін өлшемдер тарихы мен ауа райы болжамын қосыңыз."},
