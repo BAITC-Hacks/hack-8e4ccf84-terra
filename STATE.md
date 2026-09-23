@@ -1,9 +1,9 @@
 # Project state
 
-- Updated UTC: 2026-09-23 10:35Z.
+- Updated UTC: 2026-09-23 10:40Z.
 - Branch/worktree: `chore/integrate-s03-weather-runs` / private integration worktree.
-- Base: local `main` at `11ed17b`; S03 task branch `origin/feat/s03-weather-runs` at `133e82e`.
-- Active task: S03 merge conflict resolved and integration validated; local `main` fast-forward is next. No remote push was requested.
+- Base: current local `main`/`origin/main` at `8d25bab`; S03 task branch `origin/feat/s03-weather-runs` at `133e82e`.
+- Active task: S03 and the latest S05 main update are reconciled and validated; local `main` fast-forward is next. No remote push was requested.
 - Demo: portal preview is available at `http://localhost:3107/login` when locally configured. No weather UI/API is wired.
 
 ## Integrated implementation
@@ -18,8 +18,8 @@
 
 - PASS on task branch: `node tests/weather/probe.mjs tests/weather/evidence` (five recorded Open-Meteo responses with raw bytes and hashes).
 - PASS in this integration worktree: `npm ci --no-audit --no-fund`.
-- PASS in this integration worktree: `node --test tests/weather/weather.test.mjs` (25 tests, offline).
-- PASS in this integration worktree: `npm run lint`, `npm run typecheck`, `npm run build`.
+- PASS after merging current `main`: `node --test tests/weather/weather.test.mjs` (25 tests, offline).
+- PASS after merging current `main`: `npm run lint`, `npm run typecheck`, `npm run build`.
 - BLOCKED: PostgreSQL write/read/restart integration: S01 weather schema and adapter are absent.
 - NOT_RUN: whole-month archive coverage using confirmed station coordinates and approved issue schedule.
 
