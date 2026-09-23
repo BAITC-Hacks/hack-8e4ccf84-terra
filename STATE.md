@@ -1,10 +1,10 @@
 # Project state — wind forecast agent runtime
 
-- Updated UTC: 2026-09-23 10:47Z
+- Updated UTC: 2026-09-23 10:52Z
 - Branch/worktree: `feat/wind-forecast-agent` / `.worktrees/wind-forecast-agent`
 - Base: locally available `origin/main` at `0433640`; fresh remote fetch remains BLOCKED (`Repository not found`).
-- Last verified task commit: rebase in progress; use `uncommitted` until post-rebase checks complete.
-- Owner/status: Codex; agent runtime slice implemented and pre-rebase validation passed. Combined validation is next.
+- Last verified task commit: `8b33b1e` on base `0433640`; post-rebase checks passed.
+- Owner/status: Codex; agent runtime slice is implemented and validated locally. Private local-main integration is next.
 
 ## Integrated implementation
 
@@ -19,10 +19,8 @@
 
 ## Validation
 
-- PASS before rebase: `npm test` (28), `npm run test:foundation` (3), `npm run test:agent` (12), `npm run test:agent:replay` (1), forecast service tests (6), lint, typecheck and production build.
-- PASS before rebase: disposable PostgreSQL 16 integration using real `0001_foundation.sql` and `0002_agent_replay.sql`; claim/fencing/atomic journal/cancel/replay restart passed and the container was removed.
-- Preserved-base PASS: S03 weather offline tests (25) and S09 harness tests (2), per the reconciled base handoff.
-- PENDING: combined post-rebase regression/build.
+- PASS after rebase: `npm test` (28), `npm run test:foundation` (3), `npm run test:agent` (12), `npm run test:agent:replay` (1), forecast service tests (6), S03 weather tests (25), S09 harness tests (2), lint, typecheck and production build.
+- PASS after rebase: disposable PostgreSQL 16 integration using real `0001_foundation.sql` and `0002_agent_replay.sql`; claim/fencing/atomic journal/cancel/replay restart passed and the container was removed.
 - SKIP: real OpenAI smoke; no `RUN_OPENAI_SMOKE=1` plus verified account model/key.
 - BLOCKED: real February historical E2E until trustworthy archival forecast runs are persisted in the canonical S01 tables.
 - BLOCKED: February evaluation because supplied CSVs contain no February actuals.
@@ -37,6 +35,6 @@
 
 ## Next actions
 
-1. Complete rebase and run combined agent, weather, acceptance, lint, typecheck and build checks.
-2. Create a private local integration worktree, merge the validated task, update canonical state and fast-forward local `main` under the remote-unavailable fallback.
-3. When GitHub access returns, fetch/reconcile, push the task branch and local integration to `origin/main`, then verify ancestry.
+1. Create a private local integration worktree, merge the validated task, update canonical state and fast-forward local `main` under the remote-unavailable fallback.
+2. When GitHub access returns, fetch/reconcile, push the task branch and local integration to `origin/main`, then verify ancestry.
+3. Integrate S03 output into canonical weather tables, add actual-arrival evaluation, then run historical and opt-in OpenAI smoke gates.
