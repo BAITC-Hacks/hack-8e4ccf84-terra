@@ -2,8 +2,8 @@
 
 ## Snapshot
 - Updated UTC: 2026-09-23 09:19Z. Branch/worktree: `feat/s05-dashboard`, `C:/Users/Kassym/Desktop/TTT/hack-8e4ccf84-terra-worktrees/s05-dashboard`.
-- Verified base: `origin/main` at `68e0714`; UI implementation `f1519cc`; root-router compatibility changes pending commit.
-- S05 owner: Codex / Касымжан. Status: VALIDATED on fixture/mock API; real E4 integration remains BLOCKED on S01–S04.
+- Verified base: `origin/main` at `68e0714`; UI implementation `f1519cc`; verified task commit `f3299ee` (router compatibility included).
+- S05 owner: Codex / Касымжан. Status: PUSHED to origin/feat/s05-dashboard; validated on fixture/mock API; real E4 integration remains BLOCKED on S01–S04.
 - Demo: `npm run dev`, `/overview`, `/forecast`, `/sources`, `/agent-log`. Default visibly synthetic backtest; select “Настоящий API” for same-origin `/api/v1`.
 
 ## S05 verified result
@@ -30,6 +30,6 @@
 - PASS staged diff/whitespace/secret review; no credentials; `git diff --exit-code origin/main -- src/server src/app/api app/api package.json package-lock.json`.
 
 ## Next actions
-1. Commit compatibility handoff, push S05 branch and verify remote SHA.
+1. Verified remote branch `origin/feat/s05-dashboard` at `f3299eeba2dafd157251225275f4c487fdcd37fe` via git ls-remote; working tree clean after push. This state update records that result.
 2. Merge in separate integration worktree per current AGENTS standing instruction; rerun checks, reconcile state, push main and verify ancestry.
 3. S01–S04 owners publish contracts/API; align UI adapter and execute real E4 gate in tests/ui/README.md. S06 also awaits canonical data and bounded S07 execution.
