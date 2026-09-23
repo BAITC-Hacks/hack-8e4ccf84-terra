@@ -53,3 +53,11 @@
 1. Review /history locally with the user; do not push (user instruction).
 2. Next UX slice: connect the historical viewer to durable full-period execution and visible agent stages, using verified archival inputs.
 3. Existing backend work: confirm asset/time/power semantics, persist trustworthy archival weather, connect an approved trained artifact, and obtain February actuals before official evaluation.
+
+## Parallel completion specification
+
+- Updated UTC: 2026-09-23T12:02:06.8364423Z; branch docs/parallel-agent-spec; verified base 66421cf; specification changes uncommitted.
+- Scope: docs/parallel-agent-completion-spec.md defines six parallel ownership-scoped tasks, fixed integration contracts, P7 E2E acceptance, and serialized delivery to local main through private integration worktrees.
+- PASS: seven task sections and existing repository references checked; git diff --check. Application tests/build not run: documentation-only change.
+- Remote fetch BLOCKED: Repository not found. User requests local main delivery; no remote completion claimed.
+- Next: dispatch P1-P6 when requested; run P7 after their integration. Preserve historical-viewer state above.
