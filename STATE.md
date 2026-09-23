@@ -1,30 +1,28 @@
-# Project state — backend specification audit
+# Project state — backend integrity and agent runtime
 
-- Updated UTC: 2026-09-23 11:12Z
+- Updated UTC: 2026-09-23 11:21Z
 - Branch/worktree: `chore/integrate-backend-spec-audit` / private integration worktree.
-- Base/integration: latest fetched `origin/main` at `50ad10b`; task `580fd3d` merged by `37a3a21`.
-- Owner/status: Codex; confirmed forecast-integrity fixes integrated and validated; remote `main` push pending.
+- Base/integration: fetched `origin/main` at `cee93a6`; backend-audit task `580fd3d` and merge `37a3a21` are incorporated with the latest agent-remediation documentation.
+- Owner/status: Codex; merge conflict was reconciled without discarding either task. Final affected checks and remote `main` push are pending.
 
-## Current implementation
+## Integrated implementation
 
-- Preserved the integrated test-login behavior and durable wind-agent runtime: enqueue/status/journal/cancel APIs, protected one-step dispatcher, lease-fenced publication, transactional checkpoints, bounded retries, replay sessions, and deterministic gates.
+- Preserved explicit development sign-in, the durable wind-agent runtime, and `docs/agent-subsystem-remediation-spec.md` from current `main`.
 - Preserved the S03 Open-Meteo Single Runs connector and saved provenance evidence. Its local repository is not a production adapter for canonical PostgreSQL weather tables.
 - CSV import now mirrors accepted training rows transactionally into canonical `observations`; evaluation-only targets remain isolated. Migration `0002_bridge_import_observations.sql` backfills existing accepted training rows.
 - Forecast publication rejects any output unit other than `normalized`; weather without `published_at` is eligible only with an explicit availability assumption.
 - Backtest leakage validation enforces `target_time = issued_at + lead_hour` exactly.
-- Compose includes an application healthcheck. Detailed evidence and gaps are in `docs/backend-spec-audit.md`.
+- Compose includes an application healthcheck. Detailed audit evidence and gaps are in `docs/backend-spec-audit.md`.
 
 ## Validation
 
-- PASS after latest rebase: core (32), foundation (4), agent (12), replay (1), weather (25), forecast (7), lint, typecheck, and production build.
-- PASS before latest rebase (unaffected): acceptance harness (2).
-- PASS in private integration worktree: core (32), foundation (4), agent (12), replay (1), weather (25), forecast (7), acceptance harness (2), lint, typecheck, and production build.
-- PASS before latest rebase: Compose config/build/startup and application/database healthchecks; `/api/health` returned `database=ready`.
-- PASS before latest rebase: disposable PostgreSQL 16 migrations; CSV import produced three canonical observations and a persisted 24-point forecast; a separate clean database passed agent claim/fencing/checkpoint/restart integration.
-- FAIL (pre-existing, unrelated): UI localization suite reports missing English/Kazakh translation for Russian `Проверяем…`; this branch does not change frontend/i18n.
+- PASS on the audit branch and before latest-main merge: core (32), foundation (4), agent (12), replay (1), weather (25), forecast (7), acceptance harness (2), lint, typecheck, and production build.
+- PASS before latest-main merge: Compose config/build/startup and application/database healthchecks; `/api/health` returned `database=ready`.
+- PASS before latest-main merge: disposable PostgreSQL 16 migrations; CSV import produced three canonical observations and a persisted 24-point forecast; a separate clean database passed agent claim/fencing/checkpoint/restart integration.
+- PENDING after incorporating `cee93a6`: affected checks for the documentation-only remote change.
+- FAIL (pre-existing, unrelated): UI localization suite reports missing English/Kazakh translation for Russian `Проверяем…`; the audit does not change frontend/i18n.
 - EXPECTED BLOCKED: `node tests/acceptance/run.mjs verify` reports missing `demo:verify`; the fail-closed harness itself passes.
-- BLOCKED by missing inputs: official February evaluation and forecast-quality metrics; supplied CSVs end on 2026-01-31 23:50 and contain no February actuals.
-- BLOCKED by provenance: historical Open-Meteo availability time is not provider-proven, and turbine mapping/time semantics remain unconfirmed.
+- BLOCKED by inputs/provenance: no February actuals, no provider-proven historical publication time, and unconfirmed turbine/time/power semantics.
 - SKIP unless explicitly configured: live OpenAI smoke (`RUN_OPENAI_SMOKE=1` plus a verified model/key).
 
 ## Decisions and constraints
@@ -34,11 +32,11 @@
 - Unknown publication time is not inferred from model run time; eligibility requires a recorded assumption.
 - Only `data_use=training` is bridged into canonical observations.
 - Only the persistence model currently has production inference support; unsupported artifacts fail explicitly.
-- Candidate coordinates from the supplied PDF are not treated as confirmed physical asset configuration.
+- Candidate turbine coordinates from the PDF remain unconfirmed configuration.
 - Development `test` credentials remain local-only and are not committed.
 
 ## Next actions
 
-1. Push the integration HEAD to `origin/main` without rewriting history.
-2. Verify task commit `580fd3d` and this canonical state are present on remote `main`.
-3. After owner data is available, confirm turbine/time/power semantics, persist trustworthy archival forecast runs, and execute the February replay/evaluation.
+1. Complete the merge and rerun affected checks.
+2. Push integration HEAD to `origin/main` without rewriting history and verify `580fd3d` ancestry.
+3. After owner data is available, confirm asset/time/power semantics, persist trustworthy archival forecast runs, and execute the February replay/evaluation.
