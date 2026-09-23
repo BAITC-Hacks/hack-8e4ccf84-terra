@@ -1,5 +1,59 @@
 // User-facing copy. Russian is the source locale.
 export const messages: Record<string, { en: string; kk: string }> = {
+"Данных пока нет": {"en":"No data yet","kk":"Деректер әлі жоқ"},
+"Чтобы получить первый прогноз выработки, подключите историю измерений и прогноз погоды.": {"en":"Connect measurement history and weather forecasts to generate your first power forecast.","kk":"Алғашқы қуат болжамын алу үшін өлшемдер тарихы мен ауа райы болжамын қосыңыз."},
+"Загрузите историю измерений": {"en":"Upload measurement history","kk":"Өлшемдер тарихын жүктеңіз"},
+"CSV с почасовой мощностью, от 30 дней": {"en":"CSV with hourly power, at least 30 days","kk":"Кемінде 30 күндік сағаттық қуат көрсетілген CSV"},
+"Загрузить CSV": {"en":"Upload CSV","kk":"CSV жүктеу"},
+"Подключите прогноз погоды": {"en":"Connect weather forecasts","kk":"Ауа райы болжамын қосыңыз"},
+"Ключ API и координаты объекта": {"en":"API key and asset coordinates","kk":"API кілті және нысан координаттары"},
+"Запустите первый прогноз": {"en":"Run the first forecast","kk":"Алғашқы болжамды іске қосыңыз"},
+"Станет доступно после подключения источников": {"en":"Available after connecting sources","kk":"Дереккөздерді қосқаннан кейін қолжетімді"},
+"Запустить": {"en":"Run","kk":"Іске қосу"},
+"Прогноз на {p0} часов": {"en":"{p0}-hour forecast","kk":"{p0} сағаттық болжам"},
+"выпущена": {"en":"issued","kk":"шығарылды"},
+"Загружаем актуальную версию": {"en":"Loading the latest version","kk":"Соңғы нұсқа жүктелуде"},
+"Открыть подробный прогноз": {"en":"Open detailed forecast","kk":"Толық болжамды ашу"},
+"Ключевые показатели прогноза": {"en":"Forecast key indicators","kk":"Болжамның негізгі көрсеткіштері"},
+"Пик выработки": {"en":"Peak generation","kk":"Өндірістің ең жоғары мәні"},
+"от номинала": {"en":"of nominal","kk":"номиналдан"},
+"Минимум": {"en":"Minimum","kk":"Ең төмен мән"},
+"Изменение к прошлой версии": {"en":"Change from previous version","kk":"Алдыңғы нұсқадан өзгеріс"},
+"ч с разницей ≥15 п.п.": {"en":"h with a difference ≥15 pp","kk":"сағ айырмасы ≥15 п.т."},
+"Нет общей части горизонта": {"en":"No overlapping forecast horizon","kk":"Ортақ болжам аралығы жоқ"},
+"Сумма за горизонт": {"en":"Total over horizon","kk":"Болжам аралығындағы қосынды"},
+"норм.-ч": {"en":"norm.-h","kk":"норм.-сағ"},
+"Нормализованная энергия; номинал объекта не задан": {"en":"Normalized energy; asset nominal capacity is unspecified","kk":"Нормаланған энергия; нысанның номиналды қуаты көрсетілмеген"},
+"Доля номинальной мощности; пропуски не заменяются нулями": {"en":"Fraction of nominal power; missing values are not replaced with zero","kk":"Номиналды қуат үлесі; бос мәндер нөлмен алмастырылмайды"},
+"Требует внимания": {"en":"Needs attention","kk":"Назар аудару қажет"},
+"Прогноз погоды устарел": {"en":"Weather forecast is stale","kk":"Ауа райы болжамы ескірген"},
+"Свежесть погодных данных ниже ожидаемой. Точность прогноза может быть ниже.": {"en":"Weather data is older than expected. Forecast accuracy may be lower.","kk":"Ауа райы деректері күтілгеннен ескі. Болжам дәлдігі төмен болуы мүмкін."},
+"Проверить источник": {"en":"Check source","kk":"Дереккөзді тексеру"},
+"Прогноз сильно изменился": {"en":"Forecast changed significantly","kk":"Болжам айтарлықтай өзгерді"},
+"Максимальное изменение": {"en":"Maximum change","kk":"Ең үлкен өзгеріс"},
+"п.п. в": {"en":"pp at","kk":"п.т., уақыты"},
+"Почему? Открыть журнал": {"en":"Why? Open the log","kk":"Неліктен? Журналды ашу"},
+"Сравнить версии": {"en":"Compare versions","kk":"Нұсқаларды салыстыру"},
+"История измерений в порядке": {"en":"Measurement history is healthy","kk":"Өлшемдер тарихы қалыпты"},
+"Источник готов к расчёту.": {"en":"Source is ready for calculation.","kk":"Дереккөз есептеуге дайын."},
+"Проверяем…": {"en":"Checking…","kk":"Тексерілуде…"},
+"Серверный шлюз не настроен. Обратитесь к администратору.": {"en":"Server gateway is not configured. Contact your administrator.","kk":"Сервер шлюзі бапталмаған. Әкімшіге хабарласыңыз."},
+"Источник недоступен. Проверьте настройки и повторите запрос.": {"en":"Source unavailable. Check the settings and retry.","kk":"Дереккөз қолжетімсіз. Баптауларды тексеріп, қайталаңыз."},
+"Таблица PostgreSQL": {"en":"PostgreSQL table","kk":"PostgreSQL кестесі"},
+"Шлюз принял настройку подключения": {"en":"Gateway accepted the connection setup","kk":"Шлюз қосылым баптауларын қабылдады"},
+"Коннекторы": {"en":"Connectors","kk":"Коннекторлар"},
+"Настроить": {"en":"Configure","kk":"Баптау"},
+"Интервал источника · минуты": {"en":"Source interval · minutes","kk":"Дереккөз аралығы · минут"},
+"Задержка доступности · минуты": {"en":"Availability delay · minutes","kk":"Қолжетімділік кідірісі · минут"},
+"Основание доступности данных": {"en":"Data availability rationale","kk":"Деректердің қолжетімділік негіздемесі"},
+"Разделители полей и дробной части должны различаться.": {"en":"Field and decimal separators must differ.","kk":"Өріс пен бөлшек бөлгіштері әртүрлі болуы керек."},
+"Проверка погодного прогона по координатам объекта. Время инициализации — UTC.": {"en":"Check a weather run at the asset coordinates. Initialization time is UTC.","kk":"Нысан координаттары бойынша ауа райы есебін тексеру. Іске қосылу уақыты — UTC."},
+"Демонстрационный режим: ответ погоды синтетический.": {"en":"Demo mode: weather response is synthetic.","kk":"Демо режимі: ауа райы жауабы жасанды."},
+"Широта": {"en":"Latitude","kk":"Ендік"},
+"Долгота": {"en":"Longitude","kk":"Бойлық"},
+"Прогон · UTC": {"en":"Model run · UTC","kk":"Модель есебі · UTC"},
+"Циклы: 00, 06, 12, 18 UTC. Проверка не включает автоматическую загрузку и не доказывает историческую доступность.": {"en":"Cycles: 00, 06, 12, 18 UTC. This check does not enable automatic ingestion or prove historical availability.","kk":"Циклдер: 00, 06, 12, 18 UTC. Тексеру автоматты жүктеуді қоспайды және тарихи қолжетімділікті растамайды."},
+"Погодный прогон доступен": {"en":"Weather run is available","kk":"Ауа райы есебі қолжетімді"},
   "· Результат: {p0}": {
     "en": "· Result: {p0}",
     "kk": "· Нәтиже: {p0}"
@@ -304,9 +358,9 @@ export const messages: Record<string, { en: string; kk: string }> = {
     "en": "Decimal separator",
     "kk": "Ондық бөлгіш"
   },
-  "До 100 МБ · исходный файл передаётся без изменения": {
-    "en": "Up to 100 MB · original file uploaded unchanged",
-    "kk": "100 МБ-қа дейін · бастапқы файл өзгеріссіз жіберіледі"
+  "До 50 МБ · исходный файл передаётся без изменения": {
+    "en": "Up to 50 MB · original file uploaded unchanged",
+    "kk": "50 МБ-қа дейін · бастапқы файл өзгеріссіз жіберіледі"
   },
   "Доступ определяется серверной сессией. Ошибки API не заменяются примерами.": {
     "en": "Server session controls access. API errors are never replaced with examples.",
@@ -604,9 +658,9 @@ export const messages: Record<string, { en: string; kk: string }> = {
     "en": "Normalized power, original scale",
     "kk": "Нормаланған қуат, бастапқы шкала"
   },
-  "Нужен непустой CSV размером до 100 МБ.": {
-    "en": "Select a non-empty CSV file up to 100 MB.",
-    "kk": "Көлемі 100 МБ-тан аспайтын бос емес CSV файлын таңдаңыз."
+  "Нужен непустой CSV размером до 50 МБ.": {
+    "en": "Select a non-empty CSV file up to 50 MB.",
+    "kk": "Көлемі 50 МБ-тан аспайтын бос емес CSV файлын таңдаңыз."
   },
   "Нужно подтвердить": {
     "en": "Confirmation required",

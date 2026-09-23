@@ -300,3 +300,20 @@ footer { padding:21px 34px; font-size:9px; color:var(--muted); }footer b { font-
 .overview-onboarding .button,.overview-onboarding button { min-height:32px; padding:6px 11px; font-size:11px; }
 @media(max-width:1150px) { .overview-main-grid { grid-template-columns:1fr; }.overview-kpis { grid-template-columns:repeat(2,minmax(0,1fr)); }.overview-alerts { grid-template-columns:repeat(2,minmax(0,1fr)); }.overview-alerts>h2 { grid-column:1/-1; }.overview-alerts .success-alert { grid-column:1/-1; } }
 @media(max-width:700px) { .overview-title-row { align-items:flex-start; flex-direction:column; }.overview-kpis,.overview-alerts { grid-template-columns:1fr; }.overview-alerts .success-alert { grid-column:auto; }.overview-kpi small { min-height:0; }.overview-onboarding li { grid-template-columns:30px minmax(0,1fr); }.overview-onboarding li>:last-child { grid-column:2; justify-self:start; } }
+/* Connector workspace follows the supplied TERRA reference without changing other pages. */
+.connectors-page { --accent:#0b7a80; }
+.connectors-page .panel { border-radius:14px; box-shadow:0 5px 22px #0e223306; scroll-margin-top:24px; }
+.connector-catalog { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:12px; margin:0 0 24px; }
+.connector-catalog a { border:1px solid var(--line); background:var(--surface); border-radius:14px; padding:20px; display:flex; flex-direction:column; gap:16px; color:var(--text); text-decoration:none; transition:border-color .15s,transform .15s; min-width:0; }
+.connector-catalog a:hover,.connector-catalog a:focus-visible { border-color:var(--accent); transform:translateY(-2px); }
+.connector-catalog strong { font-size:15px; overflow-wrap:anywhere; }
+.connector-catalog a>span:last-child { color:var(--accent); font-size:11px; }
+.connector-number { color:var(--muted); font-family:monospace; font-size:12px; }
+.connector-fields { border:0; padding:0; margin:0; min-width:0; }
+.connectors-page .industrial-grid { grid-template-columns:1fr; }
+.connectors-page .upload-zone { border:1px dashed var(--accent); border-radius:12px; padding:24px; background:var(--surface-alt); }
+.connectors-page .source-grid { margin-bottom:24px; }
+.connectors-page .notice { overflow-wrap:anywhere; }
+[data-theme="dark"] .connectors-page { --accent:#4fc9ce; }
+@media(max-width:1100px) { .connector-catalog { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+@media(max-width:600px) { .connector-catalog { grid-template-columns:repeat(2,minmax(0,1fr)); }.connector-catalog a { padding:16px; } }

@@ -56,3 +56,19 @@ test('API adapter rejects malformed schemas, JSON, auth and network errors witho
     await assert.rejects(client.exportCsv('run-1'),/неверный формат экспорта/);
   } finally { global.fetch = originalFetch; }
 });
+
+test('canonical assets, connections and synchronous CSV reports are adapted', async () => {
+  const original = global.fetch; const client = createClient('api','live','ready');
+  try {
+    global.fetch = async () => Response.json({assets:[{id:'asset-1',name:'Turbine',time_zone:null,power_unit:null}]});
+    assert.equal((await client.assets())[0].timezone,'UNKNOWN');
+    global.fetch = async () => Response.json({connections:[{id:'csv',name:'History',type:'csv',enabled:false,status:'unchecked',lastSuccessAt:null,lastTestedAt:null,lastError:null}]});
+    assert.equal((await client.connections())[0].coverage,null);
+    global.fetch = async () => Response.json({id:'import-1',status:'completed',report:{read:3,accepted:2,rejected:1,duplicates:0,reasons:{invalid_row:1}},errorsUrl:'/api/v1/imports/import-1/errors'});
+    assert.equal((await client.importReport('import-1')).rejected,1);
+    global.fetch = async (_url,init) => { assert.ok(init.body.has('config')); return Response.json({id:'import-1'}); };
+    const form = new FormData(); form.set('config','{}'); assert.equal((await client.importCsv(form)).id,'import-1');
+    global.fetch = async () => Response.json({error:{code:'not_configured',message:'private secret'}},{status:503});
+    await assert.rejects(client.industrial('postgres',{action:'test'}),/Серверный шлюз не настроен/);
+  } finally {global.fetch=original;}
+});

@@ -22,6 +22,7 @@ export const connections: Connection[] = [
 ];
 
 export const industrialResources = {
+  postgres: [{ name: "scada.measurements", fields: ["measured_at", "normalized_power", "wind_speed", "temperature"] }],
   oracle: [
     { name: "SCADA_HISTORY", fields: ["EVENT_TIME", "ACTIVE_POWER_NORM", "WIND_SPEED_MS", "AIR_TEMP_C"] },
     { name: "TURBINE_10MIN", fields: ["MEASURED_AT", "POWER_VALUE", "WIND_SPEED", "TEMPERATURE"] },
