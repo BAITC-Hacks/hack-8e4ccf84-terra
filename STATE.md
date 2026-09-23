@@ -1,31 +1,29 @@
-# Project state — S07 branch
+# Project state — S07 integration branch
 
-- Updated (UTC): 2026-09-23 09:22Z
+- Updated (UTC): 2026-09-23 09:23Z
 - Branch/worktree: `feat/s07-agent` / `.worktrees/s07-agent`
-- Last verified base: `ed2ddf6` on local `origin/main`; S07 commit is being rebased and its new SHA is not yet verified
-- Remote freshness: UNKNOWN for this task because `git fetch origin` returns `Repository not found`; another worktree has advanced the local `origin/main` ref
-- Demo: S07 fixture workflow through `node --test tests/agent/workflow.test.cjs`; no deployed end-to-end agent API yet
+- Base: observed local `origin/main` at `ed2ddf6`; S01 merge is in progress; verify final commit after merge
+- Remote freshness: UNKNOWN for this task because `git fetch origin` returns `Repository not found`
+- User instruction: integrate into local `main`; user will push it
 
-## Integrated base and other active work
+## Integrated and active work
 
-- S00 audit is present in the base. Two ten-minute CSV histories end on 2026-01-31; physical power semantics, timezone, interval convention and weather publication timing remain unresolved.
-- S06 training/model implementation and S08 backtest/evaluation/export are present in the observed base. S08 state at `ed2ddf6` reports 6 ML and 13 backtest tests plus lint/build/typecheck passing in its integration worktree. Those checks have not yet been rerun with S07.
-- S01 schema/auth/tick and S04 forecast service remain in separate local branches. S03 is a separate remote branch; S02 implementation is not present on the observed base. S04 publication is the intended durable versioning service.
+- Base contains S00 audit, S06 model/training and S08 backtest/evaluation/export. S00 reports two ten-minute CSV histories through 2026-01-31, with unresolved power semantics, timezone and interval convention. February fact is evaluation-only.
+- S01 validated schema, auth, health and protected idle tick are being merged here. Its clean Compose/migration/auth checks passed on its branch; tick still requires S07 execution wiring.
+- S07 fixture agent and PostgreSQL job queue are implemented. A local PostgreSQL 16 integration test passed claim, lease fencing and checkpoint recovery. The fixture tests passed duplicate event, restart after publication, bounded retry, unavailable inputs, replay and LLM fallback.
+- S04 forecast service is in a separate local worktree. S03 is a separate remote branch. S02 implementation has not appeared in the observed base; real S02–S06 connection remains open.
 
-## Active task
+## S07 task and validation
 
-S07 / Бибарыс / IN_PROGRESS. Acceptance: atomic claim, lease/heartbeat/checkpoint and bounded retry; idempotent trigger and publication after restart; agent steps and decision journal; replay and LLM fallback; real S02–S06 adapters after their contracts are integrated. Touched: `src/server/jobs/**`, `src/server/agent/**`, `src/server/replay/**`, `scripts/job-dispatcher.mjs`, `tests/agent/**`, `docs/progress/bibarys.md`, this file.
+Owner Бибарыс / IN_PROGRESS. Touched: `src/server/jobs/**`, `src/server/agent/**`, `src/server/replay/**`, `scripts/job-dispatcher.mjs`, `tests/agent/**`, S01 tick integration to follow, `docs/progress/bibarys.md`, this file.
 
-## S07 checks
-
-- PASS: `node --test tests/agent/workflow.test.cjs` — 7 fixture tests for duplicate trigger, restart after saved publication, stale lease, bounded crash/network retry, future inputs and replay.
-- PASS: `TEST_DATABASE_URL=postgres://... node --test tests/agent/postgres.test.cjs` — 1 local PostgreSQL 16 integration test for atomic claim, fencing, checkpoint and restart against the S01 table shape.
-- PASS: `npx tsc --noEmit --incremental false`; `npm run lint`; `npm run build -- --webpack` before rebase.
-- BLOCKED: canonical Turbopack `npm run build` in this worktree because its dependency junction points outside the project root.
-- NOT_RUN: combined checks after rebase, real S02–S06 connection, protected HTTP tick, local main integration.
+- PASS before S01 merge: 7 fixture tests, 1 local PostgreSQL test, TypeScript, lint, `next build --webpack`.
+- PASS on S01 branch: clean Compose migration/auth smoke, foundation tests, lint/typecheck/build; see its commit state for commands.
+- NOT_RUN after merge: combined suite/build, protected S07 tick, real forecast path.
+- BLOCKED: canonical Turbopack build in this worktree because `node_modules` is a junction outside the project root; use local install before final gate.
 
 ## Next actions
 
-1. Finish rebase and rerun S07 plus combined checks.
-2. Connect S01 tick/auth and S04 forecast publication, then the available S02/S03/S06 services; verify one issuance T and a restart.
-3. Reconcile state in a separate local main integration worktree and leave the final main push to the user, as requested.
+1. Finish S01 merge, wire the authenticated tick to `JobRunner`, and run combined checks.
+2. Connect S04 publication and available S02/S03/S06 services; verify one issuance T, duplicate input and restart.
+3. Integrate the validated result into local `main`, preserve other work in STATE.md, and leave push to the user.
