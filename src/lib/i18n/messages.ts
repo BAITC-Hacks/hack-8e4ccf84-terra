@@ -942,6 +942,10 @@ export const messages: Record<string, { en: string; kk: string }> = {
     "en": "Verifying access…",
     "kk": "Қолжетімділік тексерілуде…"
   },
+  "Проверяем…": {
+    "en": "Checking…",
+    "kk": "Тексерілуде…"
+  },
   "Прогноз": {
     "en": "Forecast",
     "kk": "Болжам"

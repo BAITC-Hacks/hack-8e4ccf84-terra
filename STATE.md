@@ -1,20 +1,29 @@
-# Project state — job refresh feedback
+# Project state — UI theme and localization readability
 
-- Updated UTC: 2026-09-23T12:27:00Z
-- Branch/worktree: `chore/integrate-job-refresh-feedback` / private integration worktree; task commit `d47902c` merged over `origin/main` at `715c2ef`.
-- Owner/status: Codex; frontend implementation and task-branch push complete, pending `origin/main` push verification.
-- Acceptance: both job buttons expose stable-size loading states; job data is retained on errors; successful checks show a timestamp; retry and `aria-live` feedback are present; polling is serialized, stops on terminal status, and stale task responses are ignored.
-- Touched: `src/components/dashboard/job.tsx`, `agent-log.tsx`, `src/app/globals.css`, and all-locale messages.
-- PASS: `npm run typecheck`; `npm run lint`; UI contract tests (12/12); `git diff --check`.
-- SKIPPED by latest user instruction: production build and browser QA. An in-progress build was stopped; no failure was observed before cancellation.
-- Next: push integration HEAD to `origin/main` and verify task commit ancestry.
+- Updated UTC: 2026-09-23 12:31Z
+- Branch/worktree: `chore/integrate-theme-i18n-readability` / private integration worktree.
+- Base/integration: validated task `d456c86` is merged over latest `origin/main` at `ce623b4`, preserving the job/login/history/chart work.
+- Owner/status: Codex; implementation and browser validation pass, pending integration commit, `origin/main` push, and ancestry verification.
 
-# Previous project state — minimal localized login hero integration
+## Active task
 
-- Updated UTC: 2026-09-23T12:22:04Z.
-- Branch/worktree: `chore/integrate-minimal-login-hero` / private integration worktree.
-- Base/integration: validated task `71da309` and latest remote chart/UX work are integrated at `ebb36cc` on `origin/main`.
-- Owner/status: Codex; task branch is pushed, `71da309` is verified as an ancestor of `origin/main`, and integration checks pass.
+- Theme colors now use shared semantic tokens for controls, statuses, focus, selected and disabled states; dark-theme hardcoded light success/button colors were removed.
+- Noto Sans is self-hosted through `next/font` with Latin and Cyrillic subsets for Russian and Kazakh glyphs.
+- Language controls and options use theme surfaces; long localized labels wrap or receive full-width mobile controls instead of clipping.
+- Added the missing English/Kazakh translation for `Проверяем…`.
+- Touched paths: `src/app/globals.css`, `src/app/layout.tsx`, `src/lib/i18n/messages.ts`, and UI browser tests/docs.
+
+## UI validation
+
+- PASS: readability matrix — 2 themes × 3 languages × 2 viewports × 4 routes, including contrast, clipping, overflow, font loading, hover/focus/selected/disabled; screenshots saved in ignored `.next/ui-qa/readability/`.
+- PASS: platform browser suite (10 scenarios) and dashboard browser suite (14 scenarios) against the production build in Microsoft Edge.
+- PASS: `npm test` (32), UI unit suite (11), lint, typecheck, and production build.
+- No further test reruns requested before Git integration.
+
+## Job refresh feedback (preserved from origin/main)
+
+- Task `d47902c` and state commit `ce623b4` preserve stable loading states, retained job data on errors, timestamps, retry/`aria-live` feedback, serialized polling, terminal stopping, and stale-response protection.
+- Remote handoff reports PASS: typecheck, lint, UI contract tests (12/12), and diff check; production build/browser QA were skipped by that task's user instruction.
 
 ## Minimal login hero (current task)
 
