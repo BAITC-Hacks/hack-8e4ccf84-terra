@@ -1,10 +1,10 @@
 # Project state — wind forecast agent runtime
 
-- Updated UTC: 2026-09-23 10:52Z
-- Branch/worktree: `chore/integrate-wind-forecast-agent` / private integration worktree.
+- Updated UTC: 2026-09-23 10:56Z
+- Branch/worktree: local `main` / primary checkout.
 - Base: locally available `origin/main` at `0433640`; fresh remote fetch remains BLOCKED (`Repository not found`).
-- Last verified commits: implementation `8b33b1e`, task handoff `e6defcf`, local integration `0113ec8` over base `0433640`.
-- Owner/status: Codex; agent runtime slice is implemented and validated in a private local integration. Remote publication remains blocked.
+- Last verified commits: implementation `8b33b1e`, task handoff `e6defcf`, integration `0113ec8`, local-main handoff `f9b1ca2` over base `0433640`.
+- Owner/status: Codex; agent runtime slice is implemented, validated, and present on local `main`. Remote publication remains blocked.
 
 ## Integrated implementation
 
@@ -36,6 +36,6 @@
 
 ## Next actions
 
-1. Retain this private integration; the original `main` checkout has user changes and must not be modified from this task.
-2. When GitHub access returns, fetch/reconcile, push the task branch and integration to `origin/main`, then verify ancestry.
+1. Preserve the unrelated local edits in `AGENTS.md`, `SLICE_RULE.md`, and `AGENT_IMPL.md`.
+2. When GitHub access returns, fetch/reconcile and push local `main` to `origin/main`, then verify ancestry.
 3. Integrate S03 output into canonical weather tables, add actual-arrival evaluation, then run historical and opt-in OpenAI smoke gates.
