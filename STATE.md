@@ -1,51 +1,40 @@
-# Project state
+# Project state — S05 task branch
 
 ## Snapshot
+- Updated UTC: 2026-09-23 09:14Z; branch `feat/s05-dashboard`; owner S05/Codex for Касымжан.
+- Verified base `c2b4003`; refreshed origin/main `68e0714` includes S00 audit, S06 ML implementation and updated integration policy. Pending implementation: uncommitted.
+- Status: VALIDATED on fixture/mock API; real E4 integration BLOCKED on S01–S04 publication.
+- Demo: `npm run dev`, open `/overview`; `/forecast`, `/sources`, `/agent-log`. Default is visibly synthetic backtest data; switch “Настоящий API” for same-origin `/api/v1`.
 
-- Updated UTC: 2026-09-23 09:14:02Z.
-- Branch/worktree: `chore/integrate-s06-e5`, `C:/Users/elnar.saparov/Desktop/HACK/hack-8e4ccf84-terra-worktrees/integrate-s06-e5`.
-- Last verified task commits: `d094908` (implementation) and `865262d` (branch handoff); verified integration commit is `8a7d746` on `origin/main`.
-- Demo: `npm run dev`; `POST /api/v1/training-jobs` creates a durable queued job and returns HTTP 202. The S07 dispatcher/tick integration is outside this branch.
+## Verified result
+- Four Russian pages; forecast graph/table, asset/release/horizon filters, previous-version alignment by target time, briefing, full-version CSV, source freshness/coverage and provenance.
+- Explicit live/backtest/replay, display timezone, normalized original scale. No MW/MWh or percent-of-rated conversion. Loading/empty/error/stale/partial states; refresh failure retains last successful forecast with warning.
+- CSV file preview, mapping, encoding/delimiter/decimal/source timezone/interval convention, confirmation invalidation, multipart import and job/report flow; report lookup and row/reason CSV.
+- Agent tool/reason/duration/error/result journal; job polling; forecast/backtest request; evaluation lookup with N=0 displayed as no data.
+- API responses validated; auth/network/malformed responses fail visibly without fixture fallback. UI-local proposal pending S01: `src/components/dashboard/contracts.ts` / `client.ts`.
+- Changed paths: `src/app`, `src/components/dashboard`, `tests/ui`, `docs/handoffs/kassym-s05.md`, this handoff. Starter root `app/` moved because it shadows `src/app`; no server slice/config/dependency changes.
 
-## Active task and tangible result
+## Checks
+- PASS `npm ci --no-audit --no-fund` (no dependency file changes).
+- PASS `npm run lint`.
+- PASS `npm run build` (Next 16.3.6, TypeScript, all four routes).
+- PASS `node --test tests/ui/csv.test.mjs tests/ui/client.test.cjs`: 6 tests.
+- PASS `UI_BROWSER_CHANNEL=msedge node tests/ui/dashboard.cjs` with runner Playwright via NODE_PATH against production on port 3105: 13 scenarios (fixture + mocked API); desktop/mobile screenshots reviewed. Commands for Windows documented in tests/ui/README.md.
+- PASS actual missing `/api/v1` shows unavailable errors without synthetic fallback. Real successful API flow NOT_RUN; no handlers exist on inspected base.
+- PASS staged diff/secret review; no credentials or unrelated dependency/server changes. Refreshed-base verification pending.
 
-- S06 / E5 TypeScript model and validation, owner Codex, status PUSHED and integrated into `origin/main`.
-- Implemented nonlinear ridge features, train-only scaling, resumable sufficient-statistics/optimization checkpoints, empirical power curve, mean baseline, pre-February rolling validation over 3/6/12-month and full-history candidates, fair same-pair comparison, deterministic best-candidate selection, JSON artifacts, and idempotent training-job creation.
-- Touched paths: `src/server/ml/**`, `src/app/api/v1/training-jobs/**`, runtime adapter `app/api/v1/training-jobs/**`, `tests/ml/**`, package scripts/lockfile and `.gitignore`.
-- Acceptance evidence: February target poisoning does not change validation report or selection; eligible candidates use the same pair count; artifacts record code version, cutoff, input hash, training period and validation report; NaN/Infinity are rejected before persistence.
+## Preserved project constraints / other work
+- S00 artifacts on origin/main: `docs/data-audit.md`, `docs/data-contract.md`; audit commit `716c63b`. Read and respected. Two separate source series; unknown normalization/physical target/timezone/interval meaning/availability. CSV has no February actuals. Do not merge source powers or manufacture performance metrics.
+- S01 owns contracts/DB/auth/config, S02 imports, S03 weather, S04 forecast, S06–S08 downstream calculation/agent/evaluation. Their implementation status remains UNKNOWN until merged; UI does not edit their files.
+- Existing foundation in src/agent, src/db, src/domain/demo, src/ui remains untouched; runtime completeness UNKNOWN.
 
-## Decisions and constraints
-
-- February cutoff is capped at `2026-02-01T00:00:00Z`; all fitting and model selection filter to timestamps strictly before cutoff.
-- Ridge uses deterministic batch accumulation of `X'X`/`X'y` followed by bounded gradient steps. Both phases serialize to JSON and resume with row/iteration budgets.
-- Model artifacts default to `.data/ml`, ignored by Git; production must mount this path persistently or set `ML_ARTIFACT_DIR`.
-- This branch owns the ML job step, not S07 queue lease/heartbeat/tick orchestration. The endpoint only enqueues and does not continue work after sending the response.
-- S00 findings merged on the base remain authoritative: source timezone/interval semantics and physical normalization are UNKNOWN; this model uses explicit ISO timestamps and does not label values as MW/MWh.
-
-## Validation
-
-| Check | Result | Evidence |
-|---|---|---|
-| `npm test` | PASS | 6/6 ML tests after rebase: train-only scaler, checkpoint resume, finite guards, power curve, February leakage/fair pairs, idempotent durable artifact |
-| `npm run lint` | PASS | ESLint exited 0 after rebase |
-| `npm run build` | PASS | Next.js 16.3.6 post-rebase production build/typecheck; dynamic `/api/v1/training-jobs` route generated |
-| Manual production HTTP request | PASS | `POST /api/v1/training-jobs` returned 202, queued job id and `Location` |
-| Post-rebase critical suite | PASS | Tests, lint, build and `git diff --check origin/main...HEAD` passed |
-| Private integration suite | PASS | Fresh `npm ci`, 6/6 tests, full lint and production build passed with the staged merge |
-| Secret-pattern review | PASS | Only pre-existing environment/API-key identifiers; no credential values |
-
-## Blockers, risks and next actions
-
-1. S01/S07 should call `FileTrainingJobStore.advance` from the protected bounded job tick and provide lease/heartbeat semantics; S02–S04 should adapt canonical observations/weather records into `TrainingExample` after E4.
-2. Validate quality on real admissible weather/target pairs after source timezone, availability and target semantics are resolved; current tests use deterministic fixtures and do not claim real-world improvement.
-
-## Recent tangible milestones
-
-- 2026-09-23 09:14Z: `origin/main` verified at integration commit `8a7d746`; task implementation `d094908` is an ancestor and remote feature branch points to `865262d`.
-- S00 input audit is merged on `origin/main` through `f7d1ed9`; its documented unknowns remain unresolved downstream gates.
-
-## Remote result
-
-- Feature branch: `origin/feat/typescript-model-validation` at `865262d`.
-- Main integration: `origin/main` at `8a7d746`; `git merge-base --is-ancestor d094908 origin/main` passed.
-- No deployment was performed; the integration is source and test complete.
+## Next actions
+1. Review and commit S05, rebase onto refreshed origin/main, reconcile S00 STATE facts; rerun relevant checks and push task branch.
+2. Follow updated AGENTS standing instruction: merge in separate integration worktree, validate and fast-forward-push main; verify task ancestry and remote state.
+3. Owners publish S01–S04; align UI-local adapter and run real E4 acceptance described in tests/ui/README.md. Real API validation remains open.
+## Reconciled S06 integration
+- S06 / E5 is already integrated on origin/main: implementation `d094908`, integration `8a7d746`, handoff `68e0714`.
+- Preserved nonlinear ridge/train-only scaling/checkpoints, empirical power curve, pre-February rolling validation, fair comparison and durable training-job enqueue. S06 reported 6 passing tests, lint/build and queued HTTP 202; this branch will rerun its automated checks after integration.
+- Canonical route `src/app/api/v1/training-jobs` and S06 root runtime adapter `app/api/v1/training-jobs` remain untouched. Root app must remain active: add thin UI-only re-exports to src/app rather than remove another slice's API adapter.
+- S06 artifacts use ignored `.data/ml` / ML_ARTIFACT_DIR. S01/S07 must connect bounded advance to protected tick with leases; no dispatcher execution or real-model-quality claim is implied.
+- S00 unknown time/target/availability semantics and missing February actuals remain blockers for real E4/evaluation.
