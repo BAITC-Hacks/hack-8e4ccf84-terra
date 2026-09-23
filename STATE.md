@@ -1,9 +1,9 @@
 # Project state — local main
 
-- Updated UTC: 2026-09-23 09:59Z
-- Branch/worktree: `docs/hackalem-spec` / task worktree.
-- Last verified base commit: `e5b61c4` (`origin/main`, locally cached); remote fetch is BLOCKED because the configured GitHub remote returns `Repository not found`.
-- Active task: HackAlem AI PDF specification converted to Markdown and committed as `d5baf32`; remote publication is blocked by repository access.
+- Updated UTC: 2026-09-23 10:02Z
+- Branch/worktree: `chore/integrate-hackalem-local` / private local integration worktree.
+- Last verified integration commit: `cceddcd`; configured remote remains BLOCKED because GitHub returns `Repository not found`.
+- Active task: HackAlem AI PDF specification integrated locally; pending fast-forward of local `main`.
 - Demo: S05 fixture dashboard remains at `/overview`, `/forecast`, `/sources`, `/agent-log`. With PostgreSQL and `DATABASE_URL`, run `npm run db:migrate`, then `npm run dev`; CSV APIs are under `/api/v1/imports` and `/api/v1/connections`.
 
 ## Preserved work
@@ -16,6 +16,7 @@
 - S07 `564a09e` through `bf4f1fd`: fixture/PostgreSQL job stores, atomic claim, fenced lease/heartbeat/checkpoint, bounded retry, idempotent trigger, agent decisions and replay. Protected tick is still an idle adapter.
 - S08 `5ce6748`: sequential backtest, evaluator-only actuals, leakage checks, February metrics, common-pair baseline and CSV export. Registry remains in memory.
 - S02: SHA-256 artifacts, bounded/idempotent CSV import, observation revisions, error reports/downloads, connection APIs and coverage-aware hourly aggregation are merged in this integration worktree. S03 weather adapters are not present.
+- Documentation: `docs/hackalem-ai-agentic-wind-forecasting.md` is a verified Markdown transcription of the HackAlem AI case specification.
 
 ## Decisions and risks
 
@@ -43,5 +44,6 @@
 
 ## Next actions
 
-1. Retry remote fetch/push once repository access is restored, then integrate `d5baf32` and this handoff update into `origin/main`.
+1. Fast-forward local `main` to this integration commit.
+2. Retry remote fetch/push once repository access is restored.
 3. Align the S05 source adapter with the production S02 payloads and run the real UI gate.
