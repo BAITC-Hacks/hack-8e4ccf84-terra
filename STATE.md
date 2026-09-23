@@ -2,8 +2,8 @@
 
 ## Snapshot
 - Updated UTC: 2026-09-23 09:26Z. Branch/worktree: `chore/integrate-s05-dashboard`, `C:/Users/Kassym/Desktop/TTT/hack-8e4ccf84-terra-worktrees/integrate-s05-dashboard`.
-- Verified base: `origin/main` at `a29854c`; UI implementation `f1519cc`; verified task commit `f3299ee`; remote branch handoff `5a004ae`. Local integration `529704d` validated; remote advanced to S08 before push, now incorporating it without rewriting history.
-- S05 owner: Codex / Касымжан. Status: PUSHED to origin/feat/s05-dashboard; validated on fixture/mock API; real E4 integration remains BLOCKED on S01–S04.
+- Verified base: `origin/main` at `a29854c`; UI implementation `f1519cc`; verified task commit `f3299ee`; remote branch handoff `5a004ae`. Verified main integration `ed439af5fa935c648dbf258c411e8037eb94f345` contains S05 and concurrent S08. This state-only edit records the verified remote result.
+- S05 owner: Codex / Касымжан. Status: PUSHED and integrated into origin/main at `ed439af`; validated on fixture/mock API; real E4 integration remains BLOCKED on S01–S04.
 - Demo: `npm run dev`, `/overview`, `/forecast`, `/sources`, `/agent-log`. Default visibly synthetic backtest; select “Настоящий API” for same-origin `/api/v1`.
 
 ## S05 verified result
@@ -31,7 +31,7 @@
 
 ## Next actions
 1. Verified remote feature branch at `5a004ae4a7d7e0a8d4b6f2591e11241eb4cecc94`; integration diff preserves all S00/S06 commits and files.
-2. Clean integration worktree checks passed; commit merge, normal fast-forward push to main, verify task ancestry and record remote result.
+2. Main push verified by git ls-remote at `ed439af`; `git merge-base --is-ancestor f3299ee origin/main` passed. No deployment performed.
 3. S01–S04 owners publish contracts/API; align UI adapter and execute real E4 gate in tests/ui/README.md. S06 also awaits canonical data and bounded S07 execution.
 ## S08 preserved during concurrent integration
 - Remote main advanced to `a29854c` while S05 was validating; first normal push was rejected (non-fast-forward). S08 implementation `5ce6748`, integration `ed2ddf6`, handoff `a29854c` are incorporated with no changes to their files.
@@ -39,3 +39,5 @@
 - Its in-memory registry is an integration adapter, not durable production storage. Canonical POST backtest, evaluation and export routes plus root bridges are preserved. S01/S07 must provide shared session/persistence/queue integration.
 - S05's wire proposal was built before S08 publication. S08 currently has bearer authentication, issue_times/training_cutoff requests and evaluation envelope; UI adapter alignment remains part of the real E4/S01 gate, not a successful integration claim. No secret is embedded or added to the browser.
 - PASS combined 13 backtest tests (`npx --no-install tsx --test tests/backtest/*.test.ts`), 6 ML tests, 6 UI unit tests, lint/build and 13 browser scenarios on production port 3106 before retrying main push. All four API routes and four UI routes generated.
+
+Remote result: feature branch 5a004ae, main integration d439af. All implementation and shared-state reconciliation are committed; both worktrees are retained for review. After this handoff commit, verify its normal push too.
