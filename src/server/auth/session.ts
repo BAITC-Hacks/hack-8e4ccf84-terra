@@ -17,8 +17,14 @@ function secret(): string {
 
 export function checkAdminPassword(password: string): boolean {
   const configured = process.env.ADMIN_PASSWORD;
-  if (!configured || configured.length < 12 || configured.startsWith("replace-with-")) throw new Error("ADMIN_PASSWORD must contain at least 12 non-placeholder characters");
+  if (!configured || configured.startsWith("replace-with-") || (process.env.NODE_ENV === "production" && configured.length < 12))
+    throw new Error("ADMIN_PASSWORD must contain at least 12 non-placeholder characters in production");
   return equal(createHash("sha256").update(password).digest("hex"), createHash("sha256").update(configured).digest("hex"));
+}
+
+export function checkAdminCredentials(username: string, password: string): boolean {
+  const configuredUsername = process.env.ADMIN_USERNAME?.trim() || "admin";
+  return equal(username, configuredUsername) && checkAdminPassword(password);
 }
 
 export function createSession(now = Date.now()): string {
