@@ -1,9 +1,9 @@
 # Project state — industrial portal task
 
-- Updated UTC: 2026-09-23 10:15Z
+- Updated UTC: 2026-09-23 10:13Z
 - Branch/worktree: `feat/industrial-portal` / private `industrial-portal` worktree.
-- Last verified base: `8895ba8` from `origin/main`; replaying validated task commit `7d04995` onto it. Only STATE.md conflicted; code changes are disjoint.
-- Owner/status: Codex, industrial UI + RU/KK/EN + themes + mandatory sign-in; implementation and browser checks passed; combined-code validation and push pending.
+- Last verified base: `8895ba8` from `origin/main`; validated portal commit `f78d8a7` is rebased onto it. Only STATE.md conflicted; code changes are disjoint.
+- Owner/status: Codex, industrial UI + RU/KK/EN + themes + mandatory sign-in; implementation and combined-code validation passed; remote push/integration pending.
 - Demo: production preview on `http://localhost:3107/login`; random local administrator credentials live only in ignored `.env.local`. Sign in opens the requested dashboard route. Fixture forecast/import/report/journal flows work; real data API alignment remains a separate integration gate.
 
 ## Implemented and verified
@@ -17,7 +17,7 @@
 ## Preserved work and boundaries
 
 - S00 data audit; S01 contracts/migrations/Compose/session/token bridge; S04 immutable as-of baseline; S05 fixtures/dashboard; S06 model training; S07 durable jobs/replay; S08 backtest/evaluation/export are retained from the base.
-- S02 CSV import/connection/hourly-quality code, the verified HackAlem specification transcription, and the new agent-problems documentation are preserved from latest main. Prior S02 28 tests/lint/typecheck/build passed per its handoff; combined checks will be rerun here.
+- S02 CSV import/connection/hourly-quality code, the verified HackAlem specification transcription, and the latest specification/router cleanup are preserved from latest main. Combined S02/backtest/ML tests, foundation, UI/agent/forecast tests, lint, typecheck and production build passed after rebase.
 - Root `app/` is the effective router; root UI files re-export canonical `src/app` components.
 - Source timezone/interval, physical units/normalization and target semantics remain unconfirmed. No MW/MWh or official quality claim. February actuals remain evaluation-only.
 - Demo examples stay explicitly synthetic. Server-returned data retains its source language. Existing shared administrator role is reused; multi-user registration was not requested.
@@ -25,7 +25,7 @@
 ## Validation
 
 - PASS: `npm run lint`, `npm run typecheck`, `npm run build` (production App Router build).
-- PASS: `npm test` (6), `npm run test:foundation` (3), `npx tsx --test tests/backtest/*.test.ts` (13).
+- PASS: `npm test` (28: S02/backtest/ML), `npm run test:foundation` (3).
 - PASS: `node --test tests/agent/workflow.test.cjs tests/forecast/service.test.cjs` (13).
 - PASS: `node --test tests/ui/platform.test.cjs tests/ui/client.test.cjs tests/ui/csv.test.mjs` (10).
 - PASS: `node tests/ui/dashboard.cjs` (13 browser scenarios, authenticated session; data API cases mocked).
@@ -35,6 +35,6 @@
 
 ## Next actions
 
-1. Run updated npm test/lint/typecheck/build and the UI suites after the S02 rebase; source adapters still need a separate real-API alignment.
+1. Verify post-rebase browser suite completion and push validated task branch.
 2. Validate combined code, push task branch, merge in a private integration worktree and push `main` without rewriting history; record verified remote commits.
 3. Separate follow-up: align S05 adapters with S02/S04/S08 real payloads, wire S07 tick and S03 weather; run real database/UI integration before operational use.

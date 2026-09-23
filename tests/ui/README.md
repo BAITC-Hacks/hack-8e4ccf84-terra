@@ -11,9 +11,9 @@
 
 Screenshots are saved under ignored `.next/ui-qa/`. The script tests the production build at desktop and mobile sizes, all resource states, version/horizon/mode/timezone changes, full-version export, CSV validation/confirmation/report, agent-result navigation, failed-refresh retention, N=0, multipart imports and asynchronous jobs. API cases are **mocked**, not a claim of completed E4 integration.
 
-## Pending S01 integration
+## Real API alignment gate (still open)
 
-`src/components/dashboard/contracts.ts` is a UI-local schema proposal from PLAN §6/8. S01 server contracts did not exist on the base. All wire details are isolated in `client.ts`; fixtures are synthetic and never loaded as fallback after an API failure. Do not import server-only code into the UI.
+`src/components/dashboard/contracts.ts` is the original UI-local schema proposal from PLAN §6/8. S01/S02/S04/S08 server routes now exist, but their payloads still need alignment with this UI adapter. All wire details are isolated in `client.ts`; fixtures are synthetic and never loaded as fallback after an API failure. Do not import server-only code into the UI.
 
 Proposed read responses (bare JSON, no envelope):
 
