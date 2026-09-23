@@ -9,6 +9,27 @@ const credentials = z.object({
   password: z.string().min(1),
 }).strict();
 
+function hasMatchingOrigin(request: Request): boolean {
+  const origin = request.headers.get("origin");
+  if (!origin) return true;
+  const requestOrigin = new URL(request.url);
+  if (origin === requestOrigin.origin) return true;
+
+  // Next dev may construct route-handler URLs with `localhost` even when the
+  // browser reached the local server through its loopback address.
+  if (process.env.NODE_ENV !== "development") return false;
+  try {
+    const suppliedOrigin = new URL(origin);
+    const loopbackHosts = new Set(["localhost", "127.0.0.1", "[::1]"]);
+    return suppliedOrigin.protocol === requestOrigin.protocol
+      && suppliedOrigin.port === requestOrigin.port
+      && loopbackHosts.has(suppliedOrigin.hostname)
+      && loopbackHosts.has(requestOrigin.hostname);
+  } catch {
+    return false;
+  }
+}
+
 export async function GET() {
   try {
     const active = validSession((await cookies()).get(SESSION_COOKIE)?.value);
@@ -19,8 +40,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const origin = request.headers.get("origin");
-  if (origin && origin !== new URL(request.url).origin)
+  if (!hasMatchingOrigin(request))
     return apiError(403, "FORBIDDEN", "Origin mismatch");
   let body: unknown;
   try { body = await request.json(); } catch { return apiError(400, "INVALID_JSON", "Expected JSON request body"); }
@@ -38,8 +58,7 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const origin = request.headers.get("origin");
-  if (origin && origin !== new URL(request.url).origin)
+  if (!hasMatchingOrigin(request))
     return apiError(403, "FORBIDDEN", "Origin mismatch");
   const response = NextResponse.json({ ok: true });
   response.cookies.set(SESSION_COOKIE, "", { path: "/", maxAge: 0, httpOnly: true, sameSite: "strict" });

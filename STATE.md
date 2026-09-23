@@ -11,6 +11,13 @@
 - Paths: shared chart, UI fixtures/contracts, overview/shell, CSS/i18n, tests/ui. No dependency changes or credentials committed.
 - Integration: retained `docs/parallel-agent-completion-spec.md` unchanged and reconciled its state; application tree matches tested task. PASS integration: core 42, UI unit 13, lint, typecheck, production build. Application files match the browser-tested task. Integration `7b08fb0` verified on origin/main; task `3ee1708` is an ancestor. Next: user visual review at port 3112; backend/data integration limitations remain unchanged.
 
+## Local login origin fix (current task)
+
+- Updated UTC: 2026-09-23T12:20:00Z; branch/worktree: `fix/local-login-origin` / isolated task worktree; rebased onto `origin/main` at `3ee1708`.
+- Scope: allow equivalent loopback origins (`localhost`, `127.0.0.1`, `[::1]`) only in development for the session POST/DELETE routes. Production retains exact-origin enforcement.
+- Verified: `test/test` credentials from `.env.local` return HTTP 200 when sent with `Origin: http://localhost:3000`; before this change the local `127.0.0.1` variant was rejected because Next dev supplied a localhost route URL. `npm run typecheck` and `git diff --check` PASS.
+- Next: run the repaired server on port 3000, verify `test/test` through `127.0.0.1`, then commit, integrate and push.
+
 ## Preserved project work and limitations
 
 - Historical viewer `66421cf`: protected default /history, two demo turbines, Jan31–Feb28 issues, 24/48h, graph/table, missing states, canonical persisted-release reads. Selecting days does not execute full-period training/replay.
