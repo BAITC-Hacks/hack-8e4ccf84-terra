@@ -61,3 +61,11 @@
 - PASS: seven task sections and existing repository references checked; git diff --check. Application tests/build not run: documentation-only change.
 - Remote fetch BLOCKED: Repository not found. User requests local main delivery; no remote completion claimed.
 - Next: dispatch P1-P6 when requested; run P7 after their integration. Preserve historical-viewer state above.
+
+## P5 evaluation — task branch handoff
+
+- Updated UTC: 2026-09-23T12:15:56.7417713Z; owner P5 / Codex; branch feat/p5-forecast-evaluation; last verified base 1923ce2; implementation uncommitted, not yet on main.
+- Implemented isolated, immutable evaluation actual revisions and versioned reports over canonical published forecasts; explicit February calendar; normalized-only metrics and frozen pre-February baseline; manifest and worker/CLI. See docs/handoffs/parallel-P5.md.
+- PASS: npm test (49/49, disposable PostgreSQL included); final P5 tests (7/7 including concurrent creation); npm run lint; npm run typecheck; npm run build (21 pages); diff and secret-pattern review. Initial dependency-related build/typecheck failures resolved by independent npm ci.
+- BLOCKED external inputs: no real February actuals or confirmed source semantics. Remote fetch returns Repository not found. P6 automatic worker wiring and P7 combined E2E remain separate.
+- Next: commit P5, serialize local-main integration using shared lock and preserve other tasks; P6 can attach the worker after migration.
