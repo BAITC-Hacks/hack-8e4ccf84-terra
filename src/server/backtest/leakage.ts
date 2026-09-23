@@ -36,13 +36,20 @@ export function assertForecastMatchesRequest(batch: ForecastBatch, request: Fore
   }
   const seen = new Set<string>();
   for (const point of batch.points) {
+    const validLead = Number.isInteger(point.leadHour)
+      && point.leadHour >= 1
+      && point.leadHour <= request.horizonHours;
+    const expectedTarget = validLead
+      ? new Date(Date.parse(request.issuedAt) + point.leadHour * 3_600_000).toISOString()
+      : null;
     if (point.snapshotHash !== request.snapshotHash || point.issuedAt !== request.issuedAt) {
       throw new LeakageError("Forecast point provenance does not match the requested historical release.");
     }
     if (!request.assetIds.includes(point.assetId)
       || point.leadHour < 1
       || point.leadHour > request.horizonHours
-      || !Number.isInteger(point.leadHour)) {
+      || !validLead
+      || point.targetTime !== expectedTarget) {
       throw new LeakageError("Forecast point is outside the requested assets or horizon.");
     }
     if (!Number.isFinite(point.prediction)

@@ -67,6 +67,7 @@ function normalizeRow(record: {line: number; raw: string[]; values: Record<strin
       availableAt,
       sourceTimeZone: config.time.timeZone,
       sourceTimestamp,
+      availabilityAssumption: config.time.availabilityAssumption,
       dataUse: metric === "normalized_active_power" && isFebruary2026(sourceTimestamp)
         ? "evaluation_only"
         : "training",

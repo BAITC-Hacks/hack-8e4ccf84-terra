@@ -11,6 +11,7 @@ export interface ObservationDraft {
   availableAt: Date;
   sourceTimeZone: string;
   sourceTimestamp: string;
+  availabilityAssumption: string;
   dataUse: ObservationUse;
   qualityFlags: string[];
 }

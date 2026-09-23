@@ -31,7 +31,8 @@ function eligibleObservation(row: Observation, issuedAt: string): boolean {
 
 function eligibleRun(run: WeatherRun, issuedAt: string): boolean {
   return run.availableAt !== null && run.availableAt <= issuedAt &&
-    (run.publishedAt === null || run.publishedAt <= issuedAt) &&
+    ((run.publishedAt !== null && run.publishedAt <= issuedAt) ||
+      (run.publishedAt === null && run.availabilityAssumption !== null)) &&
     (run.runTime === null || run.runTime <= issuedAt);
 }
 
