@@ -9,6 +9,7 @@ export interface AgentExecutionContext {
 }
 
 export interface WeatherValueInput {
+  heightMetres?: number | null;
   runId?: string;
   assetId: string;
   targetTime: string;
@@ -46,6 +47,7 @@ export interface ObservationInput {
 }
 
 export interface ForecastPoint {
+  qualityFlag?: string | null;
   assetId: string;
   targetTime: string;
   value: number;

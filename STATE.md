@@ -113,3 +113,14 @@
 - P6 integration pending: require readTriggerSnapshot(sql,eventKey) for input-trigger jobs so runtime pins observation revisions/weather values; add Compose worker wiring. Current P3 publication evidence uses a test-only adapter, not production fallback. P7 E2E remains pending.
 - Remote synchronization BLOCKED: fetch and task-branch push return Repository not found. Local main delivery does not claim origin/main.
 - Next: P6 connects snapshot inputs and deployment; P7 runs combined E2E; restore remote access and synchronize without rewriting history.
+## P6 runtime wiring — integrated delivery
+
+- Updated UTC: 2026-09-23; owner P6/Codex; verified implementation commits cb657c3 and 119bbb8. Current merge preserves P1–P5 and concurrent history/chart/KPI/job UI work from main.
+- Implemented: approved P2 inference in agent and synchronous runtime with registry/byte/checksum/version gates; complete trained snapshot features; P3 pinned reader; P3/P5 worker Compose wiring; canonical dashboard envelopes/durable launches without synthetic fallback.
+- Status: integration pending. P3 pinned snapshots still omit temperature; P5 persisted evaluation retrieval still needs its API-owner integration. Real approved historical artifact/semantics/weather publication evidence/February actuals remain unavailable. See docs/handoffs/parallel-P6.md.
+- PASS before user stopped tests: 49 unit tests, 24 forecast/agent/replay/UI regressions, 7 runtime adapter tests; PostgreSQL opt-in skipped. Subsequent production wiring: typecheck and full Next build PASS, with dynamic artifact-path tracing warnings. Compose base+worker config PASS. No new tests or project startup after explicit user instruction; integration runtime checks skipped.
+- Remote fetch and task push attempts returned Repository not found. Local main delivery is separate from remote completion.
+- Next: resolve P3 complete-feature snapshot and P5 saved-report API gaps; obtain real approved inputs, then P7 acceptance when authorized. No overall E2E claim.
+
+P6 integration verification: task branch feat/p6-runtime-wiring at 2fb0c00 (production wiring 119bbb8), based on latest local main 5115dd0. Private integration worktree chore/integrate-p6-runtime; no test or project startup per user instruction. Diff reviewed; normal fast-forward local main delivery follows this commit.
+

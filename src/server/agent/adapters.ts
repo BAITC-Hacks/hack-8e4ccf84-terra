@@ -3,10 +3,13 @@ import type postgres from "postgres";
 import type { ForecastRequest, Observation, WeatherRun, WeatherValue } from "../contracts";
 import { targetHours, type ForecastInputSnapshot } from "../data/snapshot/build";
 import { PostgresForecastStore } from "../forecast/postgres-store";
-import { predictPersistence } from "../ml/baseline/persistence";
+import { assertApprovedModel, type ForecastInference } from "../forecast/inference";
+import {createApprovedInference} from "../forecast/approved-inference";
+import { loadForecastModel } from "../forecast/runtime";
 import type { JobPayload } from "../jobs/types";
 import { StepError } from "./workflow";
 import type { AgentExecutionContext, AgentPorts, ForecastPoint, ObservationInput, WeatherInput } from "./ports";
+import {pinnedSnapshot, pinnedWeather, type TriggerSnapshotReader} from "./pinned-inputs";
 
 type Sql = ReturnType<typeof postgres>;
 const iso = (value: Date | string) => new Date(value).toISOString();
@@ -19,12 +22,27 @@ const requestOf = (request: JobPayload): ForecastRequest => ({ assetIds: request
 export class PostgresAgentPorts implements AgentPorts {
   private readonly forecasts: PostgresForecastStore;
   constructor(private readonly sql: Sql, private readonly configVersion: string,
-    private readonly decision?: AgentPorts["decide"], private readonly explainer?: AgentPorts["explain"]) {
+    private readonly decision?: AgentPorts["decide"], private readonly explainer?: AgentPorts["explain"],
+    private readonly inference: ForecastInference = createApprovedInference(sql),
+    private readonly triggerSnapshots?: TriggerSnapshotReader) {
     this.forecasts = new PostgresForecastStore(sql);
+  }
+
+  private async approvedModel(request: ForecastRequest) {
+    try {
+      const model = await loadForecastModel(this.sql, request.modelVersionId);
+      assertApprovedModel(request, model);
+      return model;
+    } catch (error) {
+      if (error instanceof Error && error.message === "MODEL_NOT_APPROVED") throw new StepError("MODEL_NOT_APPROVED");
+      throw error;
+    }
   }
 
   async fetchWeatherRun(request: JobPayload, context: AgentExecutionContext): Promise<WeatherInput> {
     context.signal.throwIfAborted();
+    const pinned = await pinnedSnapshot(request, this.triggerSnapshots);
+    if (pinned) return pinnedWeather(pinned, request);
     const targets = targetHours(request.issuedAt, request.horizonHours);
     const selectedRuns: WeatherRun[] = [];
     const selectedValues: Array<NonNullable<WeatherInput["values"]>[number]> = [];
@@ -39,7 +57,7 @@ export class PostgresAgentPorts implements AgentPorts {
         ORDER BY w.available_at DESC, w.id DESC`;
       let picked = false;
       for (const row of rows) {
-        const values = await this.sql`SELECT run_id, target_time, metric, value, unit
+        const values = await this.sql`SELECT run_id, target_time, metric, value, unit, height_metres
           FROM weather_values WHERE run_id = ${row.id}
             AND target_time >= ${targets[0]} AND target_time <= ${targets.at(-1)!}
           ORDER BY target_time`;
@@ -51,9 +69,10 @@ export class PostgresAgentPorts implements AgentPorts {
           runTime: row.run_time ? iso(row.run_time) : null, publishedAt: iso(row.published_at),
           availableAt: iso(row.available_at), fetchedAt: iso(row.fetched_at), rawArtifactId: row.raw_artifact_id,
           availabilityAssumption: row.availability_assumption });
-        selectedValues.push(...targets.map((target) => { const value = byTarget.get(target)!; return {
-          runId: row.id, assetId, targetTime: target, metric: "wind_speed", value: Number(value.value),
-          unit: value.unit as string | null, qualityFlag: "accepted" }; }));
+        selectedValues.push(...values.map((value) => ({
+          runId: row.id, assetId, targetTime: iso(value.target_time), metric: value.metric, value: Number(value.value),
+          unit: value.unit as string | null, heightMetres: value.height_metres == null ? null : Number(value.height_metres),
+          qualityFlag: "accepted" })));
         checksums.push(row.sha256);
         picked = true;
         break;
@@ -70,6 +89,8 @@ export class PostgresAgentPorts implements AgentPorts {
 
   async listObservations(request: JobPayload, context: AgentExecutionContext): Promise<ObservationInput[]> {
     context.signal.throwIfAborted();
+    const pinned = await pinnedSnapshot(request, this.triggerSnapshots);
+    if (pinned) return pinned.observations.map(row => ({...row, dataUse: "features"}));
     const rows = await this.sql`SELECT DISTINCT ON (asset_id) id, asset_id, metric, value, unit,
       event_time, available_at, ingested_at, revision, quality_flag, source_time_zone,
       availability_assumption, raw_artifact_id FROM observations
@@ -92,20 +113,20 @@ export class PostgresAgentPorts implements AgentPorts {
   async buildFeatures(input: { request: JobPayload; weather: WeatherInput; observations: ObservationInput[] },
     context: AgentExecutionContext): Promise<Record<string, unknown>> {
     context.signal.throwIfAborted();
-    const model = await this.sql`SELECT name, status FROM model_versions WHERE id = ${input.request.modelVersionId}`;
-    if (!model.length || model[0].status !== "approved") throw new StepError("MODEL_NOT_APPROVED");
-    if (model[0].name !== "persistence") throw new StepError("MODEL_INFERENCE_NOT_IMPLEMENTED");
+    await this.approvedModel(requestOf(input.request));
+    const pinned = await pinnedSnapshot(input.request, this.triggerSnapshots);
+    if (pinned) return {snapshot: pinned};
     const observations: Observation[] = input.observations.map((row) => ({ id: row.id,
       assetId: row.assetId!, metric: row.metric!, value: row.value, unit: row.unit ?? null,
       eventTime: row.eventTime, availableAt: row.availableAt, ingestedAt: row.availableAt!, revision: row.revision,
       qualityFlag: row.qualityFlag ?? "accepted", sourceTimeZone: null, availabilityAssumption: null,
       rawArtifactId: null }));
     const weatherValues: WeatherValue[] = (input.weather.values ?? []).map((row) => ({ runId: row.runId!,
-      targetTime: row.targetTime, metric: row.metric, value: row.value, unit: row.unit, heightMetres: null }));
+      targetTime: row.targetTime, metric: row.metric, value: row.value, unit: row.unit, heightMetres: row.heightMetres ?? null }));
     const content = { issuedAt: input.request.issuedAt, assetIds: [...input.request.assetIds].sort(),
       observationRevisions: observations.map((row) => ({ observationId: row.id, revision: row.revision })),
       weatherRunIds: input.weather.runIds ?? [input.weather.id], observations,
-      weatherRuns: input.weather.runs ?? [], weatherValues, configVersion: this.configVersion,
+      weatherRuns: input.weather.runs ?? [], weatherValues, configVersion: input.request.configVersion ?? this.configVersion,
       missing: [] as string[] };
     const sha256 = hash(content);
     const snapshot: ForecastInputSnapshot = { id: sha256, ...content, payload: content,
@@ -118,8 +139,19 @@ export class PostgresAgentPorts implements AgentPorts {
     context.signal.throwIfAborted();
     const snapshot = input.features.snapshot as ForecastInputSnapshot | undefined;
     if (!snapshot) throw new StepError("MISSING_SNAPSHOT");
-    return predictPersistence(requestOf(input.request), snapshot).map((point) => ({ assetId: point.assetId,
-      targetTime: point.targetTime, value: point.value, unit: point.unit }));
+    const request = requestOf(input.request);
+    const model = await this.approvedModel(request);
+    let values;
+    try {
+      values = await this.inference(request, snapshot, model);
+    } catch (error) {
+      if (error instanceof Error && ["MODEL_INFERENCE_NOT_IMPLEMENTED", "MODEL_NOT_APPROVED", "MODEL_ARTIFACT_UNAVAILABLE",
+        "MODEL_ARTIFACT_CHECKSUM_MISMATCH", "MODEL_ARTIFACT_INVALID", "MODEL_ARTIFACT_REGISTRY_MISMATCH", "MODEL_INPUTS_INVALID"].includes(error.message))
+        throw new StepError(error.message);
+      throw error;
+    }
+    context.signal.throwIfAborted();
+    return values;
   }
 
   async compareForecasts(input: { request: JobPayload; points: ForecastPoint[] },
@@ -152,18 +184,18 @@ export class PostgresAgentPorts implements AgentPorts {
       availableAt: row.availableAt, ingestedAt: row.availableAt!, revision: row.revision,
       qualityFlag: row.qualityFlag ?? "accepted", sourceTimeZone: null, availabilityAssumption: null, rawArtifactId: null }));
     const weatherValues: WeatherValue[] = (input.weatherRun.values ?? []).map((row) => ({ runId: row.runId!,
-      targetTime: row.targetTime, metric: row.metric, value: row.value, unit: row.unit, heightMetres: null }));
+      targetTime: row.targetTime, metric: row.metric, value: row.value, unit: row.unit, heightMetres: row.heightMetres ?? null }));
     const content = { issuedAt: input.request.issuedAt, assetIds: [...input.request.assetIds].sort(),
       observationRevisions: observations.map((row) => ({ observationId: row.id, revision: row.revision })),
       weatherRunIds: input.weatherRun.runIds ?? [input.weatherRun.id], observations,
-      weatherRuns: input.weatherRun.runs ?? [], weatherValues, configVersion: this.configVersion,
+      weatherRuns: input.weatherRun.runs ?? [], weatherValues, configVersion: input.request.configVersion ?? this.configVersion,
       missing: [] as string[], agent: { briefing: input.explanation, comparison: input.comparison } };
     const sha256 = hash(content);
     const forecast = await this.forecasts.publish({ request: requestOf(input.request),
       snapshot: { id: sha256, ...content, payload: content, sha256, createdAt: new Date().toISOString() },
       inputSnapshotId: sha256, status: "published", idempotencyKey: input.publicationKey,
       createdAt: new Date().toISOString(), publishedAt: new Date().toISOString(),
-      values: input.points.map((point) => ({ ...point, qualityFlag: "baseline_persistence" })),
+      values: input.points.map((point) => ({ ...point, qualityFlag: point.qualityFlag ?? null })),
       incompleteReasons: [] }, { jobId: context.jobId, leaseToken: context.leaseToken,
       now: new Date().toISOString() });
     return { id: forecast.id, version: forecast.version, points: input.points,
