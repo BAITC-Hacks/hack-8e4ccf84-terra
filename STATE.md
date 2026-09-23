@@ -3,7 +3,7 @@
 - Updated UTC: 2026-09-23 10:48Z.
 - Branch/worktree: `chore/integrate-oracle-wincc` / private integration worktree.
 - Base: `origin/main` at `0def4de`; task branch `origin/feat/oracle-wincc-connectors` at `c74b955`.
-- Last verified commit: `bdb3fb9` (integration merge; push to `origin/main` pending).
+- Last verified commit: `f306354` (latest `origin/main` merged; full validation passed; push pending).
 - Active task: validated Oracle/WinCC workflows are merged with the latest S03/S09 main; remote main push and ancestry verification are next.
 - Demo: authenticated `/sources` runs explicitly synthetic Oracle history and WinCC live workflows end to end. API mode requires real server-side gateways and never falls back to fixtures.
 
