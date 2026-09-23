@@ -1,9 +1,9 @@
 # Project state
 
 - Updated UTC: 2026-09-23 10:49Z.
-- Branch/worktree: `fix/test-login` / task worktree; last verified commit `uncommitted`.
-- Base: local `main` at `0def4de`; `git fetch --all --prune` is BLOCKED because GitHub reports `Repository not found`.
-- Active task: local demo sign-in with editable username and `test` / `test` credentials is implemented and validated; commit and local-main integration are next.
+- Branch/worktree: `chore/integrate-test-login` / private integration worktree; last verified task commit `5a3264f`, integration state update pending.
+- Base: local and last-known `origin/main` at `0433640`; direct fetch/push is BLOCKED because GitHub reports `Repository not found`.
+- Active task: local demo sign-in with editable username and `test` / `test` credentials is integrated and validated; remote synchronization remains.
 - Demo: development server is running at `http://localhost:3000/login`; `test` / `test` signs in and opens `/overview`.
 
 ## Integrated implementation
@@ -27,6 +27,6 @@
 
 ## Next actions
 
-1. Commit `fix/test-login`, merge it through a private integration worktree, and verify local `main` contains the task commit.
-2. Retry remote synchronization when GitHub access is restored.
+1. Advance local `main` and push the integration commit when the checked-out primary worktree and GitHub access allow it.
+2. Verify `5a3264f` is an ancestor of `origin/main` after remote synchronization.
 3. Implement canonical immutable `WeatherRun` persistence via S01 and verify saved fallback after PostgreSQL restart.
