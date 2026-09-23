@@ -1,9 +1,9 @@
 # Project state
 
-- Updated UTC: 2026-09-23 10:45Z.
+- Updated UTC: 2026-09-23 10:50Z.
 - Branch/worktree: `chore/integrate-s03-weather-runs` / private integration worktree.
 - Base reconciled: local `main` at `b6a3b4b` (S09 integration); remote remains `origin/main` at `8d25bab` because this is a local-only integration.
-- Active task: reconcile S03 weather runs with current local main. Conflict resolution and validation are in progress; local `main` fast-forward is next.
+- Active task: S03 and S09 are reconciled and validated; local `main` fast-forward is next.
 - Demo: portal preview is available at `http://localhost:3107/login` when locally configured. No weather UI/API is wired.
 
 ## Integrated implementation
@@ -16,13 +16,12 @@
 
 ## Verification
 
-- PASS before this latest main reconciliation: `node --test tests/weather/weather.test.mjs` (25 offline tests), `npm run lint`, `npm run typecheck`, and `npm run build`.
-- PASS on S09 local main: `node --test tests/acceptance/harness.test.mjs` (2 tests), `npm test` (28 tests), lint, typecheck, and build.
+- PASS after S03/S09 reconciliation: `node --test tests/weather/weather.test.mjs` (25 offline tests), `node --test tests/acceptance/harness.test.mjs` (2 tests), `npm run lint`, `npm run typecheck`, and `npm run build`.
 - PASS expected fail-closed behavior: `node tests/acceptance/run.mjs verify` exits 2 / `BLOCKED` without a `demo:verify` contract; this is not product acceptance.
 - BLOCKED: PostgreSQL weather persistence/restart validation and actual station/month coverage.
 
 ## Next actions
 
-1. Rerun critical S03 checks after this reconciliation, commit the merge, and fast-forward local `main`; do not push without a user request.
+1. Fast-forward local `main` to this verified integration commit; do not push without a user request.
 2. Implement canonical immutable `WeatherRun` persistence via S01 and verify saved fallback after PostgreSQL restart.
 3. Owners S01–S08 must supply fixed `demo:*` contracts and pass AC-01–AC-16; wire S03 weather and real data/UI integration before operational use.
