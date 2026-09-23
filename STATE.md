@@ -1,9 +1,9 @@
 # Project state — minimal localized login hero integration
 
-- Updated UTC: 2026-09-23T12:20:52Z.
+- Updated UTC: 2026-09-23T12:22:04Z.
 - Branch/worktree: `chore/integrate-minimal-login-hero` / private integration worktree.
-- Base/integration: latest fetched `origin/main` is `39b7418`; validated task `71da309`, prior integration `bfb6bbd`, and current remote chart/UX work are merged locally.
-- Owner/status: Codex; task branch is pushed and latest-main integration checks pass. Normal `origin/main` push and ancestry verification remain.
+- Base/integration: validated task `71da309` and latest remote chart/UX work are integrated at `ebb36cc` on `origin/main`.
+- Owner/status: Codex; task branch is pushed, `71da309` is verified as an ancestor of `origin/main`, and integration checks pass.
 
 ## Minimal login hero (current task)
 
@@ -14,7 +14,8 @@
 - PASS on production browser build: RU/KK/EN × light/dark at desktop 1440×900 and mobile 390×844; exact copy, no horizontal overflow, clipping, or hero/card overlap, and no browser warnings/errors. Screenshots are under ignored `.next/ui-qa` in the task worktree.
 - No dependency, backend, business-logic, authentication, or persisted-data changes.
 - PASS after latest-main merge: core 42, UI/unit 14, lint, typecheck, production build (21 routes/pages), and diff review. Login and chart/i18n changes auto-merged without code conflicts; `STATE.md` was reconciled manually.
-- Next: commit the latest-main merge, push `main` normally, verify `71da309` ancestry, then record the remote main commit.
+- Remote verification: `origin/feat/minimal-landing-hero` resolves to `71da309`; `git merge-base --is-ancestor 71da309 origin/main` passes at remote main `ebb36cc`.
+- Next: user visual review; no remaining action for the login hero.
 
 ## Reference chart and UX fixes (preserved from origin/main)
 
