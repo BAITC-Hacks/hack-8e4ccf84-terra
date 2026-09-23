@@ -41,3 +41,11 @@
 - PASS combined 13 backtest tests (`npx --no-install tsx --test tests/backtest/*.test.ts`), 6 ML tests, 6 UI unit tests, lint/build and 13 browser scenarios on production port 3106 before retrying main push. All four API routes and four UI routes generated.
 
 Remote result: feature branch 5a004ae, main integration d439af. All implementation and shared-state reconciliation are committed; both worktrees are retained for review. After this handoff commit, verify its normal push too.
+
+## Local S01 and S07 integration (not pushed)
+- 2026-09-23 09:28 UTC: this integration branch merges S01 commits `49fda2d`, `848bef1`, `bebdcef` and S07 implementation `564a09e` through `bf4f1fd` into the current local main (`1a91e23` at merge start). The user will push the resulting local main.
+- S01 adds PostgreSQL schema/migrator, administrator sessions, protected `/api/v1/*`, separately protected `/api/internal/jobs/tick`, health and assets API. The tick handler remains an authenticated idle adapter.
+- S07 adds fixture and PostgreSQL job stores with atomic claim, fenced lease/heartbeat/checkpoint, bounded retry, idempotent input trigger, agent decisions, replay and template explanation after LLM failure. The dispatcher only calls the internal tick endpoint.
+- S07 fixture tests: 7 PASS; local PostgreSQL 16 adapter test: 1 PASS; S01 foundation tests: 3 PASS. Before this merge, the S01+S07+S06+S08 tree passed 10 combined agent/foundation tests, lint and canonical `npm run build`. No checks were run after merging S05 because the user asked for no additional tests.
+- Outstanding: S07 tick execution and real S02–S06 service wiring are not present; S04 publication is still in a separate worktree. Do not claim an end-to-end automatic forecast from this merge. S00 unknown source parameters remain unresolved.
+- Next action after the user pushes: connect the S04 publication service and canonical input adapters, then validate protected tick and one replay issuance without double publication.
