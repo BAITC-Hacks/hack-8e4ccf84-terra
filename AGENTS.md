@@ -1140,13 +1140,23 @@ The primary objective is a reliable, demonstrable, technically credible product.
 
 # This is NOT the Next.js you know
 
-This version has breaking changes РІР‚вЂќ APIs, conventions, and file structure may all differ from your
-training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's
-directory; in monorepos the `next` package may not be visible from the repo root) before writing any
-code. Heed deprecation notices.
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
 
-This block is written and re-added by `next dev` РІР‚вЂќ verify at
-`node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates
-the uncommitted change; committing it with your work keeps the tree clean.
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+
+---
+
+# 31. Fallback When `origin/main` Is Unavailable
+
+If `origin/main` cannot be fetched or updated because the remote is unavailable, authentication fails, the network is down, or the remote branch cannot be resolved, continue the task locally:
+
+1. Do not discard, reset, or rewrite any commits or changes.
+2. In a separate integration worktree, integrate the validated task branch into the existing local `main`, preserving its history and resolving conflicts before committing.
+3. Run the relevant integration checks and update `STATE.md` with the verified local `main` commit.
+4. Keep the task branch and integration commit available locally. Mark remote synchronization as `BLOCKED`; do not claim the task is present on `origin/main`.
+5. When `origin/main` becomes available, fetch it, integrate the local `main` changes with the latest remote state without rewriting history, rerun the relevant checks, and push `main` to `origin`. Verify the remote contains the task commit, then update `STATE.md`.
+
+A task may be reported as **implemented and validated locally** while the remote push is blocked. It is fully complete under the normal Definition of Done only after the changes are verified on `origin/main`.

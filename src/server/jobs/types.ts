@@ -1,4 +1,4 @@
-export type JobStatus = "queued" | "running" | "completed" | "failed";
+export type JobStatus = "queued" | "running" | "completed" | "failed" | "cancelled";
 
 export interface JobPayload {
   assetIds: string[];
@@ -51,7 +51,7 @@ export interface DecisionEvent {
   jobId: string;
   sequence: number;
   step: string;
-  kind: "selected" | "completed" | "retry" | "failed" | "fallback";
+  kind: "selected" | "completed" | "retry" | "failed" | "fallback" | "cancelled";
   reason: string;
   details: Record<string, unknown>;
   createdAt: string;
@@ -62,8 +62,11 @@ export interface JobStore {
   get(id: string): Promise<JobRecord | null>;
   claim(now: string, leaseMs: number): Promise<ClaimedJob | null>;
   heartbeat(id: string, token: string, now: string, leaseMs: number): Promise<boolean>;
-  advance(id: string, token: string, now: string, checkpoint: Record<string, unknown>, nextStep: number, resultId?: string): Promise<boolean>;
-  fail(id: string, token: string, now: string, code: string, retryable: boolean, retryDelayMs: number): Promise<boolean>;
+  advance(id: string, token: string, now: string, checkpoint: Record<string, unknown>, nextStep: number,
+    resultId?: string, event?: Omit<DecisionEvent, "id" | "sequence">): Promise<boolean>;
+  fail(id: string, token: string, now: string, code: string, retryable: boolean, retryDelayMs: number,
+    event?: Omit<DecisionEvent, "id" | "sequence">): Promise<boolean>;
+  cancel(id: string, now: string): Promise<JobRecord | null>;
   appendEvent(event: Omit<DecisionEvent, "id" | "sequence">): Promise<DecisionEvent>;
   events(jobId: string): Promise<DecisionEvent[]>;
 }

@@ -1,45 +1,37 @@
-# Project state — agent remediation specification branch
+# Project state — agent runtime and remediation specification
 
-- Updated UTC: 2026-09-23 12:15Z
+- Updated UTC: 2026-09-23 11:06Z
 - Branch/worktree: `docs/agent-remediation-spec` / isolated task worktree.
-- Last verified base commit: `501839e` on `origin/main`; remediation specification is pending branch push and main integration.
-- Active task: produce an implementation-ready technical specification for the agent subsystem; runtime code is unchanged.
-- Demo: production preview remains at `http://localhost:3107/login`; fixture forecast/import/report/journal flows work, while production agent wiring remains an open implementation task.
+- Base: current `origin/main` at `f5bd1f9` merged into the task branch; documentation commit `c406869` retained.
+- Owner/status: Codex; the `STATE.md` merge conflict is resolved and the reconciled task branch is validated. Branch push and integration into `origin/main` are pending.
+- Active task: publish `docs/agent-subsystem-remediation-spec.md` without regressing the agent runtime already present on `main`.
 
-## Implemented and verified
+## Integrated implementation
 
-- Industrial navigation, responsive dashboard, turbine illustration, 2-second skippable entrance, reduced-motion support.
-- Russian default, Kazakh and English across four pages, login, forms, statuses and synthetic explanations. Locale-aware number/date display; Kazakh months handled explicitly for browsers with incomplete ICU data.
-- Light/dark theme and language cookies applied by the server to initial HTML and retained across reloads.
-- Existing signed administrator session now protects dashboard pages in proxy and server layout as well as APIs. Login/logout and live session checks use `/api/auth/session`; HttpOnly cookie, safe return-path allowlist, no client-only bypass or bundled password.
-- Touched: `src/app`, `src/components`, `src/lib/i18n`, `src/lib/navigation.ts`, root login bridge, session GET, `proxy.ts`, `tests/ui`, this handoff. No forecasting/import/agent business logic changed.
-
-## Preserved work and boundaries
-
-- S00 data audit; S01 contracts/migrations/Compose/session/token bridge; S04 immutable as-of baseline; S05 fixtures/dashboard; S06 model training; S07 durable jobs/replay; S08 backtest/evaluation/export are retained from the base.
-- S02 CSV import/connection/hourly-quality code, the verified HackAlem specification transcription, the latest specification/router cleanup, and `SLICE_RULE.md` are preserved from latest main. Combined S02/backtest/ML tests, foundation, UI/agent/forecast tests, lint, typecheck and production build passed after rebase.
-- Root `app/` is the effective router; root UI files re-export canonical `src/app` components.
-- Source timezone/interval, physical units/normalization and target semantics remain unconfirmed. No MW/MWh or official quality claim. February actuals remain evaluation-only.
-- Demo examples stay explicitly synthetic. Server-returned data retains its source language. Existing shared administrator role is reused; multi-user registration was not requested.
-
-- Agent audit `f436946` / integration `d2d4454` is preserved in `docs/agent-system-problems.md`: production agent wiring, automated tick and durable replay remain incomplete. Its PostgreSQL test was skipped without TEST_DATABASE_URL; this portal task does not claim those runtime gaps are fixed.
+- Preserved the protected one-step agent tick, durable enqueue/status/journal/cancel APIs, PostgreSQL production ports, replay sessions, virtual clock/cursor, and atomic due-event enqueue APIs from `origin/main`.
+- Preserved deterministic availability, asset, weather coverage, unit, quality, leakage, horizon, and finite-point gates.
+- Preserved strict-schema OpenAI decision/briefing adapters with bounded configuration and deterministic fallback.
+- Added `docs/agent-subsystem-remediation-spec.md`, an implementation and acceptance reference originally audited against base `501839e`.
+- The specification is a design record; current implementation status is determined by the code, tests, and this handoff. Runtime code is unchanged by the documentation commit.
 
 ## Validation
 
-- Integration worktree: PASS fresh npm ci, all 54 automated tests, lint, production build and typecheck. Runtime/UI files and dependencies exactly match the browser-tested task branch; additional main changes are documentation only.
+- PASS on `origin/main` before this documentation merge: unit/foundation/agent/replay/forecast/weather/acceptance suites, lint, typecheck, production build, and disposable PostgreSQL integration.
+- PASS: the documentation commit applies cleanly after resolving only `STATE.md`; no runtime source conflict was introduced.
+- PASS after conflict resolution: `npm test` (31), `npm run test:foundation` (3), `npm run test:agent` (12), `npm run test:agent:replay` (1), forecast service tests (6), weather/acceptance tests (27), lint, typecheck, and production build.
+- SKIP: real OpenAI smoke without `RUN_OPENAI_SMOKE=1` and a verified account model/key.
+- BLOCKED: real February historical E2E until trustworthy archival forecast runs are persisted in canonical weather tables.
+- BLOCKED: February evaluation because supplied CSVs contain no February actuals.
 
-- PASS: `npm run lint`, `npm run typecheck`, `npm run build` (production App Router build).
-- PASS: `npm test` (28: S02/backtest/ML), `npm run test:foundation` (3).
-- PASS: `node --test tests/agent/workflow.test.cjs tests/forecast/service.test.cjs` (13).
-- PASS: `node --test tests/ui/platform.test.cjs tests/ui/client.test.cjs tests/ui/csv.test.mjs` (10).
-- PASS: `node tests/ui/dashboard.cjs` (13 browser scenarios, authenticated session; data API cases mocked).
-- PASS: `node tests/ui/platform.cjs` (10 browser scenarios: actual login, redirects, Origin checks, defaults/persistence, English/Kazakh pages, mobile, logout, tampered/expired cookies, open-page expiry, reduced motion).
-- PASS: visual review of light/dark login and Kazakh dark dashboard; no page overflow or browser exceptions. Browser locale review found ICU month fallback; fixed, unit-tested and browser suite rerun afterward.
-- NOT_RUN: production PostgreSQL/data-source end-to-end flow; no database configured for this UI preview.
-- PASS: agent remediation specification reviewed against `docs/agent-system-problems.md` and current `origin/main`; runtime code unchanged.
+## Decisions and boundaries
+
+- `ForecastService.run` is not used as intermediate inference because it publishes; the agent uses underlying snapshot/inference/store boundaries.
+- Only the existing persistence model has a runtime inference adapter. Other approved artifacts fail explicitly with `MODEL_INFERENCE_NOT_IMPLEMENTED`.
+- Primary forecast does not evaluate future actuals before publication; a separate durable actual-arrival evaluation workflow remains follow-up work.
+- S03 connector output must be integrated into canonical `weather_runs`/`weather_values` before production historical agent use.
 
 ## Next actions
 
-1. Review and commit `docs/agent-subsystem-remediation-spec.md`.
-2. Push and integrate the specification into `origin/main`.
-3. Implement stages A–F and pass AC-AG-01–AC-AG-24.
+1. Commit and push the reconciled `docs/agent-remediation-spec` branch.
+2. Merge it from a private integration worktree based on the latest `origin/main`, rerun critical checks, and push `main`.
+3. Verify the documentation commit is an ancestor of `origin/main`.

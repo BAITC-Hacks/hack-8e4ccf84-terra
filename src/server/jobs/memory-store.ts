@@ -76,9 +76,11 @@ export class MemoryJobStore implements JobStore {
     return true;
   }
 
-  async advance(id: string, token: string, now: string, checkpoint: Record<string, unknown>, nextStep: number, resultId?: string): Promise<boolean> {
+  async advance(id: string, token: string, now: string, checkpoint: Record<string, unknown>, nextStep: number,
+    resultId?: string, event?: Omit<DecisionEvent, "id" | "sequence">): Promise<boolean> {
     const job = this.owned(id, token, now);
     if (!job) return false;
+    if (event) await this.appendEvent(event);
     job.checkpoint = clone(checkpoint);
     job.step = nextStep;
     job.status = resultId ? "completed" : "queued";
@@ -91,10 +93,12 @@ export class MemoryJobStore implements JobStore {
     return true;
   }
 
-  async fail(id: string, token: string, now: string, code: string, retryable: boolean, retryDelayMs: number): Promise<boolean> {
+  async fail(id: string, token: string, now: string, code: string, retryable: boolean, retryDelayMs: number,
+    event?: Omit<DecisionEvent, "id" | "sequence">): Promise<boolean> {
     const job = this.owned(id, token, now);
     if (!job) return false;
     const retry = retryable && job.attempt < job.maxAttempts;
+    if (event) await this.appendEvent(event);
     job.status = retry ? "queued" : "failed";
     job.errorCode = code;
     job.nextRunAt = retry ? new Date(millis(now) + retryDelayMs).toISOString() : now;
@@ -102,6 +106,20 @@ export class MemoryJobStore implements JobStore {
     job.leaseUntil = null;
     job.updatedAt = now;
     return true;
+  }
+
+  async cancel(id: string, now: string): Promise<JobRecord | null> {
+    const job = this.jobs.get(id);
+    if (!job) return null;
+    if (job.status === "completed" || job.status === "failed" || job.status === "cancelled") return clone(job);
+    if (job.checkpoint.publicationCommitted) return clone(job);
+    job.status = "cancelled";
+    job.leaseToken = null;
+    job.leaseUntil = null;
+    job.updatedAt = now;
+    await this.appendEvent({ jobId: id, step: "cancel", kind: "cancelled", reason: "CANCELLED",
+      details: {}, createdAt: now });
+    return clone(job);
   }
 
   async appendEvent(event: Omit<DecisionEvent, "id" | "sequence">): Promise<DecisionEvent> {
