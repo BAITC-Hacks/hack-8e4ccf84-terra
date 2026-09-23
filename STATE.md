@@ -1,9 +1,9 @@
 # Project state — agent runtime and remediation specification
 
-- Updated UTC: 2026-09-23 11:15Z
-- Branch/worktree: `chore/integrate-agent-remediation-spec-final` / private integration worktree.
-- Base: current `origin/main` at `50ad10b`; task branch `docs/agent-remediation-spec` at `f991a52` is merged with its documentation commit `c406869` retained.
-- Owner/status: Codex; the final `STATE.md` conflict is resolved. The user requested local-main integration only and no additional checks; remote `main` publication is not part of the current action.
+- Updated UTC: 2026-09-23 11:16Z
+- Branch/worktree: local `main` / primary checkout; final integration was prepared in `chore/integrate-agent-remediation-spec-final`.
+- Base: `origin/main` remains at `50ad10b`; local `main` contains integration commit `ebdcef1`, task branch `f991a52`, and documentation commit `c406869`.
+- Owner/status: Codex; all merge conflicts are resolved and the remediation specification is present on clean local `main`. Per the user's instruction, `origin/main` was not updated and no additional checks were started.
 - Active task: publish `docs/agent-subsystem-remediation-spec.md` without regressing the agent runtime or development sign-in already present on `main`.
 
 ## Integrated implementation
@@ -32,6 +32,6 @@
 
 ## Next actions
 
-1. Commit this merge and fast-forward the clean local `main` worktree to the integration commit.
-2. Keep `origin/main` unchanged until a later explicit remote-push request.
-3. When remote publication is requested, fetch/reconcile, run the required checks, push, and verify `c406869` ancestry.
+1. Keep `origin/main` unchanged until a later explicit remote-push request.
+2. When remote publication is requested, fetch/reconcile, run the required checks, push, and verify `c406869` ancestry.
+3. Continue remaining runtime follow-ups: canonical weather persistence, actual-arrival evaluation, and historical/OpenAI smoke gates.
