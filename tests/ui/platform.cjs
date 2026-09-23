@@ -13,7 +13,7 @@ const base = process.env.UI_BASE_URL || 'http://localhost:3107';
   let checks=0;const pass=name=>{checks++;console.log('PASS '+name);};
   fs.mkdirSync('.next/ui-qa',{recursive:true});
   try {
-    for(const route of ['/','/overview','/forecast?run=private','/sources','/agent-log']) {
+    for(const route of ['/','/history','/overview','/forecast?run=private','/sources','/agent-log']) {
       const response=await context.request.get(base+route,{maxRedirects:0});
       assert.equal(response.status(),307);assert.match(response.headers().location,/\/login\?next=/);
       assert.doesNotMatch(await response.text(),/baseline-demo-1/);
@@ -32,7 +32,7 @@ const base = process.env.UI_BASE_URL || 'http://localhost:3107';
     await page.getByRole('button',{name:'Войти',exact:true}).click();
     await page.getByRole('alert').filter({hasText:'Неверный пароль'}).waitFor();
     assert.match(page.url(),/\/login\?/);
-    const denied=await context.request.post(base+'/api/auth/session',{data:{password:process.env.ADMIN_PASSWORD},headers:{Origin:'https://foreign.test'}});assert.equal(denied.status(),403);
+    const denied=await context.request.post(base+'/api/auth/session',{data:{username:process.env.ADMIN_USERNAME || 'admin',password:process.env.ADMIN_PASSWORD},headers:{Origin:'https://foreign.test'}});assert.equal(denied.status(),403);
     pass('Russian default, entrance animation and invalid credentials');
     await page.getByLabel('Язык интерфейса').selectOption('en');
     await page.getByRole('alert').filter({hasText:'Incorrect password'}).waitFor();
@@ -49,17 +49,17 @@ const base = process.env.UI_BASE_URL || 'http://localhost:3107';
     assert.equal((await context.request.get(base+'/api/auth/session')).status(),200);
     await page.getByRole('button',{name:'Table',exact:true}).click();assert.equal(await page.locator('tbody tr').count(),48);
     pass('real session sign in returns to requested page; forecast remains functional');
-    for(const [route,heading] of [['/overview','Tomorrow’s energy'],['/forecast','Generation forecast'],['/sources','Data sources'],['/agent-log','Agent log']]){
+    for(const [route,heading] of [['/history','Historical run'],['/overview','48-hour forecast'],['/forecast','Generation forecast'],['/sources','Data sources'],['/agent-log','Agent log']]){
       await page.goto(base+route);await page.locator('.launch-screen').waitFor({state:'hidden'});
       await page.getByRole('heading',{name:heading,exact:true}).waitFor();
-      await page.locator('.loading').waitFor({state:'hidden'});
+      await page.waitForFunction(()=>!document.querySelector('.loading'));
       const content=await page.locator('main').innerText();
       assert.doesNotMatch(content,/[А-Яа-яЁё]/,route+' untranslated copy');
     }
-    pass('all four dashboard pages translated into English');
+    pass('all five dashboard pages translated into English');
     await page.getByLabel('Interface language').selectOption('kk');
     await page.getByRole('link',{name:'Шолу',exact:true}).click();
-    await page.getByRole('heading',{name:'Ертеңгі энергия'}).waitFor();
+    await page.getByRole('heading',{name:'48 сағаттық болжам'}).waitFor();
     await page.getByRole('img',{name:/сағатқа арналған болжам/}).waitFor();
     await page.screenshot({path:'.next/ui-qa/overview-kazakh-dark.png',fullPage:true});
     pass('Kazakh navigation, dates and forecast labels');
@@ -72,7 +72,7 @@ const base = process.env.UI_BASE_URL || 'http://localhost:3107';
     await page.getByRole('button',{name:'Открыть меню'}).click();
     await page.getByRole('link',{name:'Источники',exact:true}).click();
     assert.equal(await page.locator('.app-shell').getAttribute('class'),'app-shell ');
-    await page.locator('.loading').waitFor({state:'hidden'});
+    await page.waitForFunction(()=>!document.querySelector('.loading'));
     await page.screenshot({path:'.next/ui-qa/mobile-sources.png',fullPage:true});
     pass('mobile menu and layout');
     await page.emulateMedia({reducedMotion:'reduce'});
@@ -90,7 +90,7 @@ const base = process.env.UI_BASE_URL || 'http://localhost:3107';
     const expired=body+'.'+createHmac('sha256',process.env.SESSION_SECRET).update(body).digest('hex');
     await context.addCookies([{name:'terra_admin_session',value:expired,url:base}]);
     assert.equal((await context.request.get(base+'/overview',{maxRedirects:0})).status(),307);
-    await context.request.post(base+'/api/auth/session',{data:{password:process.env.ADMIN_PASSWORD}});
+    await context.request.post(base+'/api/auth/session',{data:{username:process.env.ADMIN_USERNAME || 'admin',password:process.env.ADMIN_PASSWORD}});
     await page.goto(base+'/overview');await page.locator('.launch-screen').waitFor({state:'hidden'});
     await context.clearCookies({name:'terra_admin_session'});
     await page.evaluate(()=>document.dispatchEvent(new Event('visibilitychange')));

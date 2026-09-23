@@ -334,3 +334,35 @@ footer { padding:21px 34px; font-size:9px; color:var(--muted); }footer b { font-
 [data-theme="dark"] .connectors-page { --accent:#4fc9ce; }
 @media(max-width:1100px) { .connector-catalog { grid-template-columns:repeat(3,minmax(0,1fr)); } }
 @media(max-width:600px) { .connector-catalog { grid-template-columns:repeat(2,minmax(0,1fr)); }.connector-catalog a { padding:16px; } }
+/* Modal navigation remains usable with keyboard and small/zoomed viewports. */
+.sidebar-close { display:none; }
+@media(max-width:900px) {
+  .sidebar { overflow-y:auto; }
+  .sidebar-close { display:flex; position:absolute; right:12px; top:8px; color:#d7ffff; }
+}
+/* Interactive forecast chart, matching the supplied TERRA reference. */
+.reference-chart { --chart-current:#087f87; --chart-previous:#819ab3; --chart-actual:#d7800a; }
+.reference-chart .chart-stage { position:relative; }
+.reference-chart .grid-line { stroke-dasharray:none; opacity:.65; }
+.reference-chart .prediction { stroke:var(--chart-current); stroke-width:2.8; }
+.reference-chart .previous { stroke:var(--chart-previous); stroke-width:1.8; stroke-dasharray:5 4; }
+.reference-chart .actual { stroke:var(--chart-actual); stroke-width:2.3; }
+.forecast-band { fill:var(--chart-current); opacity:.12; }
+.reference-chart .chart-end,.reference-chart .dot-current { fill:var(--chart-current); }
+.reference-chart .dot-previous { fill:var(--chart-previous); }.reference-chart .dot-actual { fill:var(--chart-actual); }
+.chart-end,.chart-dot { stroke:var(--surface); stroke-width:2; }
+.chart-guide { stroke:var(--muted); stroke-width:1; stroke-dasharray:3 4; opacity:.7; }
+.reference-chart .legend-current { border-color:var(--chart-current); }.reference-chart .legend-actual { border-color:var(--chart-actual); }
+.reference-chart i.legend-band { height:10px; border:0; background:var(--chart-current); opacity:.2; border-radius:2px; }
+.chart-tooltip { position:absolute; top:8px; width:260px; max-width:100%; padding:14px; border:1px solid var(--line); border-radius:12px; background:var(--surface); color:var(--text); box-shadow:0 8px 28px #0e22331a; pointer-events:none; z-index:4; font-size:12px; }
+.chart-tooltip>strong { display:block; padding-bottom:9px; margin-bottom:7px; border-bottom:1px solid var(--line); }
+.chart-tooltip>div { display:flex; align-items:center; gap:9px; margin:7px 0; }.chart-tooltip b { margin-left:auto; white-space:nowrap; font-variant-numeric:tabular-nums; }
+.chart-tooltip i { width:13px; height:3px; border-radius:2px; flex-shrink:0; }.tip-current { background:var(--chart-current); }.tip-previous { background:var(--chart-previous); }.tip-actual { background:var(--chart-actual); }.tip-band { background:var(--chart-current); opacity:.3; }
+.chart-tooltip small { display:block; color:var(--muted); font-size:10px; padding-top:6px; }
+[data-theme="dark"] .reference-chart { --chart-current:#4fc9ce; --chart-previous:#93acc6; --chart-actual:#f1a841; }
+@media(max-width:700px) { .reference-chart .chart-stage { min-width:520px; }.reference-chart .chart-note { min-width:0; }.reference-chart .chart-legend { position:sticky; left:0; } }
+.reference-chart text { font-size:11px; }
+.reference-chart .chart-tooltip { font-family:Arial,Helvetica,sans-serif; font-size:13px; color:var(--ink); }
+.reference-chart .chart-tooltip b { font-weight:600; }
+.reference-chart svg:focus:not(:focus-visible) { outline:none; }
+@media(max-width:700px) { .reference-chart .chart-tooltip { position:sticky; left:0 !important; top:auto; max-width:calc(100vw - 80px); } }

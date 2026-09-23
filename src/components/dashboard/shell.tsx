@@ -43,10 +43,32 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     return () => { mounted = false; controller.abort(); clearInterval(interval); document.removeEventListener("visibilitychange", check); window.removeEventListener("terra:session-expired", expired); };
   }, [path, router]);
   useEffect(() => {
-    const close = (event: KeyboardEvent) => { if (event.key === "Escape") setMenuOpen(false); };
-    window.addEventListener("keydown", close);
-    return () => window.removeEventListener("keydown", close);
-  }, []);
+    if (!menuOpen) return;
+    const drawer = document.getElementById("main-navigation")!;
+    const trigger = document.querySelector<HTMLButtonElement>(".mobile-menu");
+    const controls = () => Array.from(drawer.querySelectorAll<HTMLElement>("a[href], button:not([disabled])"));
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    controls()[0]?.focus();
+    const keyboard = (event: KeyboardEvent) => {
+      if (event.key === "Escape") { event.preventDefault(); setMenuOpen(false); }
+      if (event.key !== "Tab") return;
+      const items = controls();
+      const first = items[0]; const last = items.at(-1);
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+    };
+    const desktop = window.matchMedia("(min-width: 901px)");
+    const resize = () => { if (desktop.matches) setMenuOpen(false); };
+    window.addEventListener("keydown", keyboard);
+    desktop.addEventListener("change", resize);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", keyboard);
+      desktop.removeEventListener("change", resize);
+      trigger?.focus();
+    };
+  }, [menuOpen]);
   async function logout() {
     setLoggingOut(true); setSessionError("");
     try {
@@ -56,10 +78,11 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     } catch { setSessionError("Не удалось завершить сеанс. Повторите попытку."); setLoggingOut(false); }
   }
   return <DashboardContext.Provider value={{ transport, mode, timezone, scenario, client }}>
-    <a href="#main" className="skip-link">{t("К содержимому")}</a>
+    <a href="#main" className="skip-link" inert={menuOpen}>{t("К содержимому")}</a>
     <div className={`app-shell ${menuOpen ? "menu-open" : ""}`}>
-      {menuOpen && <button className="sidebar-scrim" aria-label={t("Закрыть меню")} onClick={() => setMenuOpen(false)} />}
-      <aside className="sidebar" id="main-navigation">
+      {menuOpen && <button className="sidebar-scrim" tabIndex={-1} aria-hidden="true" onClick={() => setMenuOpen(false)} />}
+      <aside className="sidebar" id="main-navigation" role={menuOpen ? "dialog" : undefined} aria-modal={menuOpen || undefined} aria-label={t("Главная навигация")}>
+        <button className="icon-button sidebar-close" aria-label={t("Закрыть меню")} onClick={() => setMenuOpen(false)}><Icon name="close" size={18}/></button>
         <Link href="/history" className="brand"><span className="brand-symbol"><Icon name="wind" size={24} /></span><span>TERRA<span className="brand-caption">ENERGY INTELLIGENCE</span></span></Link>
         <div className="site-selector"><span className="site-avatar"><Icon name="wind" /></span><div><strong>{t("Ветроэнергетика")}</strong><small>{t("Рабочее пространство")}</small></div><span className="site-indicator" /></div>
         <div className="workspace-label">{t("ОПЕРАЦИОННЫЙ ЦЕНТР")}</div>
@@ -67,7 +90,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         <div className="sidebar-assurance"><Icon name="shield" size={22} /><strong>{t("Каждый прогноз проверяем")}</strong><p>{t("Источники, версии и решения агента всегда под рукой.")}</p></div>
         <div className="sidebar-bottom"><span className="avatar">AD</span><div><strong>{t("Администратор")}</strong><small>{t("Защищённая сессия")}</small></div><span className="live-dot" /></div>
       </aside>
-      <div className="workspace">
+      <div className="workspace" inert={menuOpen}>
         <header className="topbar"><div className="topbar-location"><button className="icon-button mobile-menu" aria-label={t(menuOpen ? "Закрыть меню" : "Открыть меню")} aria-expanded={menuOpen} aria-controls="main-navigation" onClick={() => setMenuOpen(!menuOpen)}><Icon name={menuOpen ? "close" : "menu"} /></button><span>{t("Операционный центр")}<span className="slash">/</span><strong>{t(navigation.find(([href]) => href === path)?.[1] ?? "Обзор")}</strong></span></div><div className="topbar-actions"><PreferenceControls /><span className="toolbar-divider" /><button className="logout-button" aria-label={t(loggingOut ? "Выходим…" : "Выйти")} onClick={logout} disabled={loggingOut}><Icon name="logout" size={17} /><span>{t(loggingOut ? "Выходим…" : "Выйти")}</span></button></div></header>
         <div className="environment-controls">
           <label>{t("Данные")}<select aria-label={t("Данные")} value={transport} onChange={e => setTransport(e.target.value as Transport)}><option value="fixture">{t("Демонстрационные")}</option><option value="api">{t("Настоящий API")}</option></select></label>
