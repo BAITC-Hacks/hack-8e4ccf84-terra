@@ -1,46 +1,39 @@
-# Project state — backend integrity and agent runtime
+# Project state — Russian project README
 
-- Updated UTC: 2026-09-23 11:21Z
-- Branch/worktree: `chore/integrate-backend-spec-audit` / private integration worktree.
-- Base/integration: fetched `origin/main` at `cee93a6`; backend-audit task `580fd3d` and merge `37a3a21` are incorporated with the latest agent-remediation documentation.
-- Owner/status: Codex; merge conflict was reconciled without discarding either task and final checks pass. Remote `main` push is pending.
+- Updated UTC: 2026-09-23 11:40Z
+- Branch/worktree: `docs/russian-project-readme` / `.worktrees/russian-project-readme`
+- Base: local `main` at `b7fee06`; `origin/main` last-known at the same commit.
+- Owner/status: Codex; detailed Russian README implemented and validated, commit pending.
 
-## Integrated implementation
+## Current demo and implementation
 
-- Preserved explicit development sign-in, the durable wind-agent runtime, and `docs/agent-subsystem-remediation-spec.md` from current `main`.
-- Preserved the S03 Open-Meteo Single Runs connector and saved provenance evidence. Its local repository is not a production adapter for canonical PostgreSQL weather tables.
-- CSV import now mirrors accepted training rows transactionally into canonical `observations`; evaluation-only targets remain isolated. Migration `0002_bridge_import_observations.sql` backfills existing accepted training rows.
-- Forecast publication rejects any output unit other than `normalized`; weather without `published_at` is eligible only with an explicit availability assumption.
-- Backtest leakage validation enforces `target_time = issued_at + lead_hour` exactly.
-- Compose includes an application healthcheck. Detailed audit evidence and gaps are in `docs/backend-spec-audit.md`.
+- Protected Next.js dashboard exposes overview, forecast, sources, and agent journal pages with explicit synthetic fixture and real-API modes.
+- PostgreSQL migrations, confirmed CSV ingestion, canonical observations, persistence forecasts, durable agent jobs, and replay runtime are integrated.
+- The Open-Meteo connector has saved provenance evidence but does not populate canonical production weather tables.
+- Official February scoring remains blocked: supplied CSV files end on 2026-01-31 and trusted historical weather publication times are unavailable.
+
+## Active task
+
+- Goal: replace the partial English README with a detailed Russian project guide based on `docs/hackalem-ai-agentic-wind-forecasting.md` and verified repository behavior.
+- Acceptance: explain the problem, status, architecture, Docker/local setup, UI, API flow, data contract, agent/replay/model behavior, checks, environment, repository structure, limitations, and documentation links without overstating completeness.
+- Touched paths: `README.md`, `STATE.md`.
 
 ## Validation
 
-- PASS on the audit branch and before latest-main merge: core (32), foundation (4), agent (12), replay (1), weather (25), forecast (7), acceptance harness (2), lint, typecheck, and production build.
-- PASS before latest-main merge: Compose config/build/startup and application/database healthchecks; `/api/health` returned `database=ready`.
-- PASS before latest-main merge: disposable PostgreSQL 16 migrations; CSV import produced three canonical observations and a persisted 24-point forecast; a separate clean database passed agent claim/fencing/checkpoint/restart integration.
-- PASS after incorporating `cee93a6`: core (32), foundation (4), agent (12), replay (1), weather (25), forecast (7), acceptance harness (2), lint, typecheck, and production build.
-- FAIL (pre-existing, unrelated): UI localization suite reports missing English/Kazakh translation for Russian `Проверяем…`; the audit does not change frontend/i18n.
-- EXPECTED BLOCKED: `node tests/acceptance/run.mjs verify` reports missing `demo:verify`; the fail-closed harness itself passes.
-- BLOCKED by inputs/provenance: no February actuals, no provider-proven historical publication time, and unconfirmed turbine/time/power semantics.
-- SKIP unless explicitly configured: live OpenAI smoke (`RUN_OPENAI_SMOKE=1` plus a verified model/key).
+- PASS: every relative Markdown link in `README.md` resolves to an existing repository path; `git diff --check` is clean.
+- PASS: core tests 32/32, foundation 4/4, agent 12/12, replay 1/1, weather 25/25, acceptance harness 2/2.
+- PASS: `npm run lint`, `npm run typecheck`, and `npm run build`.
+- SKIP: PostgreSQL integration, live OpenAI smoke, and Docker checks are not required for this documentation-only diff and need external services/configuration.
+- BLOCKED: `git fetch --all --prune` returned `Repository not found` for the configured GitHub remote; remote synchronization must be retried after repository access is restored.
 
 ## Decisions and constraints
 
-- Official specification v1.1 SHA-256: `6785661fbe95c0ee385b6740ca42cc6b2748e208c2802e9f34e7cfc9a6fb3974`.
-- No actual/reanalysis weather may substitute for unavailable historical forecasts.
-- Unknown publication time is not inferred from model run time; eligibility requires a recorded assumption.
-- Only `data_use=training` is bridged into canonical observations.
-- Only the persistence model currently has production inference support; unsupported artifacts fail explicitly.
-- Candidate turbine coordinates from the PDF remain unconfirmed configuration.
-- Development `test` credentials remain local-only and are not committed.
-
-## UI/UX prototype
-
-- Added 2026-09-23 11:25Z: `docs/design/terra-redesign.html` — standalone static HTML proposal for the dashboard (overview, forecast, sources, run log) with a demo/real data toggle. Synthetic data only; not wired into `src/` and not part of the build.
+- Documentation clearly separates synthetic UI fixtures, implemented backend behavior, and unavailable official February evidence.
+- README does not claim MW/MWh output, February metrics, trusted archival weather availability, or production ridge inference.
+- The standalone dispatcher and current real-API dashboard contract mismatch are documented as limitations.
 
 ## Next actions
 
-1. Push integration HEAD to `origin/main` without rewriting history and verify `580fd3d` ancestry.
-2. Confirm the task branch and canonical `STATE.md` are both present remotely.
-3. After owner data is available, confirm asset/time/power semantics, persist trustworthy archival forecast runs, and execute the February replay/evaluation.
+1. Commit the reviewed task branch.
+2. Integrate it into local `main` from a separate worktree and re-run critical checks.
+3. Retry task-branch and `main` pushes when `origin` access is available; verify task ancestry on `origin/main`.
