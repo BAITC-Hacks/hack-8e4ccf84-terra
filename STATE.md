@@ -34,6 +34,10 @@
 - Demo `src/agent` is not the wind runtime entrypoint.
 - S03 connector output must be integrated into canonical `weather_runs`/`weather_values` before production agent use.
 
+## UI/UX prototype
+
+- Added 2026-09-23 11:25Z: `docs/design/terra-redesign.html` — standalone static HTML proposal for the dashboard (overview, forecast, sources, run log) with a demo/real data toggle. Synthetic data only; not wired into `src/` and not part of the build.
+
 ## Next actions
 
 1. Preserve the unrelated local edits in `AGENTS.md`, `SLICE_RULE.md`, and `AGENT_IMPL.md`.
