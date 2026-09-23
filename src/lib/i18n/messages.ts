@@ -1,5 +1,23 @@
 // User-facing copy. Russian is the source locale.
 export const messages: Record<string, { en: string; kk: string }> = {
+"Проверяем…": {"en":"Checking…","kk":"Тексерілуде…"},
+"Серверный шлюз не настроен. Обратитесь к администратору.": {"en":"Server gateway is not configured. Contact your administrator.","kk":"Сервер шлюзі бапталмаған. Әкімшіге хабарласыңыз."},
+"Источник недоступен. Проверьте настройки и повторите запрос.": {"en":"Source unavailable. Check the settings and retry.","kk":"Дереккөз қолжетімсіз. Баптауларды тексеріп, қайталаңыз."},
+"Таблица PostgreSQL": {"en":"PostgreSQL table","kk":"PostgreSQL кестесі"},
+"Шлюз принял настройку подключения": {"en":"Gateway accepted the connection setup","kk":"Шлюз қосылым баптауларын қабылдады"},
+"Коннекторы": {"en":"Connectors","kk":"Коннекторлар"},
+"Настроить": {"en":"Configure","kk":"Баптау"},
+"Интервал источника · минуты": {"en":"Source interval · minutes","kk":"Дереккөз аралығы · минут"},
+"Задержка доступности · минуты": {"en":"Availability delay · minutes","kk":"Қолжетімділік кідірісі · минут"},
+"Основание доступности данных": {"en":"Data availability rationale","kk":"Деректердің қолжетімділік негіздемесі"},
+"Разделители полей и дробной части должны различаться.": {"en":"Field and decimal separators must differ.","kk":"Өріс пен бөлшек бөлгіштері әртүрлі болуы керек."},
+"Проверка погодного прогона по координатам объекта. Время инициализации — UTC.": {"en":"Check a weather run at the asset coordinates. Initialization time is UTC.","kk":"Нысан координаттары бойынша ауа райы есебін тексеру. Іске қосылу уақыты — UTC."},
+"Демонстрационный режим: ответ погоды синтетический.": {"en":"Demo mode: weather response is synthetic.","kk":"Демо режимі: ауа райы жауабы жасанды."},
+"Широта": {"en":"Latitude","kk":"Ендік"},
+"Долгота": {"en":"Longitude","kk":"Бойлық"},
+"Прогон · UTC": {"en":"Model run · UTC","kk":"Модель есебі · UTC"},
+"Циклы: 00, 06, 12, 18 UTC. Проверка не включает автоматическую загрузку и не доказывает историческую доступность.": {"en":"Cycles: 00, 06, 12, 18 UTC. This check does not enable automatic ingestion or prove historical availability.","kk":"Циклдер: 00, 06, 12, 18 UTC. Тексеру автоматты жүктеуді қоспайды және тарихи қолжетімділікті растамайды."},
+"Погодный прогон доступен": {"en":"Weather run is available","kk":"Ауа райы есебі қолжетімді"},
   "· Результат: {p0}": {
     "en": "· Result: {p0}",
     "kk": "· Нәтиже: {p0}"
@@ -304,9 +322,9 @@ export const messages: Record<string, { en: string; kk: string }> = {
     "en": "Decimal separator",
     "kk": "Ондық бөлгіш"
   },
-  "До 100 МБ · исходный файл передаётся без изменения": {
-    "en": "Up to 100 MB · original file uploaded unchanged",
-    "kk": "100 МБ-қа дейін · бастапқы файл өзгеріссіз жіберіледі"
+  "До 50 МБ · исходный файл передаётся без изменения": {
+    "en": "Up to 50 MB · original file uploaded unchanged",
+    "kk": "50 МБ-қа дейін · бастапқы файл өзгеріссіз жіберіледі"
   },
   "Доступ определяется серверной сессией. Ошибки API не заменяются примерами.": {
     "en": "Server session controls access. API errors are never replaced with examples.",
@@ -604,9 +622,9 @@ export const messages: Record<string, { en: string; kk: string }> = {
     "en": "Normalized power, original scale",
     "kk": "Нормаланған қуат, бастапқы шкала"
   },
-  "Нужен непустой CSV размером до 100 МБ.": {
-    "en": "Select a non-empty CSV file up to 100 MB.",
-    "kk": "Көлемі 100 МБ-тан аспайтын бос емес CSV файлын таңдаңыз."
+  "Нужен непустой CSV размером до 50 МБ.": {
+    "en": "Select a non-empty CSV file up to 50 MB.",
+    "kk": "Көлемі 50 МБ-тан аспайтын бос емес CSV файлын таңдаңыз."
   },
   "Нужно подтвердить": {
     "en": "Confirmation required",

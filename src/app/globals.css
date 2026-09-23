@@ -256,3 +256,20 @@ footer { padding:21px 34px; font-size:9px; color:var(--muted); }footer b { font-
 @media(prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto !important; transition:none !important; }.rotor,.launch-progress:after,.spinner { animation:none; } }
 .platform-content { display:contents; }
 @media(max-width:900px) { .sidebar { visibility:hidden; }.menu-open .sidebar { visibility:visible; } }
+/* Connector workspace follows the supplied TERRA reference without changing other pages. */
+.connectors-page { --accent:#0b7a80; }
+.connectors-page .panel { border-radius:14px; box-shadow:0 5px 22px #0e223306; scroll-margin-top:24px; }
+.connector-catalog { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:12px; margin:0 0 24px; }
+.connector-catalog a { border:1px solid var(--line); background:var(--surface); border-radius:14px; padding:20px; display:flex; flex-direction:column; gap:16px; color:var(--text); text-decoration:none; transition:border-color .15s,transform .15s; min-width:0; }
+.connector-catalog a:hover,.connector-catalog a:focus-visible { border-color:var(--accent); transform:translateY(-2px); }
+.connector-catalog strong { font-size:15px; overflow-wrap:anywhere; }
+.connector-catalog a>span:last-child { color:var(--accent); font-size:11px; }
+.connector-number { color:var(--muted); font-family:monospace; font-size:12px; }
+.connector-fields { border:0; padding:0; margin:0; min-width:0; }
+.connectors-page .industrial-grid { grid-template-columns:1fr; }
+.connectors-page .upload-zone { border:1px dashed var(--accent); border-radius:12px; padding:24px; background:var(--surface-alt); }
+.connectors-page .source-grid { margin-bottom:24px; }
+.connectors-page .notice { overflow-wrap:anywhere; }
+[data-theme="dark"] .connectors-page { --accent:#4fc9ce; }
+@media(max-width:1100px) { .connector-catalog { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+@media(max-width:600px) { .connector-catalog { grid-template-columns:repeat(2,minmax(0,1fr)); }.connector-catalog a { padding:16px; } }

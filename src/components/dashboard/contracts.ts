@@ -19,7 +19,7 @@ export const industrialResponseSchema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("discover"), resources: z.array(industrialResourceSchema).min(1) }),
   z.object({ action: z.literal("enable"), enabled: z.literal(true), mode: z.enum(["history", "stream"]), startedAt: timestamp, cursor: z.string().nullable() }),
 ]);
-export type IndustrialKind = "oracle" | "wincc";
+export type IndustrialKind = "oracle" | "wincc" | "postgres";
 export type IndustrialAction = { action: "test" | "discover" } | { action: "enable"; assetId: string; resource: string; fields: string[]; mapping: Record<string, string> };
 export type IndustrialResponse = z.infer<typeof industrialResponseSchema>;
 export type Asset = z.infer<typeof assetSchema>;

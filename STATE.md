@@ -1,4 +1,21 @@
-# Project state — backend integrity and agent runtime
+# Project state — all connector workspace
+
+- Updated UTC: 2026-09-23 11:46Z.
+- Branch: `feat/all-connectors`; base verified `4ed268c`; implementation currently uncommitted.
+- Owner: Codex. User narrowed full redesign to connectors, then selected all five connector types.
+- Demo: `http://localhost:3110/sources` in this worktree; auth remains required. Default synthetic mode is explicit.
+- Implemented: reference-styled CSV/Weather/PostgreSQL-SCADA/Oracle/WinCC catalog; three gateway setup workflows; weather probe; canonical CSV request/report adapter; RU/EN/KK and both themes.
+- Paths: connector UI/client/contracts, scoped CSS/i18n, industrial gateway contracts, weather probe/route, connector and UI tests, gateway docs and empty env templates. Other dashboard redesign was deferred and is not included.
+- PASS: `npm test` (37); `node --test tests/ui/client.test.cjs tests/ui/platform.test.cjs` (8); `npm run lint`; `npm run typecheck`; `npm run build`.
+- PASS: `node tests/ui/connectors.cjs` (4 groups, actual auth/validation/unconfigured routes plus fixture/canonical-wire browser checks); `node tests/ui/dashboard.cjs` (14 scenarios), Edge headless at port 3110. RU/EN/KK, light/dark, 390px layout, no runtime errors. Screenshots visually reviewed.
+- PASS: authenticated real `POST /api/v1/connectors/weather` for coordinates 45/65 and UTC cycle 2026-01-01 00:00 returned HTTP 200, healthy, 120 hours. This is connectivity evidence, not approved asset coordinates or historical availability evidence.
+- PASS: diff/secret review; credentials stay in ignored local env. No new dependencies.
+- BLOCKED live industrial verification: no configured PostgreSQL/Oracle/WinCC gateways; each actual route safely returns `not_configured`. These are external gateway adapters, not bundled database/SCADA drivers.
+- NOT RUN: full browser-to-PostgreSQL CSV persistence (no configured disposable DB; `docker` unavailable in this shell). Canonical CSV wire UI and existing import service tests pass.
+- Constraint: Weather probe does not schedule or persist runs. CSV mapping is stored with imports, not a recurring schedule. Historical backend provenance/February blockers below remain.
+- Next: commit and push task branch; integrate into current origin/main in a separate worktree; verify remote ancestry and record result.
+
+## Preserved backend handoff (historical validation)
 
 - Updated UTC: 2026-09-23 11:21Z
 - Branch/worktree: `chore/integrate-backend-spec-audit` / private integration worktree.
@@ -21,7 +38,7 @@
 - PASS before latest-main merge: disposable PostgreSQL 16 migrations; CSV import produced three canonical observations and a persisted 24-point forecast; a separate clean database passed agent claim/fencing/checkpoint/restart integration.
 - PASS after incorporating `cee93a6`: core (32), foundation (4), agent (12), replay (1), weather (25), forecast (7), acceptance harness (2), lint, typecheck, and production build.
 - PASS after incorporating UI-prototype `b7fee06`: core (32), lint, typecheck, and hermetic Docker production build. A local build retry encountered a concurrently damaged `node_modules`; `npm ci` restored lint/typecheck and the clean container build passed.
-- FAIL (pre-existing, unrelated): UI localization suite reports missing English/Kazakh translation for Russian `Проверяем…`; the audit does not change frontend/i18n.
+- RESOLVED by the connector task: `Проверяем…` now has English/Kazakh translations; UI localization checks pass.
 - EXPECTED BLOCKED: `node tests/acceptance/run.mjs verify` reports missing `demo:verify`; the fail-closed harness itself passes.
 - BLOCKED by inputs/provenance: no February actuals, no provider-proven historical publication time, and unconfirmed turbine/time/power semantics.
 - SKIP unless explicitly configured: live OpenAI smoke (`RUN_OPENAI_SMOKE=1` plus a verified model/key).

@@ -1,6 +1,7 @@
+import {sourceAssetsSchema, sourceConnectionsSchema, sourceReportSchema, weatherResultSchema} from "./source-contracts";
 import { translate, type Locale } from "../../lib/i18n";
 import { z } from "zod";
-import { agentRunSchema, assetSchema, connectionSchema, evaluationSchema, forecastSchema, importReportSchema, industrialResponseSchema, jobSchema, type IndustrialAction, type IndustrialKind, type Mode, type Scenario, type Transport } from "./contracts";
+import { agentRunSchema, evaluationSchema, forecastSchema, industrialResponseSchema, jobSchema, type IndustrialAction, type IndustrialKind, type Mode, type Scenario, type Transport } from "./contracts";
 import * as fixture from "./fixtures";
 
 // Only this UI adapter knows the provisional wire shape. No server modules enter the bundle.
@@ -10,6 +11,9 @@ async function request<T>(path: string, schema: z.ZodType<T>, signal?: AbortSign
   const response = await fetch(`/api/v1${path}`, { ...init, credentials: "same-origin", cache: "no-store", signal: signal ? AbortSignal.any([signal, timeout]) : timeout }).catch(() => { throw new Error(t("Нет ответа API. Проверьте соединение и повторите запрос.")); });
   if (!response.ok) {
     const descriptions: Record<number, string> = { 401: "Требуется вход в систему.", 403: "Недостаточно прав.", 404: "API или запись пока недоступны.", 409: "Конфликт запроса. Обновите данные.", 413: "Файл превышает допустимый размер.", 422: "Проверьте параметры запроса." };
+    const safeError = await response.clone().json().catch(() => null);
+    if (safeError?.error?.code === "not_configured") throw new Error(t("Серверный шлюз не настроен. Обратитесь к администратору."));
+    if (safeError?.error?.code === "connector_unavailable") throw new Error(t("Источник недоступен. Проверьте настройки и повторите запрос."));
     if (response.status === 401 && typeof window !== "undefined") window.dispatchEvent(new Event("terra:session-expired"));
     throw new Error(descriptions[response.status] ? t(descriptions[response.status]) : t("Не удалось выполнить запрос (HTTP {status}).", { status: response.status }));
   }
@@ -40,19 +44,22 @@ export function createClient(transport: Transport, mode: Mode, scenario: Scenari
     return localized(value);
   }
   return {
-    assets: (signal?: AbortSignal) => transport === "fixture" ? demo(scenario === "empty" ? [] : fixture.assets, signal) : api("/assets", z.array(assetSchema), signal),
+    assets: (signal?: AbortSignal) => transport === "fixture" ? demo(scenario === "empty" ? [] : fixture.assets, signal) : api("/assets", sourceAssetsSchema, signal),
     forecasts: (signal?: AbortSignal) => transport === "fixture" ? demo(fixture.forecasts(mode, scenario), signal) : api(`/forecasts?mode=${mode}`, z.array(forecastSchema), signal),
-    connections: (signal?: AbortSignal) => transport === "fixture" ? demo(scenario === "empty" ? [] : fixture.connections, signal) : api("/connections", z.array(connectionSchema), signal),
+    connections: (signal?: AbortSignal) => transport === "fixture" ? demo(scenario === "empty" ? [] : fixture.connections, signal) : api("/connections", sourceConnectionsSchema, signal),
     agentRun: (id: string, signal?: AbortSignal) => transport === "fixture" ? demo(fixture.agentRun(mode), signal) : api(`/agent-runs/${encodeURIComponent(id)}`, agentRunSchema, signal),
-    importReport: (id: string, signal?: AbortSignal) => transport === "fixture" ? demo(fixture.report, signal) : api(`/imports/${encodeURIComponent(id)}`, importReportSchema, signal),
+    importReport: (id: string, signal?: AbortSignal) => transport === "fixture" ? demo(fixture.report, signal) : api(`/imports/${encodeURIComponent(id)}`, sourceReportSchema, signal),
     evaluation: (id: string, signal?: AbortSignal) => transport === "fixture" ? demo(fixture.evaluation, signal) : api(`/evaluations/${encodeURIComponent(id)}`, evaluationSchema, signal),
     job: (id: string, signal?: AbortSignal) => api(`/jobs/${encodeURIComponent(id)}`, jobSchema, signal),
-    importCsv: (body: FormData) => transport === "fixture" ? demo({ job_id: "demo-import-job" }) : api("/imports", z.object({ job_id: z.string() }), undefined, { method: "POST", headers: { "Idempotency-Key": crypto.randomUUID() }, body }),
+    importCsv: (body: FormData) => transport === "fixture" ? demo({ id: "demo-import" }) : api("/imports", z.object({ id: z.string() }), undefined, { method: "POST", headers: { "Idempotency-Key": crypto.randomUUID() }, body }),
+    weather: (input: {latitude: number; longitude: number; initializedAt: string}) => transport === "fixture"
+      ? demo({status: "healthy" as const, provider: "Open-Meteo Single Runs", initializedAt: input.initializedAt, checkedAt: new Date().toISOString(), hours: 120, fields: ["temperature_2m", "wind_speed_10m", "wind_speed_100m", "wind_direction_100m"], units: {temperature_2m: "°C", wind_speed_10m: "m/s", wind_speed_100m: "m/s", wind_direction_100m: "°"}, publishedAt: null})
+      : api("/connectors/weather", weatherResultSchema, undefined, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(input)}),
     industrial: (kind: IndustrialKind, action: IndustrialAction) => {
       if (transport === "fixture") {
-        if (action.action === "test") return demo({ action: "test" as const, status: "healthy" as const, checkedAt: new Date().toISOString(), message: `Демо-доступ к ${kind === "oracle" ? "Oracle" : "Siemens WinCC"} подтверждён.` });
+        if (action.action === "test") return demo({ action: "test" as const, status: "healthy" as const, checkedAt: new Date().toISOString(), message: `Демо-доступ к ${kind === "oracle" ? "Oracle" : kind === "postgres" ? "PostgreSQL" : "Siemens WinCC"} подтверждён.` });
         if (action.action === "discover") return demo({ action: "discover" as const, resources: fixture.industrialResources[kind].map(resource => ({ name: resource.name, fields: [...resource.fields] })) });
-        return demo({ action: "enable" as const, enabled: true as const, mode: kind === "oracle" ? "history" as const : "stream" as const, startedAt: new Date().toISOString(), cursor: kind === "oracle" ? "history:0" : null });
+        return demo({ action: "enable" as const, enabled: true as const, mode: kind !== "wincc" ? "history" as const : "stream" as const, startedAt: new Date().toISOString(), cursor: kind === "oracle" ? "history:0" : null });
       }
       return api(`/industrial-connectors/${kind}`, industrialResponseSchema, undefined, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(action) });
     },
