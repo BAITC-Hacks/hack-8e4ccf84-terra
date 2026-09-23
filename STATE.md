@@ -1,9 +1,9 @@
-# Project state — local main
+# Project state — agent-system-problems documentation branch
 
-- Updated UTC: 2026-09-23 10:02Z
-- Branch/worktree: `chore/integrate-hackalem-local` / private local integration worktree.
-- Last verified integration commit: `cceddcd`; configured remote remains BLOCKED because GitHub returns `Repository not found`.
-- Active task: HackAlem AI PDF specification integrated locally; pending fast-forward of local `main`.
+- Updated UTC: 2026-09-23 11:30Z
+- Branch/worktree: `docs/agent-system-problems` / isolated task worktree.
+- Last verified base commit: `8895ba8` on `origin/main`; agent audit documentation is pending branch push and main integration.
+- Active task: document verified agent subsystem defects and acceptance requirements without changing runtime code.
 - Demo: S05 fixture dashboard remains at `/overview`, `/forecast`, `/sources`, `/agent-log`. With PostgreSQL and `DATABASE_URL`, run `npm run db:migrate`, then `npm run dev`; CSV APIs are under `/api/v1/imports` and `/api/v1/connections`.
 
 ## Preserved work
@@ -41,9 +41,12 @@
 | Production build | PASS: Next.js generated CSV and existing routes |
 | Push to `origin/main` | PASS: `c613fb3`; task commit `9259c60` verified as ancestor |
 | PDF extraction and visual source review | PASS: both source PDF pages rendered and checked; Markdown matches headings, requirements, links, and 100-point rubric |
+| Agent audit scope against `origin/main` `8895ba8` | PASS: production agent paths and integration boundaries inspected |
+| Agent fixture workflow tests | PASS: 7/7; PostgreSQL test SKIPPED because `TEST_DATABASE_URL` is unset |
+| Agent-focused ESLint and exact-commit TypeScript check | PASS |
 
 ## Next actions
 
-1. Fast-forward local `main` to this integration commit.
-2. Retry remote fetch/push once repository access is restored.
-3. Align the S05 source adapter with the production S02 payloads and run the real UI gate.
+1. Review and commit `docs/agent-system-problems.md`.
+2. Push the documentation branch and integrate it into the latest `origin/main`.
+3. Implement the agent fixes in the priority order recorded by the audit.
