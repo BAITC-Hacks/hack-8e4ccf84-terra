@@ -3,7 +3,7 @@
 - Updated UTC: 2026-09-23 12:31Z
 - Branch/worktree: `chore/integrate-theme-i18n-readability` / private integration worktree.
 - Base/integration: validated task `d456c86` is merged over latest `origin/main` at `ce623b4`, preserving the job/login/history/chart work.
-- Owner/status: Codex; implementation and browser validation pass, pending integration commit, `origin/main` push, and ancestry verification.
+- Owner/status: Codex; task `d456c86` is integrated by `f887e9d`, pushed to `origin/main`, and verified as an ancestor; local and remote main were synchronized.
 
 ## Active task
 
