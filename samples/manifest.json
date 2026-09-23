@@ -1,0 +1,13 @@
+{
+  "synthetic": true,
+  "purpose": "Import smoke test only; not model quality evidence",
+  "redistribution": "Generated for this repository; CC0-1.0",
+  "rows": 48,
+  "sha256": "27e59b9fa8a052c97aa17db480384501ce0f71ec0abb98d1f3184f9fa07084e5",
+  "asset_id": "demo-line",
+  "timezone": "UTC",
+  "timestamp_convention": "interval_start",
+  "interval_minutes": 60,
+  "power_unit": "dimensionless",
+  "source_dataset_copied": false
+}
