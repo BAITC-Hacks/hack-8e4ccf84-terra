@@ -1,4 +1,16 @@
-# Project state — job refresh feedback
+# Project state — forecast KPI cards
+
+- Updated UTC: 2026-09-23T12:31:00Z.
+- Branch/worktree: `chore/integrate-forecast-kpi-cards` / private integration worktree.
+- Owner/status: Codex; task commit `95a413f` is pushed and merged over `origin/main` at `ce623b4`; pending integration commit, `origin/main` push, and ancestry verification.
+- Acceptance: simplified maximum/minimum, signed largest absolute version change, threshold-only warning color, honest normalized integral, accessible definitions, demo/version details, RU/KK/EN, themes/mobile, missing-version/data handling.
+- Formula audit: nulls are excluded; versions match one `asset_id` and exact `target_time`; largest absolute difference keeps its sign; warning threshold stays inclusive at `0.15`; integral is `sum(normalized prediction × 1 hour)`.
+- Normalization is not confirmed against nominal capacity, so the UI makes no MW/MWh, physical-energy, nominal-capacity, or full-power-equivalent claim.
+- PASS before rebase: core 44/44, focused regressions, lint, typecheck, build, diff check, and production-browser review in light/dark, desktop/mobile, ready/partial, RU/EN, and keyboard-tooltip states. Per the latest user instruction, checks were not repeated after conflict reconciliation.
+- Touched: overview component/metrics/styles, i18n messages, focused tests. Screenshot: ignored `.next/ui-qa/forecast-kpi-cards.png`.
+- Next: commit this merge, push integration HEAD to `origin/main`, and verify `95a413f` ancestry.
+
+# Previous project state — job refresh feedback
 
 - Updated UTC: 2026-09-23T12:27:00Z
 - Branch/worktree: `chore/integrate-job-refresh-feedback` / private integration worktree; task commit `d47902c` merged over `origin/main` at `715c2ef`.
