@@ -1,8 +1,8 @@
 # Project state — local main
 
-- Updated UTC: 2026-09-23 09:40Z
-- Branch/worktree: `main` / primary worktree; S01 integration worktree retained
-- Last verified prior commits: local main `668de5f` (S04 handoff); S01 integration `adcc2de`. This merge preserves both histories, including S01 task commit `9820c90`.
+- Updated UTC: 2026-09-23 10:00Z
+- Branch/worktree: `fix/build-check` / isolated QA worktree; local main is at `0f1767e`.
+- Last verified prior commits: local main `0f1767e` (S01 auth-bridge merge); S01 integration `adcc2de`. This merge preserves both histories, including S01 task commit `9820c90`.
 - Remote: cached `origin/main` at `0248d79`; freshness UNKNOWN because this task's fetch/push reports `Repository not found`. User will push local main.
 - Demo: S05 fixture dashboard at `/overview`, `/forecast`, `/sources`, `/agent-log`; S01 Compose with configured secrets starts PostgreSQL, migrates, serves `/health`, admin login and protected APIs. S04 produced a 24-hour published baseline in its isolated PostgreSQL smoke test. Full real S02/S03 data flow remains unverified.
 
@@ -32,12 +32,12 @@
 | S01 clean Compose migration and HTTP auth/API smoke with random test secrets | PASS before merge |
 | S04 fixture/foundation, PostgreSQL, HTTP, lint/typecheck and webpack build | PASS before this merge, as recorded by S04 owner |
 | S05/S06/S07/S08 prior checks | PASS before this merge, as recorded by their owners |
-| Combined tests/build/HTTP after these merges | NOT_RUN at user request |
+| Combined ML and foundation tests, lint, typecheck, and Next.js production build after these merges | PASS on `fix/build-check` (2026-09-23); 9 tests passed and 14 routes built |
 | Merge conflict resolution and staged whitespace check | PASS; package scripts and slice code preserved |
 | Remote fetch/push from this task | BLOCKED: `Repository not found`; user requested local main handoff |
 
 ## Next actions
 
-1. User pushes local `main` when remote access is ready, then verifies S01 commit `9820c90` and S04 commit `9802da4` are ancestors of `origin/main`.
+1. User can merge/cherry-pick local QA commit, then push local `main` when remote access is ready and verify S01 commit `9820c90` and S04 commit `9802da4` are ancestors of `origin/main`.
 2. Integrate S02/S03 inputs, align S05 with S04 API and wire S07 tick to S04 publication.
 3. Confirm time/power/target semantics and obtain February evaluation-only actuals before official forecast-quality claims.
