@@ -1,84 +1,63 @@
 # Project state
 
-> Update this file with verified facts on each branch. Read it at the start of each session.
-> Git and the code are authoritative; replace stale details after checking them.
-
 ## Snapshot
 
-| Field                                 | Current verified value                                                                                                                |
-|---------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------|
-| Updated (UTC)                         | 2026-09-23 06:46:25Z                                                                                                                  |
-| Branch / worktree                     | `main` / primary worktree at `C:/Users/barys/projects/hack-8e4ccf84-terra`                                                            |
-| Last observed commit before this edit | `73344e4` (`Initial commit`)                                                                                                          |
-| Base branch / observed commit         | `main` / `73344e4`                                                                                                                    |
-| Remote branch / last verified push    | Cached `origin/main` points to `73344e4`; freshness is `UNKNOWN` because `git fetch --all --prune` failed with `Repository not found` |
-| Current demo URL / command            | `npm run dev`, then `http://localhost:3000`; currently renders the default Next.js starter page only                                  |
-
-## What works now
-
-- End-to-end demo path: no agent workflow is wired end to end. The only routed page is the
-  static Next.js starter at `/`.
-- Verified capabilities: dependencies are installed; the untracked Next.js application lints and
-  produces a production build. Agent runtime, PostgreSQL repositories, demo-domain tools, and a
-  workspace UI exist as source modules under `src/`.
-- Gaps in the demo path: `app/page.tsx` does not render `AgentWorkspace`; no API route files exist;
-  no automated tests are configured; database-backed execution and the OpenAI-powered workflow
-  have not been run.
+- Updated UTC: 2026-09-23T08:58:00Z.
+- Branch/worktree: `feat/s03-weather-runs`, `C:/Users/Kassym/Desktop/TTT/hack-8e4ccf84-terra-worktrees/s03-weather`.
+- Last verified base: `c2b4003` (`origin/main`); pending task changes: `uncommitted`.
+- Remote access: fetch and fast-forward base synchronization PASS. Previous access blocker is stale.
+- Demo: `npm run dev` still serves the starter page; no weather UI/API is wired.
+- Existing agent foundation is tracked on the base; its database/OpenAI workflow remains NOT_RUN.
 
 ## Active work
 
-| Task / owner                                 | Status      | Acceptance criteria and evidence                                                                                                                                                                     | Changed paths / branch                                                                                      |
-|----------------------------------------------|-------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------|
-| Agent workspace foundation / owner `UNKNOWN` | IN_PROGRESS | Target inferred from existing source: objective submission, visible event/evidence timeline, approval gate, and final result. Source modules exist, but the routed end-to-end flow is not connected. | All project scaffold files are untracked on `main`: `app/`, `src/`, config/package files, docs, and assets. |
+- S03 / Codex: independent connector VALIDATED, full slice BLOCKED by unpublished S00/S01.
+- Acceptance implemented: exact Single Runs fetch; candidate cycles; raw bytes/SHA-256 and
+  provenance; explicit availability assumption or observed download time; available_at <= T;
+  exactly 24/48 complete target hours; admissible saved fallback or explicit error.
+- Touched: `docs/weather-verification.md`, `src/server/connectors/weather/**`,
+  `src/server/data/weather/**`, `tests/weather/**`, this handoff.
+- Persistence is an injected S03-local port. Only tests have an in-memory implementation.
+  PostgreSQL persistence/restart recovery and canonical S01 integration are NOT implemented.
+- Other slices are not claimed complete. S00 has a separate local worktree; its results are
+  not on this branch or the fetched base. S01 contracts and weather tables are absent.
 
-Allowed statuses: `PLANNED`, `IN_PROGRESS`, `BLOCKED`, `VALIDATED`, `PUSHED`.
-`PUSHED` refers only to the verified task branch. Record merge or deployment separately.
+## Verified decisions / evidence
 
-## Decisions and constraints
+- Five live probes saved with raw bodies and SHA-256 under `tests/weather/evidence/`.
+  Three Jan/Feb 2026 ECMWF runs cover both 24/48 hours at the test coordinate.
+  March 2023 run returns HTTP 400. temperature_80m returns HTTP 200 with all null values.
+- Coordinates 43.25, 76.95 are only a probe location, not the confirmed station.
+- Historical publication timestamp is UNKNOWN. No default assumed delay; tests use 12 h
+  with an explicitly test-only approval reference. Production method approval is outstanding.
+- Targets currently mean T+1h through T+Nh, with hourly UTC T. S01 must confirm convention.
+- Single Runs only: never substitute actual future weather, reanalysis or stitched history.
+- Tests compare availability policy semantically, independent of PostgreSQL JSONB key ordering.
 
-- Current work is directly in the primary `main` worktree and remains entirely untracked; no task
-  branch or isolated worktree has been created for it.
-- The implemented architecture separates deterministic run state, limits, retries, persistence,
-  domain tools, and approval handling; these components are not yet reachable from Next.js routes.
-- Demo actions are designed to be simulated, based on the UI copy and demo tool source.
-- Do not treat the successful build as proof of the agent workflow: the build output exposes only
-  `/` and `/_not-found`.
+## Validation (2026-09-23 UTC)
 
-## Validation
-
-| UTC time          | Command or manual scenario                             | Result  | Evidence / remaining issue                                                                                                              |
-|-------------------|--------------------------------------------------------|---------|-----------------------------------------------------------------------------------------------------------------------------------------|
-| 2026-09-23 06:46Z | `npm run lint`                                         | PASS    | ESLint exited with code 0.                                                                                                              |
-| 2026-09-23 06:46Z | `npm run build`                                        | PASS    | Next.js 16.3.6 compiled, TypeScript completed, and static routes `/` and `/_not-found` were generated.                                  |
-| 2026-09-23 06:45Z | `git fetch --all --prune`                              | BLOCKED | Remote returned `Repository not found`; current access or remote URL must be fixed before remote state can be refreshed or work pushed. |
-| 2026-09-23 06:46Z | Agent workflow happy path, approval path, failure path | NOT_RUN | No API routes are present and runtime database/OpenAI configuration was not exercised.                                                  |
-
-Use `PASS`, `FAIL`, `BLOCKED`, or `NOT_RUN`. Never infer PASS from an earlier run
-after code or dependencies change. Keep only checks relevant to the current handoff.
-
-## Blockers and risks
-
-| Issue                                                   | Effect                                                                               | Next action / owner                                                                                                                                   |
-|---------------------------------------------------------|--------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Git remote is inaccessible (`Repository not found`)     | Cannot verify current remote state or push work.                                     | Verify repository access and the `origin` URL, then rerun `git fetch --all --prune`.                                                                  |
-| Entire application scaffold is untracked on `main`      | Work is not recoverable from Git and violates the required isolated-branch workflow. | Preserve the files, create a task branch/worktree from the correct refreshed base, and move/copy this scaffold into it before further implementation. |
-| UI/runtime modules are not wired into App Router routes | Only the starter page is demonstrable; the agent workflow cannot be exercised.       | Add the page and API routes needed by `AgentWorkspace`, then validate against a configured database and OpenAI key.                                   |
-| No test script or test files are present                | Business behavior, edge cases, and regressions are unverified.                       | Add focused tests for state transitions, approvals, limits/retries, redaction, and demo tools.                                                        |
+| Command / scenario | Result | Evidence |
+|---|---|---|
+| `npm ci` | PASS | Lockfile unchanged; dependencies installed |
+| `node tests/weather/probe.mjs tests/weather/evidence` | PASS | Five HTTP results with recorded URLs and hashes; limitations above |
+| `node --test tests/weather/weather.test.mjs` | PASS | 25 tests, no network required |
+| `npm run lint` | PASS | No errors after converting test runner to ESM |
+| `npm run build` | PASS | Next production build and TypeScript pass; starter routes only |
+| `npx tsc --noEmit` after build | PASS | Exit 0 |
+| Initial typecheck before first build | FAIL, resolved | Existing LayoutProps missing until Next generates types |
+| PostgreSQL write/read/restart integration | BLOCKED | S01 schema/contracts/adapter absent |
+| Whole-month archive and actual station coverage | NOT_RUN | S00 coordinates and approved issue schedule unavailable |
 
 ## Next actions
 
-1. Restore GitHub access or correct `origin`, fetch the latest base, and create an isolated task
-   branch/worktree without losing the current untracked scaffold.
-2. Wire `AgentWorkspace` to `/` and add the run, event, cancellation, and approval API routes used
-   by `src/ui/agent-workspace.tsx`.
-3. Configure a development PostgreSQL database and OpenAI key, add focused tests, and verify the
-   `DEMO-001` approval flow plus `DEMO-002` missing-evidence behavior end to end.
+1. Publish S00/S01; map the local port to WeatherRun/WeatherRunReader and implement atomic,
+   immutable persistence through the S01 owner. Verify saved fallback after PostgreSQL restart.
+2. Confirm station/time convention and approve documented conservative publication delay;
+   run probe on the actual coordinates and all required February cycles.
+3. Run `node --test tests/weather/weather.test.mjs`, `npm run lint`, `npm run build`,
+   `npx tsc --noEmit`, then integrate with S04 at one shared issue time.
 
-## Recent tangible milestones
+## Tangible milestone
 
-| UTC time          | Artifact and proof (commit, test, or demo)                                                       |
-|-------------------|--------------------------------------------------------------------------------------------------|
-| 2026-09-23 06:46Z | Untracked Next.js/agent foundation builds and lints successfully; no artifact commit exists yet. |
-
-Keep this table short. Record real work as it lands; Git history holds older milestones.
-The project must show a tangible result for every active hackathon hour.
+2026-09-23: real archive probe artifacts, connector/selection implementation and 25 passing
+behavior tests prepared in isolated worktree. Full S03 remains blocked, not end-to-end complete.
