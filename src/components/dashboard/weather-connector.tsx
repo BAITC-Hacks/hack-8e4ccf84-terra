@@ -21,8 +21,8 @@ export function WeatherConnector({client, transport}: {client: DashboardClient; 
     finally {setBusy(false);}
   }
   return <section id="connector-weather" className="panel weather-connector">
-    <div className="panel-heading"><div><div className="eyebrow">OPEN-METEO / ECMWF IFS</div><h2>Weather API</h2><p>{t("Проверка погодного прогона по координатам объекта. Время инициализации — UTC.")}</p></div><span className={`badge ${result ? "ready" : error ? "error" : "planned"}`}>{t(result ? "Доступ подтверждён" : busy ? "Проверяем…" : error ? "Ошибка" : "Не проверено")}</span></div>
-    {transport === "fixture" && <p className="notice neutral">{t("Демонстрационный режим: ответ погоды синтетический.")}</p>}
+    <div className="panel-heading"><div><div className="eyebrow">OPEN-METEO / ECMWF IFS</div><h2>Weather API</h2><p>{t("Укажите координаты и время выпуска прогноза в UTC.")}</p></div><span className={`badge ${result ? "ready" : error ? "error" : "planned"}`}>{t(result ? "Доступ подтверждён" : busy ? "Проверяем…" : error ? "Ошибка" : "Не проверено")}</span></div>
+    {transport === "fixture" && <p className="notice neutral">{t("Демо: показан пример ответа.")}</p>}
     <form onSubmit={submit} onChange={() => {setResult(undefined); setError("");}}>
       <fieldset disabled={busy} className="connector-fields"><div className="form-grid">
         <label>{t("Широта")}<input type="number" step="any" min="-90" max="90" required value={latitude} onChange={e => setLatitude(e.target.value)}/></label>

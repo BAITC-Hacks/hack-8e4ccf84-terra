@@ -5,7 +5,7 @@ export function forecasts(mode: Mode, scenario: Scenario): Forecast[] {
   return [2, 1].map(version => ({
     id: `demo-${mode}-v${version}`, asset_id: "demo-line", mode, issued_at: version === 2 ? "2026-01-31T12:00:00Z" : "2026-01-31T06:00:00Z", horizon_hours: 48,
     model_version: "baseline-demo-1", weather_run_id: `weather-demo-${version}`, input_snapshot_id: `snapshot-demo-${version}`, unit: "normalized", stale: scenario === "stale",
-    briefing: "Пример брифинга: после обновления погодного прогона ожидаемая мощность выросла во второй половине горизонта. Значения синтетические; качество модели и доступность архивной погоды этим примером не подтверждаются.",
+    briefing: "Демо: ожидается рост мощности во второй половине прогноза.",
     points: Array.from({ length: 48 }, (_, i) => ({ target_time: new Date(Date.UTC(2026, 0, 31, version === 2 ? 13 + i : 7 + i)).toISOString(), lead_hour: i + 1,
       prediction: scenario === "partial" && i > 35 ? null : Number((0.47 + Math.sin(i / 6) * 0.19 + Math.cos(i / 2.8) * 0.055 + version * 0.02).toFixed(3)),
       actual: mode === "backtest" && i < 16 ? Number((0.51 + Math.sin(i / 6) * 0.16).toFixed(3)) : null,

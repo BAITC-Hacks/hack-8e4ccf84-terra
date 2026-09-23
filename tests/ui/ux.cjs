@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-require-imports -- Playwright provided by the QA runner. */
+const {selectScenario} = require('./browser-helpers.cjs');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const {chromium} = require('playwright');
@@ -41,9 +42,9 @@ const base = process.env.UI_BASE_URL || 'http://localhost:3112';
     }
     await page.setViewportSize({width:1440,height:1000});await page.goto(base+'/overview');await settle();
     await page.locator('.language-control select').selectOption('ru');
-    await page.getByLabel('Сценарий UI').selectOption('partial');await settle();
+    await selectScenario(page, 'partial');await settle();
     assert.equal(await page.locator('.overview-kpi').last().locator('strong').textContent(),'Нет данныхнорм.-ч','partial sum must not look complete');
-    await page.getByLabel('Сценарий UI').selectOption('ready');await settle();
+    await selectScenario(page, 'ready');await settle();
     const Module=require('node:module');const ts=require('typescript');const m=new Module('fixtures');
     m._compile(ts.transpileModule(fs.readFileSync('src/components/dashboard/fixtures.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,'fixtures');
     await page.route('**/api/v1/forecasts?*',route=>route.fulfill({json:m.exports.forecasts('backtest','ready')}));

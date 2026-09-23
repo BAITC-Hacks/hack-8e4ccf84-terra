@@ -1,3 +1,12 @@
+# Local UI cleanup integration
+
+- Updated UTC: 2026-09-23T12:39:16.998Z; branch chore/integrate-content-local; base local main 5115dd0; task 0923d95.
+- User requested local main only. Merged concise RU/EN/KK content and disclosures; retained current KPI, typography and backend work.
+- Task passed build, lint, typecheck, 14 browser workflows, history and 30 responsive/language/theme combinations. Integration checks pending.
+- Next: validate merged tree and fast-forward local main; no remote publication requested.
+
+## Preserved main handoff
+
 # Project state — P1 and P4 local integration
 
 - Updated UTC: 2026-09-23T12:26:00Z
