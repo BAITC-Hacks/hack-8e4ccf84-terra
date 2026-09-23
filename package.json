@@ -7,7 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "tsx --test tests/ml/**/*.test.ts"
+    "test": "tsx --test tests/ml/**/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "db:migrate": "node scripts/migrate.mjs",
+    "test:foundation": "node --test tests/foundation/*.test.mjs"
   },
   "dependencies": {
     "@openai/agents": "^0.18.0",
