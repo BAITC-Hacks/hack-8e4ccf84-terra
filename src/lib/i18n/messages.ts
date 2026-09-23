@@ -686,6 +686,10 @@ export const messages: Record<string, { en: string; kk: string }> = {
     "en": "Refresh status",
     "kk": "Күйді жаңарту"
   },
+  "Обновляем…": {
+    "en": "Updating…",
+    "kk": "Жаңартылуда…"
+  },
   "Обновлений нет": {
     "en": "No updates",
     "kk": "Жаңартулар жоқ"
@@ -913,6 +917,18 @@ export const messages: Record<string, { en: string; kk: string }> = {
   "Проверить задачу": {
     "en": "Check job",
     "kk": "Тапсырманы тексеру"
+  },
+  "Статус обновлён · {time}": {
+    "en": "Status updated · {time}",
+    "kk": "Күй жаңартылды · {time}"
+  },
+  "Не удалось обновить статус. Повторите запрос.": {
+    "en": "Could not refresh the status. Retry the request.",
+    "kk": "Күйді жаңарту мүмкін болмады. Сұрауды қайталаңыз."
+  },
+  "Не удалось обновить статус. {message}": {
+    "en": "Could not refresh the status. {message}",
+    "kk": "Күйді жаңарту мүмкін болмады. {message}"
   },
   "Проверить задачу и журнал →": {
     "en": "Check job and log →",

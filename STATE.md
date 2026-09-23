@@ -1,4 +1,15 @@
-# Project state — minimal localized login hero integration
+# Project state — job refresh feedback
+
+- Updated UTC: 2026-09-23T12:23:38Z
+- Branch/worktree: `fix/job-refresh-feedback` / `hack-8e4ccf84-terra-worktrees/job-refresh-feedback`; rebased onto latest `origin/main` at `715c2ef`.
+- Owner/status: Codex; frontend implementation complete, pending push and integration.
+- Acceptance: both job buttons expose stable-size loading states; job data is retained on errors; successful checks show a timestamp; retry and `aria-live` feedback are present; polling is serialized, stops on terminal status, and stale task responses are ignored.
+- Touched: `src/components/dashboard/job.tsx`, `agent-log.tsx`, `src/app/globals.css`, and all-locale messages.
+- PASS: `npm run typecheck`; `npm run lint`; UI contract tests (12/12); `git diff --check`.
+- SKIPPED by latest user instruction: production build and browser QA. An in-progress build was stopped; no failure was observed before cancellation.
+- Next: finish rebase, push task branch, integrate latest `origin/main`, and push/verify `origin/main`.
+
+# Previous project state — minimal localized login hero integration
 
 - Updated UTC: 2026-09-23T12:22:04Z.
 - Branch/worktree: `chore/integrate-minimal-login-hero` / private integration worktree.

@@ -145,6 +145,11 @@ th,td { padding:12px 14px; border-bottom:1px solid var(--line); white-space:nowr
 .report .metric-grid { margin-top:18px; }
 .report>button { margin:8px 10px 0 0; }
 .job-box { padding:20px; background:var(--surface-alt); border:1px solid var(--line); border-radius:8px; margin:20px 0; }
+.job-action-button { width:190px; flex:0 0 190px; }
+.job-actions { display:flex; align-items:center; flex-wrap:wrap; gap:12px; margin-top:16px; min-height:42px; }
+.job-updated { color:var(--success-ink); font-size:12px; font-variant-numeric:tabular-nums; }
+.job-error { display:flex; align-items:center; gap:12px; margin-top:12px; padding:11px 13px; border:1px solid var(--danger-line); border-radius:6px; background:var(--danger-bg); color:var(--danger-ink); font-size:12px; }
+.job-error button { margin-left:auto; flex-shrink:0; }
 progress { width:100%; height:7px; accent-color:var(--green); margin-top:15px; }
 .timeline { list-style:none; padding:0; margin:25px 0; }
 .timeline li { display:flex; gap:20px; position:relative; padding-bottom:30px; }

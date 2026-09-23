@@ -23,8 +23,22 @@ export function AgentLog() {
     const [runId, setRunId] = useState(transport === "fixture" && scenario !== "empty" ? "demo-run" : "");
     const [jobInput, setJobInput] = useState("");
     const [jobId, setJobId] = useState("");
+    const [jobRequestVersion, setJobRequestVersion] = useState(0);
+    const [checkingJobId, setCheckingJobId] = useState<string>();
+    const handleJobLoading = useCallback((id: string, loading: boolean) => {
+        setCheckingJobId(current => loading ? id : current === id ? undefined : current);
+    }, []);
+    const requestedJobId = jobInput.trim();
+    const checking = Boolean(requestedJobId && requestedJobId === checkingJobId);
+    const checkJob = () => {
+        if (!requestedJobId)
+            return;
+        setCheckingJobId(requestedJobId);
+        setJobId(requestedJobId);
+        setJobRequestVersion(value => value + 1);
+    };
     return <><div className="page-heading"><div><div className="eyebrow">{t("АГЕНТ / ПРИЧИНЫ И РЕЗУЛЬТАТЫ")}</div><h1>{t("Журнал агента")}</h1><p>{t("От выбора погодного прогона до публикации новой версии.")}</p></div></div>
     <section className="panel"><form className="inline-form" onSubmit={e => { e.preventDefault(); setRunId(input.trim()); }}><label>{t("Идентификатор запуска")}<input aria-label={t("Идентификатор запуска")} required value={input} onChange={e => setInput(e.target.value)} placeholder="agent_run_id"/></label><button className="primary" disabled={!input.trim()}>{t("Открыть журнал")}</button></form>{runId ? <Run key={runId} id={runId}/> : <div className="empty"><h3>{t("Запуск не выбран")}</h3><p>{t("Укажите идентификатор из результата серверной задачи.")}</p></div>}</section>
-    <section className="panel"><h2>{t("Активная задача")}</h2><p>{t("Статус обновляется каждые 2,5 секунды до завершения. После ошибки доступна повторная загрузка.")}</p><form className="inline-form" onSubmit={e => { e.preventDefault(); setJobId(jobInput.trim()); }}><label>{t("Идентификатор задачи")}<input aria-label={t("Идентификатор задачи")} required value={jobInput} onChange={e => setJobInput(e.target.value)} placeholder="job_id"/></label><button disabled={!jobInput.trim()}>{t("Проверить задачу")}</button></form>{jobId && <JobStatus key={jobId} id={jobId}/>}</section>
+    <section className="panel"><h2>{t("Активная задача")}</h2><p>{t("Статус обновляется каждые 2,5 секунды до завершения. После ошибки доступна повторная загрузка.")}</p><form className="inline-form" onSubmit={e => { e.preventDefault(); checkJob(); }}><label>{t("Идентификатор задачи")}<input aria-label={t("Идентификатор задачи")} required value={jobInput} onChange={e => setJobInput(e.target.value)} placeholder="job_id"/></label><button className="job-action-button" disabled={!requestedJobId || checking} aria-busy={checking}>{checking && <span className="spinner" aria-hidden="true"/>}{t(checking ? "Проверяем…" : "Проверить задачу")}</button></form>{jobId && <JobStatus key={jobId} id={jobId} requestVersion={jobRequestVersion} onLoadingChange={handleJobLoading}/>}</section>
   </>;
 }
