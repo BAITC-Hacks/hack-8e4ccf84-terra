@@ -1,10 +1,10 @@
 # Project state — local main
 
-- Updated UTC: 2026-09-23 09:40Z
-- Branch/worktree: `main` / primary worktree; S01 integration worktree retained
-- Last verified prior commits: local main `668de5f` (S04 handoff); S01 integration `adcc2de`. This merge preserves both histories, including S01 task commit `9820c90`.
-- Remote: cached `origin/main` at `0248d79`; freshness UNKNOWN because this task's fetch/push reports `Repository not found`. User will push local main.
-- Demo: S05 fixture dashboard at `/overview`, `/forecast`, `/sources`, `/agent-log`; S01 Compose with configured secrets starts PostgreSQL, migrates, serves `/health`, admin login and protected APIs. S04 produced a 24-hour published baseline in its isolated PostgreSQL smoke test. Full real S02/S03 data flow remains unverified.
+- Updated UTC: 2026-09-23 09:47Z
+- Branch/worktree: `chore/integrate-csv-import-quality` / private integration worktree.
+- Base: `origin/main` at `0f1767e`; task branch: `feat/csv-import-quality` at `794b42e`.
+- Active task: merge S02 CSV import and quality workflow into `main`, validate, and push.
+- Demo: S05 fixture dashboard remains at `/overview`, `/forecast`, `/sources`, `/agent-log`. With PostgreSQL and `DATABASE_URL`, run `npm run db:migrate`, then `npm run dev`; CSV APIs are under `/api/v1/imports` and `/api/v1/connections`.
 
 ## Preserved work
 
@@ -15,7 +15,7 @@
 - S06 `d094908`: nonlinear ridge/power-curve model, train-only scaling, resumable training and durable training-job enqueue; artifacts default to `.data/ml`.
 - S07 `564a09e` through `bf4f1fd`: fixture/PostgreSQL job stores, atomic claim, fenced lease/heartbeat/checkpoint, bounded retry, idempotent trigger, agent decisions and replay. Protected tick is still an idle adapter.
 - S08 `5ce6748`: sequential backtest, evaluator-only actuals, leakage checks, February metrics, common-pair baseline and CSV export. Registry remains in memory.
-- S02/S03 canonical import and weather adapters are not present on this main.
+- S02: SHA-256 artifacts, bounded/idempotent CSV import, observation revisions, error reports/downloads, connection APIs and coverage-aware hourly aggregation are merged in this integration worktree. S03 weather adapters are not present.
 
 ## Decisions and risks
 
@@ -32,12 +32,16 @@
 | S01 clean Compose migration and HTTP auth/API smoke with random test secrets | PASS before merge |
 | S04 fixture/foundation, PostgreSQL, HTTP, lint/typecheck and webpack build | PASS before this merge, as recorded by S04 owner |
 | S05/S06/S07/S08 prior checks | PASS before this merge, as recorded by their owners |
-| Combined tests/build/HTTP after these merges | NOT_RUN at user request |
-| Merge conflict resolution and staged whitespace check | PASS; package scripts and slice code preserved |
-| Remote fetch/push from this task | BLOCKED: `Repository not found`; user requested local main handoff |
+| Conflict resolution | PASS: package scripts combined and idempotent migration runner retained |
+| Combined TypeScript tests | PASS: 28/28 |
+| Foundation authentication tests | PASS: 3/3 |
+| Lint | PASS |
+| Typecheck | PASS |
+| Production build | PASS: Next.js generated CSV and existing routes |
+| Push to `origin/main` | PENDING |
 
 ## Next actions
 
-1. User pushes local `main` when remote access is ready, then verifies S01 commit `9820c90` and S04 commit `9802da4` are ancestors of `origin/main`.
-2. Integrate S02/S03 inputs, align S05 with S04 API and wire S07 tick to S04 publication.
-3. Confirm time/power/target semantics and obtain February evaluation-only actuals before official forecast-quality claims.
+1. Run CSV, ML, foundation, lint, typecheck and build checks.
+2. Commit the merge, push task and integration branches, then push integration HEAD to `origin/main`.
+3. Verify task commit `9259c60` is an ancestor of refreshed `origin/main`.

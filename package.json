@@ -7,10 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "tsx --test tests/ml/**/*.test.ts",
+    "test": "tsx --test tests/**/*.test.ts",
+    "test:ml": "tsx --test tests/ml/**/*.test.ts",
     "typecheck": "tsc --noEmit",
     "db:migrate": "node scripts/migrate.mjs",
-    "test:foundation": "node --test tests/foundation/*.test.mjs"
+    "test:foundation": "node --test tests/foundation/*.test.mjs",
+    "test:postgres": "tsx tests/import/postgres-smoke.ts"
   },
   "dependencies": {
     "@openai/agents": "^0.18.0",
@@ -29,7 +31,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.6",
     "tailwindcss": "^4",
-    "tsx": "^4.20.6",
+    "tsx": "^4.23.15",
     "typescript": "^5"
   }
 }

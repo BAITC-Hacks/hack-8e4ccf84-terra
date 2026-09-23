@@ -5,6 +5,8 @@ const schema = z.object({
   DATABASE_URL: z.url(),
   OPENAI_API_KEY: z.string().min(1).optional(),
   OPENAI_MODEL: z.string().min(1).default(DEFAULT_MODEL),
+  ARTIFACT_ROOT: z.string().min(1).default(".data/artifacts"),
+  IMPORT_BATCH_SIZE: z.coerce.number().int().positive().max(10_000).default(500),
 });
 
 // Lazy validation lets builds and offline tests run without runtime secrets.
