@@ -1,3 +1,4 @@
+import {withDemoInterval} from "./fixtures";
 import { z } from "zod";
 import type { Forecast, Scenario } from "./contracts";
 
@@ -74,6 +75,6 @@ export function historyDemoForecasts(assetId: string, horizon: 24 | 48, scenario
       lead_hour: index + 1,
       prediction: scenario === "partial" && index >= 18 ? null : Number((0.45 + Math.sin((index + dayIndex) / 6) * 0.17 + (assetId.endsWith("2") ? 0.08 : 0)).toFixed(3)),
       actual: null, status: scenario === "partial" && index >= 18 ? "missing" : "ready",
-    })),
+    })).map(withDemoInterval),
   }));
 }

@@ -23,7 +23,8 @@ async function visible(locator) { await locator.waitFor({ state: 'visible' }); }
   try {
     assert.ok(process.env.ADMIN_PASSWORD, 'Set ADMIN_PASSWORD for the test server');
     assert.equal((await page.request.post(base + '/api/auth/session', {data:{username:process.env.ADMIN_USERNAME || 'admin',password:process.env.ADMIN_PASSWORD}})).status(),200);
-    await page.goto(base); await page.waitForURL('**/overview');
+    await page.goto(base); await page.waitForURL('**/history');
+    await page.getByRole('link',{name:'Обзор',exact:true}).click();
     await visible(page.getByRole('heading', { name: /Энергия завтрашнего дня|Прогноз на 48 часов/ }));
     await visible(page.getByRole('img', { name: /Почасовой прогноз/ }));
     assert.equal(await page.locator('html').getAttribute('lang'), 'ru');

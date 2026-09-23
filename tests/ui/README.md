@@ -77,8 +77,18 @@ Additional validation:
 
 - `node --test tests/ui/platform.test.cjs tests/ui/client.test.cjs tests/ui/csv.test.mjs`
 - `node tests/ui/platform.cjs` against the production server (default port 3107; `UI_BASE_URL` overrides it).
+- `node tests/ui/readability.cjs` checks all four dashboard routes in the light/dark themes, Russian/Kazakh/English, and 1440/390 pixel viewports. It audits text contrast, clipping, page overflow, the Noto Sans Cyrillic font, and interactive states, and saves review screenshots under `.next/ui-qa/readability/`.
 - Both browser scripts load an ignored `.env.local` if present, or accept `ADMIN_PASSWORD` from the environment. The platform suite also uses `SESSION_SECRET` to test an actually expired signature. Never log or commit those values.
 - `platform.cjs` tests real authentication, protected pages/APIs, wrong credentials, Origin checks, language/theme persistence, all translated pages, mobile navigation, logout, forged/expired sessions and reduced motion.
 - `dashboard.cjs` tests the existing 13 dashboard flows after a real sign-in. Forecast/import API responses in its contract scenarios remain mocked. This does not claim real S02–S04 end-to-end integration.
 
 All interface copy and synthetic fixture explanations are translated. Data returned by a real server retains its source language. Numerical values, identifiers, units and timestamps are preserved; labels and display dates/numbers follow the selected locale.
+
+## UI/UX audit and reference chart (2026-09-23)
+
+- `node tests/ui/ux.cjs`: keyboard modal navigation, 30 page/locale/theme/viewport combinations (320–1440px), no page overflow, English-copy checks, honest normalized units, incomplete totals and empty source status.
+- `node tests/ui/chart.cjs`: pointer/touch/keyboard tooltip, previous version, fact, optional interval, dark palette, missing-hour gaps and API without interval bounds.
+- Browser suites use `UI_BASE_URL`, `UI_BROWSER_CHANNEL` and local ignored auth settings as above; the history suite owns a separate ephemeral server.
+- Point `interval?: [lower, upper] | null` is an optional UI wire extension. Bounds must be finite and ordered. Existing API responses remain compatible and render no band if bounds are absent.
+- Only explicit fixture generators create synthetic bands; this is a visual example, not a calibrated confidence interval. API intervals are never inferred. MW and percent-of-rated conversions remain unavailable until asset scale is verified.
+- The reference chart supports focus + Left/Right/Home/End, Escape dismissal, pointer hover and touch. Table view remains available.

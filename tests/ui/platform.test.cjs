@@ -45,6 +45,16 @@ test('Russian/light defaults, localized dates/numbers and interpolation preserve
   assert.match(formatDate('2026-01-31T12:00:00Z', 'Asia/Almaty', 'en'), /17:00/);
   assert.equal(formatDate('2026-01-31T23:00:00Z', 'Asia/Almaty', 'kk'), '01 ақп., 04:00');
 });
+test('login forecast copy is concise and exact in every locale', () => {
+  const heading = 'Прогноз выработки ВЭС';
+  const description = 'Почасовой прогноз на 24–48 часов на основе погоды и данных турбин.';
+  assert.equal(translate('ru', heading), heading);
+  assert.equal(translate('ru', description), description);
+  assert.equal(translate('kk', heading), 'ЖЭС өндірісінің болжамы');
+  assert.equal(translate('kk', description), 'Ауа райы мен турбина деректері негізінде алдағы 24–48 сағатқа арналған сағаттық болжам.');
+  assert.equal(translate('en', heading), 'Wind power forecast');
+  assert.equal(translate('en', description), 'Hourly forecasts for the next 24–48 hours using weather and turbine data.');
+});
 test('return destination allowlist prevents external or unrelated redirects', () => {
   for (const value of [undefined, 'https://evil.test', '//evil.test', '/\\evil.test', '/api/auth/session', '/login', '/%2f%2fevil.test']) assert.equal(safeReturnPath(value), '/history');
   assert.equal(safeReturnPath('/forecast?run=run-1'), '/forecast?run=run-1');
