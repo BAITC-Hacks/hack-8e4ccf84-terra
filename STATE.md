@@ -2,10 +2,11 @@
 
 ## Snapshot
 
-- Updated UTC: 2026-09-23 09:27:00Z.
+- Updated UTC: 2026-09-23 09:27:38Z.
 - Branch/worktree: `feat/csv-import-quality`, `C:/Users/elnar.saparov/Desktop/HACK/hack-8e4ccf84-terra-worktrees/csv-import-quality`.
 - Base being integrated: verified `origin/main` commit `ed439af`, containing S00/S05/S06/S08.
 - S02 implementation commit: `9259c60`; validated handoff commit: `b85c28e`.
+- Latest base merge commit: `15cdab2`.
 - Demo: set `DATABASE_URL`, run `npm run db:migrate`, then `npm run dev`; UI routes are
   `/overview`, `/forecast`, `/sources`, and `/agent-log`.
 
@@ -43,16 +44,20 @@
 | Latest pre-S05-merge lint/build | PASS | Clean lint; Next build emitted all S02/S06/S08 API routes |
 | Latest clean PostgreSQL 16 migration/smoke | PASS | Migration applied; repeat kept one import ID and exactly three observations |
 | S05 integration checks on main | PASS | 6 UI units, lint/build and 13 browser scenarios recorded by S05 integrator |
-| Final combined S02/S05/S06/S08 checks | NOT_RUN | Run after this merge conflict is committed |
+| Final combined `npm test` | PASS | 28/28 S02/S06/S08 tests after merging S05 |
+| Final UI unit tests | PASS | 6/6 CSV/client adapter tests |
+| Final lint/build | PASS | Clean lint; all four UI routes and ten dynamic API routes generated |
+| Final clean PostgreSQL migration/smoke | PASS | S02 migration applied; repeat import reused ID and kept three observations |
 
 ## Next actions
 
-1. Complete the merge, run combined tests/lint/build and PostgreSQL smoke, then push normally.
+1. Push the merged `feat/csv-import-quality` branch and verify its upstream commit.
 2. Align S05's provisional source adapter with S02 API payloads and run the real E4 UI gate.
 3. Feed canonical observations into S06/S08 through `observationsForPurpose`.
 
 ## Recent tangible milestones
 
-- 2026-09-23 09:27Z: reconciled S02 and concurrently integrated S05 without discarding S00/S06/S08.
+- 2026-09-23 09:27Z: merged S05 into S02 and passed 28 core tests, 6 UI tests, lint, build and
+  clean PostgreSQL validation without discarding S00/S06/S08.
 - 2026-09-23 09:24Z: S02/S06/S08 suite passed 28 tests, lint, build and PostgreSQL smoke.
 - 2026-09-23 09:26Z: S05 integration verified on `origin/main` at `ed439af`.
