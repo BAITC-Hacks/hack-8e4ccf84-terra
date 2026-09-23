@@ -150,11 +150,13 @@ export function validateCandidates(
           : addUtcMonths(validationStart, -historyWindowMonths);
         const training = preCutoff.filter((example) => {
           const time = new Date(example.timestamp);
-          return time >= trainingStart && time < validationStart;
+          return time >= trainingStart && time < validationStart &&
+            (!example.targetAvailableAt || new Date(example.targetAvailableAt) < validationStart);
         });
         const validation = preCutoff.filter((example) => {
           const time = new Date(example.timestamp);
-          return time >= validationStart && time < validationEnd;
+          return time >= validationStart && time < validationEnd &&
+            (!example.issuedAt || new Date(example.issuedAt) >= validationStart);
         });
         if (training.length < minimumTrainRows || validation.length < minimumValidationRows) {
           skipped.push({

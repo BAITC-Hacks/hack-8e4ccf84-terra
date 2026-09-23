@@ -82,3 +82,14 @@
 - Next: fast-forward local main to this verified integration, verify task ancestry; P7 runs documented CLI after P1/P2/P6 wiring and inputs are available. Retry remote synchronization when repository access is restored.
 
 - P1 final integration evidence: combined npm test PASS (53 passed, 1 DB skip; P1 PostgreSQL 3/3 separately), typecheck PASS; production build compiled/typechecked and generated pages. User explicitly requests immediate main delivery without more tests. Separate live archived weather smoke PASS (120 hours, publication still UNKNOWN).
+
+## Parallel P2 — approved trained inference
+
+- Updated UTC: 2026-09-23T12:28:21.7723618Z; owner P2/Codex; integration branch chore/integrate-p2-trained. Last verified task commit: c1ba6aa2b915c31934c484c52bc8cf5bbf4424c0; integration base: e285f93ec0a49208ee854047109861face3879fa.
+- Validated code on this lineage: predictApprovedModel returns canonical normalized 24/48-hour values; strict artifact/schema/checksum/version/approval and forecast-feature gates; reproducible training CLI with pre-February temporal folds and paired persistence comparison.
+- P2 owned paths: src/server/ml, tests/ml, scripts/train-approved.ts, docs/handoffs/parallel-P2.md. Agent/forecast wiring remains P6; preserve other active P1/P3/P4/P5/P6 tasks and their handoffs.
+- PASS task: 51 tests, 15 ML tests, typecheck, lint, canonical production build (21 pages), diff/secret review. Repeated integration tests/build/lint/typecheck SKIPPED by explicit user instruction to deliver to main immediately; task checks above already passed. Integration diff reviewed.
+- Synthetic measured validation only: N=144, power_curve:3m MAE approximately 7.52e-17 versus persistence MAE 0.34; synthetic artifact remains candidate. This is not evidence of real historical skill or P7 E2E.
+- BLOCKED historical approval: canonical archived pre-February training forecast snapshots and confirmed data semantics are absent. CSV weather is observed; February actuals remain evaluation-only and unavailable. P6 must preserve temperature and feature height in both snapshot paths and load trusted approved artifacts.
+- BLOCKED remote fetch/push: Repository not found. Local main delivery uses serialized lock and fast-forward; no origin/main claim.
+- Next: P6 connects trained inference in both runtime paths; obtain archived training inputs and run node node_modules/tsx/dist/cli.mjs scripts/train-approved.ts --input manifest.json; P7 performs combined acceptance after all parallel tasks.

@@ -5,6 +5,9 @@ export interface TrainingExample {
   assetId: string;
   leadHours: number;
   target: number;
+  /** Optional as-of bounds supplied by the archived-forecast training path. */
+  issuedAt?: string;
+  targetAvailableAt?: string;
 }
 
 export interface FeatureDefinition {
