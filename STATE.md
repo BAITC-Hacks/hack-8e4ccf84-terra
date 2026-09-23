@@ -1,9 +1,10 @@
 # Project state — S03/S09 and industrial connectors
 
-- Updated UTC: 2026-09-23 10:41Z.
+- Updated UTC: 2026-09-23 10:48Z.
 - Branch/worktree: `chore/integrate-oracle-wincc` / private integration worktree.
 - Base: `origin/main` at `0def4de`; task branch `origin/feat/oracle-wincc-connectors` at `c74b955`.
-- Active task: merge validated Oracle/WinCC workflows with the latest S03/S09 main; final integration checks and main push pending.
+- Last verified commit: `bdb3fb9` (integration merge; push to `origin/main` pending).
+- Active task: validated Oracle/WinCC workflows are merged with the latest S03/S09 main; remote main push and ancestry verification are next.
 - Demo: authenticated `/sources` runs explicitly synthetic Oracle history and WinCC live workflows end to end. API mode requires real server-side gateways and never falls back to fixtures.
 
 ## Integrated implementation
@@ -25,14 +26,13 @@
 
 ## Validation
 
-- PASS before integration: connector branch combined TypeScript suite 31/31, industrial/UI adapter suite 7/7, lint, typecheck and production build.
+- PASS after integration: combined TypeScript suite 31/31, industrial/UI adapter suite 7/7, S03 weather tests 25/25, S09 harness 2/2, lint, typecheck and production build.
 - PASS before integration: authenticated browser walkthrough reached “История загружается” for Oracle and “Обновления поступают” for WinCC; English localization verified.
-- PASS on latest main before this merge: S03 weather tests 25/25, S09 harness 2/2, lint, typecheck and production build, as recorded by its integrator.
 - EXPECTED BLOCKED: `node tests/acceptance/run.mjs verify` exits 2 until owners provide the missing `demo:verify` contract.
 - NOT RUN: real Oracle, WinCC and PostgreSQL restart integrations because external endpoints/credentials are unavailable.
 
 ## Next actions
 
-1. Run critical checks in this integration worktree, commit the merge, push `HEAD:main`, and verify task ancestry.
+1. Fetch latest `origin/main`, push this validated integration with `HEAD:main`, and verify task ancestry.
 2. Configure real Oracle/WinCC gateways and repeat the two workflows against plant infrastructure.
 3. Complete S03 persistence and remaining owner `demo:*` acceptance contracts.
