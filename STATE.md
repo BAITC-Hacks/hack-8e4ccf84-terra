@@ -2,8 +2,8 @@
 
 - Updated UTC: 2026-09-23 11:45Z
 - Branch/worktree: `chore/integrate-russian-readme` / `.worktrees/integrate-russian-readme`
-- Base/integration: latest last-known `origin/main` at `ab2622c` is merged; README task `75119a5` and overview task `e9dfb21` are both present in this integration worktree.
-- Owner/status: Codex; concurrent state conflicts were reconciled without discarding either task, final combined checks pass, merge commit pending.
+- Base/integration: latest last-known `origin/main` at `ab2622c` is merged; README task `75119a5` and overview task `e9dfb21` are both present in integration commit `1c2753d`.
+- Owner/status: Codex; concurrent state conflicts were reconciled without discarding either task and final combined checks pass. Remote sync and local `main` advancement are blocked.
 
 ## Integrated implementation
 
@@ -37,6 +37,6 @@
 
 ## Next actions
 
-1. Commit the validated merge.
-2. When repository access is restored, push the README task branch and integration HEAD to `origin/main` without rewriting history; verify `75119a5` and `e9dfb21` ancestry.
+1. Preserve the integration branch while the primary `main` worktree contains unrelated uncommitted history-page work; do not overwrite it.
+2. When repository access is restored and the primary worktree is clean, advance `main` to the integration HEAD, push the README task branch and `main`, then verify `75119a5` and `e9dfb21` ancestry on `origin/main`.
 3. After owner data is available, confirm semantics, persist trustworthy archival weather runs, connect an approved trained artifact, and execute February replay/evaluation.
