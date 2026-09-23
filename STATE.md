@@ -2,9 +2,9 @@
 
 ## Snapshot
 
-- Updated UTC: 2026-09-23 09:01:06Z.
+- Updated UTC: 2026-09-23 09:08:36Z.
 - Branch/worktree: `feat/backtest-evaluation-export`, `C:/Users/elnar.saparov/Desktop/HACK/hack-8e4ccf84-terra-worktrees/backtest-evaluation-export`.
-- Current rebase base: `origin/main` at `f7d1ed9`; S08 task commit is being replayed and its final hash is pending.
+- Rebased task commit: `5ce6748` on `origin/main` at `f7d1ed9`; this verified handoff update is uncommitted.
 - Demo: production Next.js exposes `POST /api/v1/backtest-jobs`, `GET /api/v1/evaluations/{id}` and `GET /api/v1/forecasts/{id}/export`; set `ADMIN_API_TOKEN` and use a matching Bearer token.
 
 ## Integrated foundation and current task
@@ -29,7 +29,7 @@
 | Check | Result | Evidence |
 |---|---|---|
 | `npx --yes tsx --test tests/backtest/*.test.ts` | PASS | 13/13: metrics, common-pair baseline, March exclusion, N=0, sequential isolation, leakage, cutoff, 1e-6 reproducibility, CSV and API/idempotency/auth |
-| `npm run lint` | PASS | ESLint exit 0 |
+| `npm run lint -- --no-cache` | PASS | ESLint exit 0 after rebase; an earlier combined command was interrupted after a silent wait and rerun separately |
 | `npx tsc --noEmit` | PASS | TypeScript exit 0 after Next type generation |
 | `npm run build` | PASS | Next.js 16.3.6 compiled; all three S08 API routes appear as dynamic routes |
 | Manual production HTTP check on port 3108 | PASS | First POST queued; same key/body reused same job; unauthenticated POST returned 401 |
@@ -38,7 +38,7 @@
 
 ## Blockers, risks and next actions
 
-1. Finish the rebase, rerun critical checks, push the task branch, and integrate it into `main` from a separate worktree.
+1. Commit this post-rebase handoff, push the task branch, and integrate it into `main` from a separate worktree.
 2. At Gate C, connect `BacktestForecastService`, `ActualsReader` and `BacktestRegistry` to canonical S04/S06/S07 contracts and PostgreSQL; remove root route bridges if S01 moves the app to `src/app`.
 3. Obtain February evaluation-only actuals and the organizer-approved release schedule before producing an official evaluation report.
 
