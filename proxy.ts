@@ -4,14 +4,29 @@ import { SESSION_COOKIE, validSession, validTickSecret } from "./src/server/auth
 
 export function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
+  const page = !path.startsWith("/api/");
+  const login = () => {
+    const url = new URL("/login", request.url);
+    url.searchParams.set("next", path + request.nextUrl.search);
+    const response = NextResponse.redirect(url);
+    response.headers.set("Cache-Control", "private, no-store");
+    return response;
+  };
   try {
     if (path.startsWith("/api/internal/jobs/tick")) {
       if (!validTickSecret(request.headers.get("authorization")))
         return NextResponse.json({ code: "UNAUTHORIZED", message: "Dispatcher authentication required", request_id: crypto.randomUUID() }, { status: 401 });
       return NextResponse.next();
     }
-    if (!validSession(request.cookies.get(SESSION_COOKIE)?.value))
+    if (!validSession(request.cookies.get(SESSION_COOKIE)?.value)) {
+      if (page) return login();
       return NextResponse.json({ code: "UNAUTHORIZED", message: "Administrator session required", request_id: crypto.randomUUID() }, { status: 401 });
+    }
+    if (page) {
+      const response = NextResponse.next();
+      response.headers.set("Cache-Control", "private, no-store");
+      return response;
+    }
     if (!["GET", "HEAD", "OPTIONS"].includes(request.method)) {
       const origin = request.headers.get("origin");
       if (origin && origin !== request.nextUrl.origin)
@@ -31,8 +46,9 @@ export function proxy(request: NextRequest) {
     }
     return NextResponse.next();
   } catch {
+    if (page) return login();
     return NextResponse.json({ code: "SERVICE_UNAVAILABLE", message: "Authentication is not configured", request_id: crypto.randomUUID() }, { status: 503 });
   }
 }
 
-export const config = { matcher: ["/api/v1/:path*", "/api/internal/jobs/tick"] };
+export const config = { matcher: ["/", "/overview/:path*", "/forecast/:path*", "/sources/:path*", "/agent-log/:path*", "/api/v1/:path*", "/api/internal/jobs/tick"] };

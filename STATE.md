@@ -1,54 +1,44 @@
-# Project state — local main integration
+# Project state — industrial portal integration
 
-- Updated UTC: 2026-09-23 11:45Z
-- Branch/worktree: `chore/integrate-agent-system-problems` / private integration worktree.
-- Last verified integration commit: `d2d4454` on `origin/main`; agent audit task commit `f436946` is a verified ancestor.
-- Active task: agent subsystem audit documentation completed; runtime code was not changed.
-- Demo: S05 fixture dashboard remains at `/overview`, `/forecast`, `/sources`, `/agent-log`. With PostgreSQL and `DATABASE_URL`, run `npm run db:migrate`, then `npm run dev`; CSV APIs are under `/api/v1/imports` and `/api/v1/connections`.
+- Updated UTC: 2026-09-23 10:15Z
+- Branch/worktree: `chore/integrate-industrial-portal` / private integration worktree.
+- Last verified base: `af8d761` from `origin/main`; task implementation `f78d8a7`, validated handoff `60d8b5a` pushed and verified on `origin/feat/industrial-portal`. Integration has only a reconciled STATE.md conflict.
+- Owner/status: Codex, industrial UI + RU/KK/EN + themes + mandatory sign-in; implementation and combined-code validation passed; integration worktree checks passed; main push pending.
+- Demo: production preview on `http://localhost:3107/login`; random local administrator credentials live only in ignored `.env.local`. Sign in opens the requested dashboard route. Fixture forecast/import/report/journal flows work; real data API alignment remains a separate integration gate.
 
-## Preserved work
+## Implemented and verified
 
-- S00 audit `716c63b`: two separate ten-minute CSV histories through 2026-01-31, no February actuals. See `docs/data-contract.md` and `docs/data-audit.md`.
-- S01 `49fda2d`, `848bef1`, `bebdcef`, `9820c90`: shared contracts, §7 PostgreSQL migration, Compose persistent volumes, administrator session, protected `/api/v1/*`, separate tick secret, health/assets APIs and S08 server-token bridge.
-- S04 `9802da4`: immutable as-of snapshot, baseline, exact 24/48-hour validation, idempotency, previous-version links, transactional PostgreSQL publication and protected forecast API.
-- S05 `f3299ee`: Russian dashboard with chart/table, filters, provenance, CSV preview/import UI and agent journal. Real API alignment remains open; see `tests/ui/README.md`.
-- S06 `d094908`: nonlinear ridge/power-curve model, train-only scaling, resumable training and durable training-job enqueue; artifacts default to `.data/ml`.
-- S07 `564a09e` through `bf4f1fd`: fixture/PostgreSQL job stores, atomic claim, fenced lease/heartbeat/checkpoint, bounded retry, idempotent trigger, agent decisions and replay. Protected tick is still an idle adapter.
-- S08 `5ce6748`: sequential backtest, evaluator-only actuals, leakage checks, February metrics, common-pair baseline and CSV export. Registry remains in memory.
-- S02: SHA-256 artifacts, bounded/idempotent CSV import, observation revisions, error reports/downloads, connection APIs and coverage-aware hourly aggregation are merged in this integration worktree. S03 weather adapters are not present.
-- Documentation: `docs/hackalem-ai-agentic-wind-forecasting.md` is a verified Markdown transcription of the HackAlem AI case specification.
+- Industrial navigation, responsive dashboard, turbine illustration, 2-second skippable entrance, reduced-motion support.
+- Russian default, Kazakh and English across four pages, login, forms, statuses and synthetic explanations. Locale-aware number/date display; Kazakh months handled explicitly for browsers with incomplete ICU data.
+- Light/dark theme and language cookies applied by the server to initial HTML and retained across reloads.
+- Existing signed administrator session now protects dashboard pages in proxy and server layout as well as APIs. Login/logout and live session checks use `/api/auth/session`; HttpOnly cookie, safe return-path allowlist, no client-only bypass or bundled password.
+- Touched: `src/app`, `src/components`, `src/lib/i18n`, `src/lib/navigation.ts`, root login bridge, session GET, `proxy.ts`, `tests/ui`, this handoff. No forecasting/import/agent business logic changed.
 
-## Decisions and risks
+## Preserved work and boundaries
 
-- Source timezone, interval convention, physical power units, normalization, target object, availability and official issue schedule remain unconfirmed. Keep source rows separate and February fact evaluation-only; no MW/MWh conversion or official quality claim.
-- S01 proxy requires an admin cookie for all `/api/v1/*`; for S08 routes it forwards server-only `ADMIN_API_TOKEN` after validation. Dispatcher uses `JOB_TICK_SECRET`.
-- Root `app/` is the effective App Router. S04/S06/S08 API and S05 UI routes remain.
-- S05 real API adapter, S07 tick, S08 production persistence and real S02/S03 inputs await integration.
+- S00 data audit; S01 contracts/migrations/Compose/session/token bridge; S04 immutable as-of baseline; S05 fixtures/dashboard; S06 model training; S07 durable jobs/replay; S08 backtest/evaluation/export are retained from the base.
+- S02 CSV import/connection/hourly-quality code, the verified HackAlem specification transcription, the latest specification/router cleanup, and `SLICE_RULE.md` are preserved from latest main. Combined S02/backtest/ML tests, foundation, UI/agent/forecast tests, lint, typecheck and production build passed after rebase.
+- Root `app/` is the effective router; root UI files re-export canonical `src/app` components.
+- Source timezone/interval, physical units/normalization and target semantics remain unconfirmed. No MW/MWh or official quality claim. February actuals remain evaluation-only.
+- Demo examples stay explicitly synthetic. Server-returned data retains its source language. Existing shared administrator role is reused; multi-user registration was not requested.
+
+- Agent audit `f436946` / integration `d2d4454` is preserved in `docs/agent-system-problems.md`: production agent wiring, automated tick and durable replay remain incomplete. Its PostgreSQL test was skipped without TEST_DATABASE_URL; this portal task does not claim those runtime gaps are fixed.
 
 ## Validation
 
-| Check | Result |
-|---|---|
-| S01 standalone lint, typecheck, build, three auth tests | PASS before merge |
-| S01 clean Compose migration and HTTP auth/API smoke with random test secrets | PASS before merge |
-| S04 fixture/foundation, PostgreSQL, HTTP, lint/typecheck and webpack build | PASS before this merge, as recorded by S04 owner |
-| S05/S06/S07/S08 prior checks | PASS before this merge, as recorded by their owners |
-| Conflict resolution | PASS: package scripts combined and idempotent migration runner retained |
-| Combined TypeScript tests | PASS: 28/28 |
-| Foundation authentication tests | PASS: 3/3 |
-| Lint | PASS |
-| Typecheck | PASS |
-| Production build | PASS: Next.js generated CSV and existing routes |
-| Push to `origin/main` | PASS: `c613fb3`; task commit `9259c60` verified as ancestor |
-| PDF extraction and visual source review | PASS: both source PDF pages rendered and checked; Markdown matches headings, requirements, links, and 100-point rubric |
-| Agent audit scope against `origin/main` `8895ba8` | PASS: production agent paths and integration boundaries inspected |
-| Agent fixture workflow tests | PASS: 7/7; PostgreSQL test SKIPPED because `TEST_DATABASE_URL` is unset |
-| Agent-focused ESLint and exact-commit TypeScript check | PASS |
-| Documentation task branch push | PASS: `origin/docs/agent-system-problems` at `f436946` |
-| Agent audit integration push | PASS: `origin/main` at `d2d4454`; task commit ancestor verified |
+- Integration worktree: PASS fresh npm ci, all 54 automated tests, lint, production build and typecheck. Runtime/UI files and dependencies exactly match the browser-tested task branch; additional main changes are documentation only.
+
+- PASS: `npm run lint`, `npm run typecheck`, `npm run build` (production App Router build).
+- PASS: `npm test` (28: S02/backtest/ML), `npm run test:foundation` (3).
+- PASS: `node --test tests/agent/workflow.test.cjs tests/forecast/service.test.cjs` (13).
+- PASS: `node --test tests/ui/platform.test.cjs tests/ui/client.test.cjs tests/ui/csv.test.mjs` (10).
+- PASS: `node tests/ui/dashboard.cjs` (13 browser scenarios, authenticated session; data API cases mocked).
+- PASS: `node tests/ui/platform.cjs` (10 browser scenarios: actual login, redirects, Origin checks, defaults/persistence, English/Kazakh pages, mobile, logout, tampered/expired cookies, open-page expiry, reduced motion).
+- PASS: visual review of light/dark login and Kazakh dark dashboard; no page overflow or browser exceptions. Browser locale review found ICU month fallback; fixed, unit-tested and browser suite rerun afterward.
+- NOT_RUN: production PostgreSQL/data-source end-to-end flow; no database configured for this UI preview.
 
 ## Next actions
 
-1. Implement the agent fixes in the priority order recorded by `docs/agent-system-problems.md`.
-2. Run AT-AG-01–AT-AG-18 before declaring the agent subsystem ready.
-3. Configure `TEST_DATABASE_URL` and rerun the PostgreSQL agent test.
+1. Push validated integration HEAD to origin/main, verify task ancestry and record the remote result.
+2. Implement agent audit priorities and pass AT-AG-01–AT-AG-18 with production adapters; configure TEST_DATABASE_URL for its PostgreSQL checks.
+3. Separate follow-up: align S05 adapters with S02/S04/S08 real payloads, wire S07 tick and S03 weather; run real database/UI integration before operational use.

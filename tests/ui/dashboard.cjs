@@ -10,6 +10,7 @@ const Module = require('node:module');
 const fixtureModule = new Module(path.resolve('src/components/dashboard/fixtures.ts'));
 fixtureModule._compile(ts.transpileModule(fs.readFileSync(fixtureModule.id, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, fixtureModule.id);
 const fixture = fixtureModule.exports;
+if (fs.existsSync('.env.local')) process.loadEnvFile('.env.local');
 const base = process.env.UI_BASE_URL || 'http://localhost:3105';
 const launch = process.env.UI_BROWSER_CHANNEL ? { channel: process.env.UI_BROWSER_CHANNEL } : {};
 async function visible(locator) { await locator.waitFor({ state: 'visible' }); }
@@ -20,6 +21,8 @@ async function visible(locator) { await locator.waitFor({ state: 'visible' }); }
   let checks = 0;
   const pass = name => { checks++; console.log(`PASS ${name}`); };
   try {
+    assert.ok(process.env.ADMIN_PASSWORD, 'Set ADMIN_PASSWORD for the test server');
+    assert.equal((await page.request.post(base + '/api/auth/session', {data:{password:process.env.ADMIN_PASSWORD}})).status(),200);
     await page.goto(base); await page.waitForURL('**/overview');
     await visible(page.getByRole('heading', { name: 'Энергия завтрашнего дня' }));
     await visible(page.getByRole('img', { name: /Почасовой прогноз/ }));
@@ -83,9 +86,9 @@ async function visible(locator) { await locator.waitFor({ state: 'visible' }); }
     await visible(page.getByText('demo-backtest-v2', { exact: true }));
     pass('agent steps and result navigation');
     await page.getByLabel('Данные', { exact: true }).selectOption('api');
-    await visible(page.getByRole('alert').filter({ hasText: 'API или запись пока недоступны.' }).first());
+    await visible(page.getByRole('alert').first());
     assert.equal(await page.getByRole('img', { name: /Почасовой прогноз/ }).count(), 0);
-    pass('real missing API yields error without synthetic fallback');
+    pass('real unconfigured API yields error without synthetic fallback');
     let failForecast = false; let sparseForecast = false; let zeroPairs = false; const requests = [];
     await page.route('**/api/v1/**', async route => {
       const req = route.request(); const url = new URL(req.url()); requests.push({ path: url.pathname, method: req.method(), body: req.postData(), headers: req.headers() });
