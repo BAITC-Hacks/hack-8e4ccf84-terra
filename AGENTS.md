@@ -18,11 +18,13 @@ For every assigned task, you must independently:
 8. review your own diff;
 9. update `STATE.md` with verified progress and the next action;
 10. commit the finished work;
-11. push the branch to the remote repository.
+11. push the task branch to the remote repository;
+12. integrate the validated task into the latest `main` from a separate integration worktree;
+13. push `main` to `origin` and verify that the remote contains the task commit.
 
 Do not stop after generating code.
 
-A task is complete only when the implementation is validated and pushed.
+A task is complete only when the implementation is validated and present on `origin/main`.
 
 ---
 
@@ -65,7 +67,7 @@ First inspect:
 * `README*`;
 * `TODO.md`;
 * `STATE.md` (create it from the template below if absent);
-* the `resources/` directory, if present: it contains the task specifications (РўР—) and datasets.
+* the `resources/` directory, if present: it contains the task specifications (Р СћР вЂ”) and datasets.
   Read the relevant specification and inspect the available datasets before implementation; treat
   them as task inputs and use them to shape and verify the solution;
 * package/build configuration;
@@ -139,19 +141,9 @@ git branch --show-current
 git rev-parse --show-toplevel
 ```
 
-Determine the base branch.
-
-Preferred order:
-
-```text
-main
-master
-develop
-```
-
-Use the branch that actually exists in the repository.
-
-Do not assume blindly.
+Verify that `main` exists locally or as `origin/main`. The required integration target is
+`origin/main`; do not silently substitute `master` or `develop`. If `main` does not exist,
+report the blocker and request the correct target branch.
 
 ---
 
@@ -163,14 +155,14 @@ Always fetch remote changes first:
 git fetch --all --prune
 ```
 
-Update the base branch using fast-forward only.
-
-Example:
+Use `origin/main` after the fetch as the base for the task worktree. If you update a checked-out
+local `main` in a worktree you own, use fast-forward only:
 
 ```bash
-git switch main
 git pull --ff-only origin main
 ```
+
+Do not switch branches in another developer's or the original working tree.
 
 Never use:
 
@@ -317,15 +309,15 @@ A complete slice may include:
 
 ```text
 database
-в†“
+РІвЂ вЂњ
 repository
-в†“
+РІвЂ вЂњ
 service
-в†“
+РІвЂ вЂњ
 API
-в†“
+РІвЂ вЂњ
 frontend
-в†“
+РІвЂ вЂњ
 validation
 ```
 
@@ -782,7 +774,7 @@ Commit real working progress rather than artificial empty commits.
 
 ---
 
-# 19. Push Policy
+# 19. Push and Main Integration Policy
 
 After successful validation and commit:
 
@@ -796,15 +788,34 @@ Then push the task branch:
 git push -u origin HEAD
 ```
 
-Never push directly to:
+For every completed task, integrate into `main` and push `origin/main` yourself. This is an
+explicit standing instruction; do not stop after pushing the task branch or wait for a manual PR
+merge. Keep all implementation in the task worktree. Use a separate temporary integration
+worktree for the final merge; do not modify the original working tree.
 
-```text
-main
-master
-develop
+Before integrating, verify `main` is the actual target branch and refresh it:
+
+```bash
+git fetch origin main
 ```
 
-unless explicitly instructed.
+Create a uniquely named private integration branch/worktree from `origin/main` using the
+repository's worktree naming convention. Merge the validated task branch into it without
+discarding commits from `origin/main`. Reconcile `STATE.md` against the combined code: record
+the new canonical state and preserve other developers' active tasks. Review the complete
+integration diff, run the relevant checks again, and commit the merge and any state update.
+
+Push the integration HEAD to `main` with a normal fast-forward remote update:
+
+```bash
+git push origin HEAD:main
+```
+
+If the push is rejected because `main` moved, fetch again, incorporate `origin/main` into the
+private integration branch, resolve conflicts, reconcile `STATE.md`, rerun affected checks, and
+retry the normal push. Never overwrite remote history or bypass branch protection. If branch
+protection, permissions, unresolved conflicts, or failing checks prevent integration, leave the
+validated task branch pushed and report the exact blocker; do not claim completion.
 
 Never use:
 
@@ -825,14 +836,16 @@ Prefer avoiding force pushes entirely during the hackathon.
 
 ---
 
-# 20. Post-Push Verification
+# 20. Post-Integration Verification
 
-After push:
+After pushing `main`:
 
 ```bash
 git status
 git log -1 --oneline
 git branch -vv
+git fetch origin main
+git merge-base --is-ancestor <task-commit> origin/main
 ```
 
 Confirm:
@@ -840,12 +853,13 @@ Confirm:
 * working tree is clean;
 * correct branch is checked out;
 * commit exists;
-* upstream branch exists;
-* latest commit was pushed.
+* the task branch exists on the remote;
+* the task commit is an ancestor of `origin/main`;
+* the remote `main` contains the integration commit and the verified `STATE.md` update.
 
-A local commit without a successful push is not task completion. After verifying the push,
-update `STATE.md` with the actual remote branch and commit. Commit and push this small state
-update if needed; verify that push too. Do not claim an unpushed state update is remote.
+A local commit or task-branch push alone is not task completion. If the final `STATE.md` update
+needs a follow-up commit, push it to `main` and verify that push too. Do not claim an unpushed
+state update is remote.
 
 ---
 
@@ -944,55 +958,63 @@ For every task, follow this exact lifecycle:
 
 ```text
 TASK RECEIVED
-    в†“
+    РІвЂ вЂњ
 READ TASK
-    в†“
+    РІвЂ вЂњ
 INSPECT REPOSITORY AND READ STATE.md
-    в†“
+    РІвЂ вЂњ
 FETCH REMOTE
-    в†“
+    РІвЂ вЂњ
 UPDATE BASE BRANCH
-    в†“
+    РІвЂ вЂњ
 CREATE TASK BRANCH
-    в†“
+    РІвЂ вЂњ
 CREATE WORKTREE
-    в†“
+    РІвЂ вЂњ
 ENTER WORKTREE
-    в†“
+    РІвЂ вЂњ
 DEFINE ACCEPTANCE CRITERIA
-    в†“
+    РІвЂ вЂњ
 INSPECT EXISTING IMPLEMENTATION
-    в†“
+    РІвЂ вЂњ
 IMPLEMENT SMALLEST COMPLETE SOLUTION
-    в†“
+    РІвЂ вЂњ
 ADD / UPDATE TESTS
-    в†“
+    РІвЂ вЂњ
 RUN TASK-SPECIFIC VALIDATION
-    в†“
+    РІвЂ вЂњ
 RUN TESTS
-    в†“
+    РІвЂ вЂњ
 RUN LINT / TYPECHECK
-    в†“
+    РІвЂ вЂњ
 RUN BUILD
-    в†“
+    РІвЂ вЂњ
 SELF-REVIEW DIFF
-    в†“
+    РІвЂ вЂњ
 RECHECK ORIGINAL TASK
-    в†“
+    РІвЂ вЂњ
 UPDATE STATE.md WITH VERIFIED HANDOFF
-    в†“
+    РІвЂ вЂњ
 COMMIT
-    в†“
+    РІвЂ вЂњ
 FETCH REMOTE
-    в†“
+    РІвЂ вЂњ
 INTEGRATE LATEST BASE IF REQUIRED
-    в†“
+    РІвЂ вЂњ
 RE-RUN CRITICAL VALIDATION
-    в†“
-PUSH
-    в†“
-VERIFY PUSH AND RECORD REMOTE RESULT IN STATE.md
-    в†“
+    РІвЂ вЂњ
+PUSH TASK BRANCH
+    РІвЂ вЂњ
+CREATE PRIVATE INTEGRATION WORKTREE FROM origin/main
+    РІвЂ вЂњ
+MERGE TASK BRANCH AND RECONCILE STATE.md
+    РІвЂ вЂњ
+RE-RUN RELEVANT VALIDATION
+    РІвЂ вЂњ
+PUSH INTEGRATION HEAD TO origin/main
+    РІвЂ вЂњ
+VERIFY TASK COMMIT AND STATE.md ON origin/main
+    РІвЂ вЂњ
 REPORT RESULT
 ```
 
@@ -1019,6 +1041,7 @@ Git
 - Branch: feat/example
 - Commit: abc1234
 - Pushed: origin/feat/example
+- Main: origin/main at def5678 (verified task commit is included)
 
 Assumptions
 - ...
@@ -1063,7 +1086,10 @@ A task is DONE only when all relevant conditions are satisfied:
 [ ] acceptance criteria rechecked
 [ ] changes committed
 [ ] branch pushed
-[ ] remote push verified
+[ ] task integrated with latest origin/main in a private worktree
+[ ] integration diff and checks reviewed
+[ ] main pushed to origin without rewriting history
+[ ] remote main contains task commit and canonical STATE.md
 ```
 
 If one of the relevant items is missing, the task is not complete.
@@ -1114,12 +1140,12 @@ The primary objective is a reliable, demonstrable, technically credible product.
 
 # This is NOT the Next.js you know
 
-This version has breaking changes вЂ” APIs, conventions, and file structure may all differ from your
+This version has breaking changes РІР‚вЂќ APIs, conventions, and file structure may all differ from your
 training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's
 directory; in monorepos the `next` package may not be visible from the repo root) before writing any
 code. Heed deprecation notices.
 
-This block is written and re-added by `next dev` вЂ” verify at
+This block is written and re-added by `next dev` РІР‚вЂќ verify at
 `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates
 the uncommitted change; committing it with your work keeps the tree clean.
 
