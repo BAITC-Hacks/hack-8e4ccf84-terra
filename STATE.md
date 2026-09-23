@@ -1,35 +1,44 @@
-# Project state
+# Project state — industrial portal integration
 
-## Snapshot
-- Updated UTC: 2026-09-23 09:19Z. Branch/worktree: `feat/s05-dashboard`, `C:/Users/Kassym/Desktop/TTT/hack-8e4ccf84-terra-worktrees/s05-dashboard`.
-- Verified base: `origin/main` at `68e0714`; UI implementation `f1519cc`; verified task commit `f3299ee` (router compatibility included).
-- S05 owner: Codex / Касымжан. Status: PUSHED to origin/feat/s05-dashboard; validated on fixture/mock API; real E4 integration remains BLOCKED on S01–S04.
-- Demo: `npm run dev`, `/overview`, `/forecast`, `/sources`, `/agent-log`. Default visibly synthetic backtest; select “Настоящий API” for same-origin `/api/v1`.
+- Updated UTC: 2026-09-23 10:15Z
+- Branch/worktree: `chore/integrate-industrial-portal` / private integration worktree.
+- Verified remote: `origin/main` at integration `a2c9077`; task implementation `f78d8a7` and handoff `60d8b5a` are verified ancestors. Task branch `origin/feat/industrial-portal` remains at `60d8b5a`.
+- Owner/status: Codex, industrial UI + RU/KK/EN + themes + mandatory sign-in; complete: implementation, combined checks and main push verified. This follow-up records the verified remote result.
+- Demo: production preview on `http://localhost:3107/login`; random local administrator credentials live only in ignored `.env.local`. Sign in opens the requested dashboard route. Fixture forecast/import/report/journal flows work; real data API alignment remains a separate integration gate.
 
-## S05 verified result
-- Russian overview/forecast/sources/agent log. Chart/table, asset/version/24–48h filters, previous version by target time, briefing, full-version CSV, provenance and source freshness/coverage.
-- Explicit live/backtest/replay, timezone and original normalized power scale. Loading/empty/error/stale/partial states; failed refresh retains last successful forecast. Missing hours remain chart gaps.
-- CSV bounded preview, mapping, encoding/delimiter/decimal/source timezone/interval convention and explicit confirmation, multipart import, job/report flow and row/reason CSV.
-- Agent tools/reasons/duration/errors/result links; job polling; forecast/backtest request and evaluation report with N=0 shown as no data.
-- Schema-checked API adapter fails visibly without fixture fallback. UI-local contract is provisional, pending S01. Details and actual API gate: `tests/ui/README.md`, `docs/handoffs/kassym-s05.md`.
-- UI implementation in `src/app` and `src/components/dashboard`. Root UI routes are thin re-exports to retain S06's existing root API adapter; no S06/API/server/config/dependency files changed by S05.
+## Implemented and verified
 
-## Preserved integrated work
-- S00 audit `716c63b`, merged through `f7d1ed9`: `docs/data-contract.md` and `docs/data-audit.md` remain authoritative. Two separate source series; normalization/physical target/source timezone/interval meaning/availability UNKNOWN; no February actuals. Do not aggregate source powers or claim measured performance from fixtures.
-- S06 implementation `d094908`, integration `8a7d746`, remote handoff `68e0714`: ridge features/train-only scaling/resumable checkpoints, empirical power curve, pre-February rolling validation and fair comparison, JSON artifacts and durable training-job enqueue are preserved.
-- Both S06 route files remain untouched. Build exposes `/api/v1/training-jobs`; artifacts use `.data/ml` / ML_ARTIFACT_DIR. S01/S07 must supply protected tick/lease orchestration. Real ML quality and dispatcher execution remain unverified.
-- Existing foundation `src/agent`, `src/db`, `src/domain/demo`, `src/ui` untouched; runtime completeness UNKNOWN. S01–S04 and S07–S08 implementation not present on inspected main (except S06); no completeness claims.
+- Industrial navigation, responsive dashboard, turbine illustration, 2-second skippable entrance, reduced-motion support.
+- Russian default, Kazakh and English across four pages, login, forms, statuses and synthetic explanations. Locale-aware number/date display; Kazakh months handled explicitly for browsers with incomplete ICU data.
+- Light/dark theme and language cookies applied by the server to initial HTML and retained across reloads.
+- Existing signed administrator session now protects dashboard pages in proxy and server layout as well as APIs. Login/logout and live session checks use `/api/auth/session`; HttpOnly cookie, safe return-path allowlist, no client-only bypass or bundled password.
+- Touched: `src/app`, `src/components`, `src/lib/i18n`, `src/lib/navigation.ts`, root login bridge, session GET, `proxy.ts`, `tests/ui`, this handoff. No forecasting/import/agent business logic changed.
 
-## Verification after rebase and router integration
-- PASS `npm ci --no-audit --no-fund`. Initial retry encountered Windows file lock from our preview; stopped it and clean install succeeded.
-- PASS `npm test`: 6 ML tests.
-- PASS `node --test tests/ui/csv.test.mjs tests/ui/client.test.cjs`: 6 tests.
-- PASS `npm run lint` and `npm run build`: TypeScript, four UI routes plus S06 training route.
-- PASS `UI_BROWSER_CHANNEL=msedge node tests/ui/dashboard.cjs` with runner Playwright via NODE_PATH, production port 3105: 13 scenarios; fixture + mock API; 1440px desktop and 390px mobile; screenshots reviewed, no runtime errors.
-- PASS missing real `/api/v1/assets`/forecasts return honest errors. Successful real E4 API flow NOT_RUN (dependent handlers absent).
-- PASS staged diff/whitespace/secret review; no credentials; `git diff --exit-code origin/main -- src/server src/app/api app/api package.json package-lock.json`.
+## Preserved work and boundaries
+
+- S00 data audit; S01 contracts/migrations/Compose/session/token bridge; S04 immutable as-of baseline; S05 fixtures/dashboard; S06 model training; S07 durable jobs/replay; S08 backtest/evaluation/export are retained from the base.
+- S02 CSV import/connection/hourly-quality code, the verified HackAlem specification transcription, the latest specification/router cleanup, and `SLICE_RULE.md` are preserved from latest main. Combined S02/backtest/ML tests, foundation, UI/agent/forecast tests, lint, typecheck and production build passed after rebase.
+- Root `app/` is the effective router; root UI files re-export canonical `src/app` components.
+- Source timezone/interval, physical units/normalization and target semantics remain unconfirmed. No MW/MWh or official quality claim. February actuals remain evaluation-only.
+- Demo examples stay explicitly synthetic. Server-returned data retains its source language. Existing shared administrator role is reused; multi-user registration was not requested.
+
+- Agent audit `f436946` / integration `d2d4454` is preserved in `docs/agent-system-problems.md`: production agent wiring, automated tick and durable replay remain incomplete. Its PostgreSQL test was skipped without TEST_DATABASE_URL; this portal task does not claim those runtime gaps are fixed.
+
+## Validation
+
+- Integration worktree: PASS fresh npm ci, all 54 automated tests, lint, production build and typecheck. Runtime/UI files and dependencies exactly match the browser-tested task branch; additional main changes are documentation only.
+
+- PASS: `npm run lint`, `npm run typecheck`, `npm run build` (production App Router build).
+- PASS: `npm test` (28: S02/backtest/ML), `npm run test:foundation` (3).
+- PASS: `node --test tests/agent/workflow.test.cjs tests/forecast/service.test.cjs` (13).
+- PASS: `node --test tests/ui/platform.test.cjs tests/ui/client.test.cjs tests/ui/csv.test.mjs` (10).
+- PASS: `node tests/ui/dashboard.cjs` (13 browser scenarios, authenticated session; data API cases mocked).
+- PASS: `node tests/ui/platform.cjs` (10 browser scenarios: actual login, redirects, Origin checks, defaults/persistence, English/Kazakh pages, mobile, logout, tampered/expired cookies, open-page expiry, reduced motion).
+- PASS: visual review of light/dark login and Kazakh dark dashboard; no page overflow or browser exceptions. Browser locale review found ICU month fallback; fixed, unit-tested and browser suite rerun afterward.
+- NOT_RUN: production PostgreSQL/data-source end-to-end flow; no database configured for this UI preview.
 
 ## Next actions
-1. Verified remote branch `origin/feat/s05-dashboard` at `f3299eeba2dafd157251225275f4c487fdcd37fe` via git ls-remote; working tree clean after push. This state update records that result.
-2. Merge in separate integration worktree per current AGENTS standing instruction; rerun checks, reconcile state, push main and verify ancestry.
-3. S01–S04 owners publish contracts/API; align UI adapter and execute real E4 gate in tests/ui/README.md. S06 also awaits canonical data and bounded S07 execution.
+
+1. Open the retained local preview at http://localhost:3107/login. Configure deployment administrator/session secrets before serving the portal elsewhere.
+2. Implement agent audit priorities and pass AT-AG-01–AT-AG-18 with production adapters; configure TEST_DATABASE_URL for its PostgreSQL checks.
+3. Separate follow-up: align S05 adapters with S02/S04/S08 real payloads, wire S07 tick and S03 weather; run real database/UI integration before operational use.
