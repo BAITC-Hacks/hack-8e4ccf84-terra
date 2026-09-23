@@ -2,66 +2,57 @@
 
 ## Snapshot
 
-- Updated UTC: 2026-09-23 09:24:27Z.
+- Updated UTC: 2026-09-23 09:27:00Z.
 - Branch/worktree: `feat/csv-import-quality`, `C:/Users/elnar.saparov/Desktop/HACK/hack-8e4ccf84-terra-worktrees/csv-import-quality`.
-- Base: verified `origin/main` commit `a29854c`; S02 implementation commit `9259c60`.
-- Demo: set `DATABASE_URL`, run `npm run db:migrate`, then `npm run dev`.
+- Base being integrated: verified `origin/main` commit `ed439af`, containing S00/S05/S06/S08.
+- S02 implementation commit: `9259c60`; validated handoff commit: `b85c28e`.
+- Demo: set `DATABASE_URL`, run `npm run db:migrate`, then `npm run dev`; UI routes are
+  `/overview`, `/forecast`, `/sources`, and `/agent-log`.
 
 ## Integrated work
 
-- S00 / E1 audit is integrated via `716c63b`: two UTF-8 ten-minute histories through
-  2026-01-31, no February actuals, and unresolved timezone/physical-unit assumptions.
-- S06 / E5 is integrated through `8a7d746`: nonlinear ridge, baselines, pre-February validation,
-  model artifacts and idempotent training jobs.
-- S08 / E7 is integrated through `ed2ddf6`: historical runner, leakage guards, reproducible
-  February metrics, baseline comparison and CSV export.
-- S02 / E2 CSV, quality and observations is the active branch task. It adds confirmed CSV preview,
-  raw SHA-256 artifacts, bounded batches, observation revisions, accepted/rejected/duplicate
-  reports and downloadable errors.
-- Import fingerprints prevent repeated file+mapping imports from duplicating observations. Hourly
-  aggregation exposes coverage and null gaps with explicit interval-start/end semantics. February
-  2026 normalized-power targets are evaluation-only.
-- New routes: `POST /api/v1/imports`, `GET /api/v1/imports/{id}`, error download,
-  `GET/POST /api/v1/connections`, and `POST /api/v1/connections/{id}/test`.
+- S00 audit `716c63b`: two UTF-8 ten-minute histories through 2026-01-31, no February actuals,
+  and unresolved timezone/physical-unit assumptions.
+- S05 dashboard integrated at `ed439af`: Russian overview/forecast/sources/agent-log, explicit
+  fixture/API modes, CSV setup UI, quality states, provenance, backtest report and responsive views.
+- S06 model integrated through `8a7d746`: ridge/baselines, pre-February validation, artifacts and
+  idempotent training jobs.
+- S08 backtest integrated through `a29854c`: leakage guards, reproducible metrics/baseline and CSV.
+- S02 is this branch's task: confirmed CSV preview; raw SHA-256 artifacts; bounded batches;
+  observation revisions; accepted/rejected/duplicate reports; downloadable error rows; connection
+  create/list/test APIs; evaluation-only February targets; coverage-aware hourly aggregation.
+- Import fingerprints make identical file+mapping imports idempotent. Missing/incomplete hours are
+  `null`, never zero, and interval-start/end semantics are explicit.
 
 ## Decisions, constraints and risks
 
-- Root `app/` wins over `src/app/`; active S02 handlers therefore live under `app/api/v1/`,
-  consistent with the existing bridge approach.
-- Supplied CSVs contain 142,360 and 149,499 valid required-field rows and both end at
-  `2026-01-31 09:50:00`. Neither contains February 2026 targets despite the filenames.
-- Normalized power remains unit `normalized`; it is never labelled/summed as MW or MWh.
-- Existing same-origin protection is preserved. Full session authorization remains an upstream
-  contract; S08's protected handlers are unchanged.
-- S08's in-memory registry and prediction seam still require S04/S07/PostgreSQL integration.
-- S06 model artifacts and S02 raw artifacts require persistent writable storage in production.
+- Root `app/` wins over `src/app/`; S02 handlers live in root `app/api/v1/`, matching existing API
+  bridges while preserving S05's `src/app` UI implementation.
+- Supplied CSVs have 142,360 and 149,499 valid required-field rows, end at
+  `2026-01-31 09:50:00`, and contain no February 2026 targets despite their filenames.
+- Power remains `normalized`; it is not labelled or summed as MW/MWh.
+- Same-origin mutation checks remain. Shared session/auth, durable S08 registry and S04/S07
+  production forecast orchestration are still integration dependencies.
+- S02 raw artifacts and S06 model artifacts require persistent writable production storage.
 
 ## Validation
 
 | Check | Result | Evidence |
 |---|---|---|
-| S02 `npm test` before latest rebase | PASS | 9/9: confirmation, reports/revisions, idempotency, February isolation, coverage/null gaps and interval-end bucketing |
-| S02 PostgreSQL 16 migration/smoke | PASS | Clean migration; one row created three observations and repeat reused import ID |
-| Combined S02+S06 test/lint/build on prior base | PASS | 15/15 tests; lint clean; all S02 and S06 routes built |
-| Latest combined `npm test` | PASS | 28/28 S02, S06 and S08 tests passed after rebase |
-| Latest `npm run lint -- --no-cache` | PASS | Full combined tree exited 0 without warnings |
-| Latest `npm run build` | PASS | Next.js build/typecheck emitted all S02/S06/S08 dynamic routes |
-| Latest clean PostgreSQL migration/smoke | PASS | Migration applied; repeated import kept one ID and exactly three observations |
+| Latest pre-S05-merge `npm test` | PASS | 28/28 S02/S06/S08 tests |
+| Latest pre-S05-merge lint/build | PASS | Clean lint; Next build emitted all S02/S06/S08 API routes |
+| Latest clean PostgreSQL 16 migration/smoke | PASS | Migration applied; repeat kept one import ID and exactly three observations |
+| S05 integration checks on main | PASS | 6 UI units, lint/build and 13 browser scenarios recorded by S05 integrator |
+| Final combined S02/S05/S06/S08 checks | NOT_RUN | Run after this merge conflict is committed |
 
-On a clean worktree, standalone `tsc` initially cannot see generated `LayoutProps`; `next build`
-generates Next types and passes typecheck, after which standalone `tsc` passes.
+## Next actions
 
-## Blockers and next actions
-
-1. Push `feat/csv-import-quality` and record its verified remote commit.
-2. Connect canonical observations to S06 training/S08 evaluator through
-   `observationsForPurpose`, and wire the source-management UI.
+1. Complete the merge, run combined tests/lint/build and PostgreSQL smoke, then push normally.
+2. Align S05's provisional source adapter with S02 API payloads and run the real E4 UI gate.
+3. Feed canonical observations into S06/S08 through `observationsForPurpose`.
 
 ## Recent tangible milestones
 
-- 2026-09-23 09:24Z: post-rebase combined suite passed 28/28 tests, lint, build and clean
-  PostgreSQL smoke validation.
-- 2026-09-23 09:23Z: reconciled S02 with the newly integrated S08 state without discarding S00/S06.
-- 2026-09-23 09:21Z: S08 integration was verified on `origin/main` at `ed2ddf6`.
-- 2026-09-23 09:12Z: S02 migration and production repository idempotency passed on disposable
-  PostgreSQL 16.
+- 2026-09-23 09:27Z: reconciled S02 and concurrently integrated S05 without discarding S00/S06/S08.
+- 2026-09-23 09:24Z: S02/S06/S08 suite passed 28 tests, lint, build and PostgreSQL smoke.
+- 2026-09-23 09:26Z: S05 integration verified on `origin/main` at `ed439af`.
