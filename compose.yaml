@@ -20,6 +20,7 @@ services:
     environment:
       DATABASE_URL: postgres://terra:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@db:5432/terra
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:?set ADMIN_PASSWORD in .env}
+      ADMIN_API_TOKEN: ${ADMIN_API_TOKEN:?set ADMIN_API_TOKEN in .env}
       SESSION_SECRET: ${SESSION_SECRET:?set SESSION_SECRET in .env}
       JOB_TICK_SECRET: ${JOB_TICK_SECRET:?set JOB_TICK_SECRET in .env}
     ports:

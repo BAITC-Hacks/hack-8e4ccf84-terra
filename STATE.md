@@ -1,33 +1,43 @@
 # Project state — local main
 
-- Updated (UTC): 2026-09-23 09:32Z
-- Branch/worktree: `main` / primary worktree; integration branch `chore/integrate-s04-local` retained
-- Last verified local main commit: `27ec473` includes S01, S07, and S04 task commit `9802da4`
-- Remote freshness: UNKNOWN. Fetch returned `Repository not found`; the user requested local main integration and will push personally.
-- Demo path: `npm run dev` exposes the S05 Russian dashboard at `/overview`, `/forecast`, `/sources`, `/agent-log`. The S04 authenticated API produced a 24-hour published baseline in an isolated PostgreSQL smoke test. A real S02/S03 data flow has not been demonstrated.
+- Updated UTC: 2026-09-23 09:40Z
+- Branch/worktree: `main` / primary worktree; S01 integration worktree retained
+- Last verified prior commits: local main `668de5f` (S04 handoff); S01 integration `adcc2de`. This merge preserves both histories, including S01 task commit `9820c90`.
+- Remote: cached `origin/main` at `0248d79`; freshness UNKNOWN because this task's fetch/push reports `Repository not found`. User will push local main.
+- Demo: S05 fixture dashboard at `/overview`, `/forecast`, `/sources`, `/agent-log`; S01 Compose with configured secrets starts PostgreSQL, migrates, serves `/health`, admin login and protected APIs. S04 produced a 24-hour published baseline in its isolated PostgreSQL smoke test. Full real S02/S03 data flow remains unverified.
 
-## Integrated and active slices
+## Preserved work
 
-- S00: data audit in `docs/data-contract.md` and `docs/data-audit.md`. Source time convention, power normalization/physical units, and shared-line semantics remain unconfirmed; February actuals are evaluation-only.
-- S01: PostgreSQL schema/migration, canonical contracts, administrator sessions, protected API/tick, Compose and health; validated on its separate task branch, included here through S04 dependency.
-- S04: immutable as-of snapshot payload, eligible persistence baseline, exact 24/48-hour validation, idempotent key, versions and previous link, transactional PostgreSQL publication, incomplete status without points, protected POST/GET forecast routes. Branch commit `9802da4`.
-- S05: Russian dashboard, source/forecast/agent pages, explicit fixture and real-API states, CSV UI, responsive views. Previously integrated on `origin/main`; real S04 API alignment remains to verify.
-- S06: ridge training and empirical curve with pre-February validation, JSON artifacts and training-job endpoint. Previously integrated; real model quality remains unverified.
-- S08: sequential backtest/evaluation/export and temporal leakage checks. Previously integrated; production seams await S04/S07.
-- S02/S03: canonical import and weather adapters are not present in this integration. S04 reads their intended S01 tables through typed interfaces. S07 job stores, replay, agent workflow and dispatcher are integrated on local main at `0248d79`; the protected tick remains an idle adapter and is not yet wired to S04.
+- S00 audit `716c63b`: two separate ten-minute CSV histories through 2026-01-31, no February actuals. See `docs/data-contract.md` and `docs/data-audit.md`.
+- S01 `49fda2d`, `848bef1`, `bebdcef`, `9820c90`: shared contracts, §7 PostgreSQL migration, Compose persistent volumes, administrator session, protected `/api/v1/*`, separate tick secret, health/assets APIs and S08 server-token bridge.
+- S04 `9802da4`: immutable as-of snapshot, baseline, exact 24/48-hour validation, idempotency, previous-version links, transactional PostgreSQL publication and protected forecast API.
+- S05 `f3299ee`: Russian dashboard with chart/table, filters, provenance, CSV preview/import UI and agent journal. Real API alignment remains open; see `tests/ui/README.md`.
+- S06 `d094908`: nonlinear ridge/power-curve model, train-only scaling, resumable training and durable training-job enqueue; artifacts default to `.data/ml`.
+- S07 `564a09e` through `bf4f1fd`: fixture/PostgreSQL job stores, atomic claim, fenced lease/heartbeat/checkpoint, bounded retry, idempotent trigger, agent decisions and replay. Protected tick is still an idle adapter.
+- S08 `5ce6748`: sequential backtest, evaluator-only actuals, leakage checks, February metrics, common-pair baseline and CSV export. Registry remains in memory.
+- S02/S03 canonical import and weather adapters are not present on this main.
 
-## S04 decisions and checks
+## Decisions and risks
 
-- Target labels are whole UTC hours `T+1h` through `T+N h`; source interval convention must be confirmed before official export. No clipping to `[0,1]` and no MW/MWh conversion.
-- Backtest `history_only` excludes February facts; production forecasts reject `evaluation_only`. Inputs require known `available_at <= T`, complete hourly weather coverage, and an eligible power observation.
-- PASS before merge: 8 fixture/foundation tests, ESLint, TypeScript, and `next build --webpack`.
-- PASS before merge: isolated PostgreSQL migration and S04 integration test (retry, version 2, future-fact guard, rollback after forced value-insert failure).
-- PASS before merge: HTTP smoke (anonymous 401, login 200, POST 201, GET 200, repeated ID, invalid horizon 400).
-- Default Turbopack build in the S04 worktree was blocked by its local `node_modules` junction outside the filesystem root; webpack production build passed.
-- No post-merge test run was requested by the user.
+- Source timezone, interval convention, physical power units, normalization, target object, availability and official issue schedule remain unconfirmed. Keep source rows separate and February fact evaluation-only; no MW/MWh conversion or official quality claim.
+- S01 proxy requires an admin cookie for all `/api/v1/*`; for S08 routes it forwards server-only `ADMIN_API_TOKEN` after validation. Dispatcher uses `JOB_TICK_SECRET`.
+- Root `app/` is the effective App Router. S04/S06/S08 API and S05 UI routes remain.
+- S05 real API adapter, S07 tick, S08 production persistence and real S02/S03 inputs await integration.
 
-## Risks and next actions
+## Validation
 
-1. User pushes local `main` when remote access is ready, then verifies that `9802da4` is an ancestor of `origin/main`.
-2. When S02/S03 land, reconcile metric and quality vocabulary, weather publication timing, S05 API contract, and wire the integrated S07 queue to the same S04 publication service.
-3. Confirm S00 source interval and power semantics before official forecast export or unit conversion.
+| Check | Result |
+|---|---|
+| S01 standalone lint, typecheck, build, three auth tests | PASS before merge |
+| S01 clean Compose migration and HTTP auth/API smoke with random test secrets | PASS before merge |
+| S04 fixture/foundation, PostgreSQL, HTTP, lint/typecheck and webpack build | PASS before this merge, as recorded by S04 owner |
+| S05/S06/S07/S08 prior checks | PASS before this merge, as recorded by their owners |
+| Combined tests/build/HTTP after these merges | NOT_RUN at user request |
+| Merge conflict resolution and staged whitespace check | PASS; package scripts and slice code preserved |
+| Remote fetch/push from this task | BLOCKED: `Repository not found`; user requested local main handoff |
+
+## Next actions
+
+1. User pushes local `main` when remote access is ready, then verifies S01 commit `9820c90` and S04 commit `9802da4` are ancestors of `origin/main`.
+2. Integrate S02/S03 inputs, align S05 with S04 API and wire S07 tick to S04 publication.
+3. Confirm time/power/target semantics and obtain February evaluation-only actuals before official forecast-quality claims.
