@@ -3,7 +3,7 @@
 - Updated UTC: 2026-09-23 09:59Z
 - Branch/worktree: `docs/hackalem-spec` / task worktree.
 - Last verified base commit: `e5b61c4` (`origin/main`, locally cached); remote fetch is BLOCKED because the configured GitHub remote returns `Repository not found`.
-- Active task: convert the HackAlem AI PDF specification to Markdown; extracted and visually checked, pending commit.
+- Active task: HackAlem AI PDF specification converted to Markdown and committed as `d5baf32`; remote publication is blocked by repository access.
 - Demo: S05 fixture dashboard remains at `/overview`, `/forecast`, `/sources`, `/agent-log`. With PostgreSQL and `DATABASE_URL`, run `npm run db:migrate`, then `npm run dev`; CSV APIs are under `/api/v1/imports` and `/api/v1/connections`.
 
 ## Preserved work
@@ -43,6 +43,5 @@
 
 ## Next actions
 
-1. Commit `docs/hackalem-ai-agentic-wind-forecasting.md` and the verified handoff.
-2. Retry remote fetch/push once repository access is restored, then integrate into `origin/main`.
+1. Retry remote fetch/push once repository access is restored, then integrate `d5baf32` and this handoff update into `origin/main`.
 3. Align the S05 source adapter with the production S02 payloads and run the real UI gate.
