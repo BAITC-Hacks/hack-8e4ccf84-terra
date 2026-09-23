@@ -2,9 +2,9 @@
 
 ## Snapshot
 
-- Updated UTC: 2026-09-23 09:23:00Z.
+- Updated UTC: 2026-09-23 09:24:27Z.
 - Branch/worktree: `feat/csv-import-quality`, `C:/Users/elnar.saparov/Desktop/HACK/hack-8e4ccf84-terra-worktrees/csv-import-quality`.
-- Base: rebasing S02 onto verified `origin/main` integration commit `ed2ddf6`.
+- Base: verified `origin/main` commit `a29854c`; S02 implementation commit `9259c60`.
 - Demo: set `DATABASE_URL`, run `npm run db:migrate`, then `npm run dev`.
 
 ## Integrated work
@@ -43,20 +43,24 @@
 | S02 `npm test` before latest rebase | PASS | 9/9: confirmation, reports/revisions, idempotency, February isolation, coverage/null gaps and interval-end bucketing |
 | S02 PostgreSQL 16 migration/smoke | PASS | Clean migration; one row created three observations and repeat reused import ID |
 | Combined S02+S06 test/lint/build on prior base | PASS | 15/15 tests; lint clean; all S02 and S06 routes built |
-| Latest S02+S06+S08 post-rebase checks | NOT_RUN | Run after this conflict resolution |
+| Latest combined `npm test` | PASS | 28/28 S02, S06 and S08 tests passed after rebase |
+| Latest `npm run lint -- --no-cache` | PASS | Full combined tree exited 0 without warnings |
+| Latest `npm run build` | PASS | Next.js build/typecheck emitted all S02/S06/S08 dynamic routes |
+| Latest clean PostgreSQL migration/smoke | PASS | Migration applied; repeated import kept one ID and exactly three observations |
 
 On a clean worktree, standalone `tsc` initially cannot see generated `LayoutProps`; `next build`
 generates Next types and passes typecheck, after which standalone `tsc` passes.
 
 ## Blockers and next actions
 
-1. Finish the latest rebase and run all S02/S06/S08 tests, lint, build and PostgreSQL smoke test.
-2. Push `feat/csv-import-quality` and record its verified remote commit.
-3. Connect canonical observations to S06 training/S08 evaluator through
+1. Push `feat/csv-import-quality` and record its verified remote commit.
+2. Connect canonical observations to S06 training/S08 evaluator through
    `observationsForPurpose`, and wire the source-management UI.
 
 ## Recent tangible milestones
 
+- 2026-09-23 09:24Z: post-rebase combined suite passed 28/28 tests, lint, build and clean
+  PostgreSQL smoke validation.
 - 2026-09-23 09:23Z: reconciled S02 with the newly integrated S08 state without discarding S00/S06.
 - 2026-09-23 09:21Z: S08 integration was verified on `origin/main` at `ed2ddf6`.
 - 2026-09-23 09:12Z: S02 migration and production repository idempotency passed on disposable
