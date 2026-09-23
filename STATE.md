@@ -2,8 +2,8 @@
 
 - Updated UTC: 2026-09-23 11:21Z
 - Branch/worktree: `chore/integrate-backend-spec-audit` / private integration worktree.
-- Base/integration: fetched `origin/main` at `cee93a6`; backend-audit task `580fd3d` and merge `37a3a21` are incorporated with the latest agent-remediation documentation.
-- Owner/status: Codex; merge conflict was reconciled without discarding either task and final checks pass. Remote `main` push is pending.
+- Base/integration: backend-audit task `580fd3d` and merge `37a3a21` were integrated with the latest agent-remediation documentation; remote `main` reached `5ab785f` before this final handoff update.
+- Owner/status: Codex; final checks pass, the task branch is remote, and `580fd3d` was verified as an ancestor of `origin/main`.
 
 ## Integrated implementation
 
@@ -37,6 +37,6 @@
 
 ## Next actions
 
-1. Push integration HEAD to `origin/main` without rewriting history and verify `580fd3d` ancestry.
-2. Confirm the task branch and canonical `STATE.md` are both present remotely.
-3. After owner data is available, confirm asset/time/power semantics, persist trustworthy archival forecast runs, and execute the February replay/evaluation.
+1. After owner data is available, confirm asset/time/power semantics and the historical weather availability policy.
+2. Persist trustworthy archival forecast runs in canonical PostgreSQL and execute the February replay/evaluation.
+3. Wire an approved trained artifact into production inference and add actual-arrival evaluation.
