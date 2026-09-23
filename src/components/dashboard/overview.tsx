@@ -1,26 +1,90 @@
 "use client";
-import { usePreferences } from "../platform/preferences";
 
 import Link from "next/link";
-import { WindScene } from "../platform/wind-scene";
-import { useDashboard } from "./shell";
-import { Badge, ResourceNotice, useResource } from "./resource";
+import { usePreferences } from "../platform/preferences";
 import { ForecastChart } from "./chart";
+import { ResourceNotice, useResource } from "./resource";
+import { useDashboard } from "./shell";
+import type { Forecast, Point } from "./contracts";
+
+function availablePoints(forecast?: Forecast) {
+  return forecast?.points.filter((point): point is Point & { prediction: number } => point.prediction != null) ?? [];
+}
+
 export function Overview() {
-    const { t, dateLabel, numberLabel } = usePreferences();
-    const { client, mode, timezone, transport } = useDashboard();
-    const forecasts = useResource(client.forecasts);
-    const assets = useResource(client.assets);
-    const sources = useResource(client.connections);
-    const latest = forecasts.data?.filter(item => item.mode === mode).sort((a, b) => b.issued_at.localeCompare(a.issued_at))[0];
-    const predicted = latest?.points.flatMap(point => point.prediction == null ? [] : [point.prediction]) ?? [];
-    return <>
-    <section className="overview-hero"><div className="page-heading"><div><div className="eyebrow">{t("ВЕТРОЭЛЕКТРОСТАНЦИЯ / ОБЗОР")}</div><h1>{t("Энергия завтрашнего дня")}</h1><p>{t("Прогноз выработки, состояние данных и прозрачность каждого расчёта.")}</p></div><Link className="button primary" href="/forecast">{t("Открыть прогноз ")}<span>↗</span></Link></div><WindScene /></section>
-    <ResourceNotice {...forecasts} empty={forecasts.data?.length === 0}/>
+  const { t, dateLabel, numberLabel } = usePreferences();
+  const { client, mode, timezone, transport } = useDashboard();
+  const forecasts = useResource(client.forecasts);
+  const sources = useResource(client.connections);
+  const versions = forecasts.data
+    ?.filter((item) => item.mode === mode)
+    .sort((a, b) => b.issued_at.localeCompare(a.issued_at)) ?? [];
+  const latest = versions[0];
+  const previous = versions[1];
+  const points = availablePoints(latest);
+  const previousByTime = new Map(previous?.points.map((point) => [point.target_time, point.prediction]) ?? []);
+  const comparisons = points.flatMap((point) => {
+    const before = previousByTime.get(point.target_time);
+    return before == null ? [] : [{ point, difference: point.prediction - before }];
+  });
+  const peak = points.reduce<(typeof points)[number] | undefined>((best, point) => !best || point.prediction > best.prediction ? point : best, undefined);
+  const low = points.reduce<(typeof points)[number] | undefined>((best, point) => !best || point.prediction < best.prediction ? point : best, undefined);
+  const largestChange = comparisons.reduce<(typeof comparisons)[number] | undefined>((best, item) => !best || Math.abs(item.difference) > Math.abs(best.difference) ? item : best, undefined);
+  const largeChanges = comparisons.filter((item) => Math.abs(item.difference) >= 0.15).length;
+  const normalizedEnergy = points.reduce((sum, point) => sum + point.prediction, 0);
+  const staleWeather = sources.data?.find((source) => source.status === "stale");
+
+  if (!forecasts.loading && !forecasts.error && !latest) {
+    return <section className="overview-empty panel">
+      <span className="overview-empty-icon" aria-hidden="true">↗</span>
+      <h1>{t("Данных пока нет")}</h1>
+      <p>{t("Чтобы получить первый прогноз выработки, подключите историю измерений и прогноз погоды.")}</p>
+      <ol className="overview-onboarding">
+        <li><b>1</b><span><strong>{t("Загрузите историю измерений")}</strong><small>{t("CSV с почасовой мощностью, от 30 дней")}</small></span><Link className="button primary" href="/sources">{t("Загрузить CSV")}</Link></li>
+        <li><b>2</b><span><strong>{t("Подключите прогноз погоды")}</strong><small>{t("Ключ API и координаты объекта")}</small></span><Link className="button" href="/sources">{t("Настроить")}</Link></li>
+        <li><b>3</b><span><strong>{t("Запустите первый прогноз")}</strong><small>{t("Станет доступно после подключения источников")}</small></span><button disabled>{t("Запустить")}</button></li>
+      </ol>
+    </section>;
+  }
+
+  const percent = (value?: number) => value == null ? "—" : `${numberLabel(value * 100, 0)}%`;
+  const change = largestChange?.difference;
+
+  return <div className="overview-redesign">
+    <ResourceNotice {...forecasts} empty={false} />
     {forecasts.error && latest && <div className="notice warning">{t("Последний успешный прогноз сохранён. Свежесть не подтверждена.")}</div>}
-    <div className="metric-grid"><div className="metric"><span>{t("Средняя мощность на горизонте")}</span><strong>{numberLabel(predicted.length ? predicted.reduce((a, b) => a + b, 0) / predicted.length : null)}<small>{t("исх. шкала")}</small></strong><p>{t("Нормализованная · не энергия")}</p></div><div className="metric"><span>{t("Горизонт прогноза")}</span><strong>{latest?.horizon_hours ?? "—"}<small>{t("часов")}</small></strong><p>{t("Почасовая детализация")}</p></div><div className="metric"><span>{t("Последний выпуск")}</span><strong className="metric-date">{latest ? dateLabel(latest.issued_at, timezone) : t("Нет данных")}</strong><p>{timezone} · {latest?.stale ? t("Устарело") : latest ? t("Сохранённая версия") : t("Ожидается расчёт")}</p></div><div className="metric"><span>{t("Режим работы")}</span><strong className="metric-date">{mode === "replay" ? t("Симуляция") : mode === "backtest" ? t("Бэктест") : "Live"}</strong><p>{transport === "fixture" ? t("Демонстрационные значения") : t("Данные API")}</p></div></div>
-    {latest && <section className="panel"><div className="panel-heading"><div><h2>{t("Ближайшие ")}{latest.horizon_hours}{t(" часов")}</h2><p>{t("Последний доступный прогноз · ")}{latest.model_version}</p></div><Badge status={latest.stale ? "stale" : "ready"}/></div><ForecastChart points={latest.points} timezone={timezone}/></section>}
-    <div className="two-columns"><section className="panel"><div className="panel-heading"><h2>{t("Источники и качество")}</h2><Link href="/sources">{t("Все источники ↗")}</Link></div><ResourceNotice {...sources} empty={sources.data?.length === 0}/>{sources.data?.map(source => <div className="source-row" key={source.id}><span className="source-icon">▤</span><div><strong>{source.name}</strong><p>{source.updated_at ? `${dateLabel(source.updated_at, timezone)} · ${timezone}` : t("Обновлений нет")}{t(" · покрытие ")}{source.coverage == null ? t("неизвестно") : `${numberLabel(source.coverage * 100, 1)}%`}</p></div><Badge status={source.status}/></div>)}</section>
-    <section className="panel"><div className="panel-heading"><h2>{t("Объект и выполнение")}</h2></div><ResourceNotice {...assets} empty={assets.data?.length === 0}/>{assets.data?.map(asset => <div className="asset-summary" key={asset.id}><h3>{asset.name}</h3><p>{asset.description}</p><p>{t("Исходная зона: ")}{asset.timezone}{t(" · мощность: исходная шкала")}</p></div>)}<div className="notice neutral">{t("Статус активной задачи доступен по её идентификатору. Закрытие браузера не отменяет серверный расчёт.")}</div><Link className="text-link" href="/agent-log">{t("Проверить задачу и журнал →")}</Link></section></div>
-  </>;
+
+    <div className="overview-title-row">
+      <div>
+        <h1>{t("Прогноз на {p0} часов", { p0: latest?.horizon_hours ?? 48 })}</h1>
+        <p>{latest ? `${t("Версия")} ${latest.id.split("-").at(-1)?.toUpperCase()} · ${t("выпущена")} ${dateLabel(latest.issued_at, timezone)} · ${latest.model_version}` : t("Загружаем актуальную версию")}</p>
+      </div>
+      <Link className="button primary overview-primary-action" href="/forecast">{t("Открыть подробный прогноз")} <span aria-hidden="true">→</span></Link>
+    </div>
+
+    {latest && <>
+      <div className="overview-kpis" aria-label={t("Ключевые показатели прогноза")}>
+        <article className="overview-kpi"><span>{t("Пик выработки")}</span><strong>{percent(peak?.prediction)}</strong><small>{peak ? `${dateLabel(peak.target_time, timezone)} · ${t("от номинала")}` : t("Нет данных")}</small></article>
+        <article className="overview-kpi"><span>{t("Минимум")}</span><strong>{percent(low?.prediction)}</strong><small>{low ? `${dateLabel(low.target_time, timezone)} · ${t("от номинала")}` : t("Нет данных")}</small></article>
+        <article className={`overview-kpi ${change != null && Math.abs(change) >= .15 ? "attention" : ""}`}><span>{t("Изменение к прошлой версии")}</span><strong>{change == null ? "—" : `${change > 0 ? "+" : "−"}${numberLabel(Math.abs(change) * 100, 0)} п.п.`}</strong><small>{largestChange ? `${dateLabel(largestChange.point.target_time, timezone)} · ${largeChanges} ${t("ч с разницей ≥15 п.п.")}` : t("Нет общей части горизонта")}</small></article>
+        <article className="overview-kpi"><span>{t("Сумма за горизонт")}</span><strong>{numberLabel(normalizedEnergy, 1)}<em>{t("норм.-ч")}</em></strong><small>{t("Нормализованная энергия; номинал объекта не задан")}</small></article>
+      </div>
+
+      <div className="overview-main-grid">
+        <section className="panel overview-chart-panel">
+          <div className="overview-panel-heading"><div><h2>{t("Ожидаемая мощность")}</h2><p>{t("Доля номинальной мощности; пропуски не заменяются нулями")}</p></div></div>
+          <ForecastChart points={latest.points} previous={previous} timezone={timezone} />
+        </section>
+
+        <aside className="overview-alerts" aria-label={t("Требует внимания")}>
+          <h2>{t("Требует внимания")} <span>{Number(Boolean(staleWeather)) + Number(largeChanges > 0)}</span></h2>
+          {staleWeather && <article className="overview-alert warning-alert"><h3>{t("Прогноз погоды устарел")}</h3><p>{staleWeather.error || t("Свежесть погодных данных ниже ожидаемой. Точность прогноза может быть ниже.")}</p><Link href="/sources">{t("Проверить источник")}</Link></article>}
+          {largeChanges > 0 && <article className="overview-alert warning-alert"><h3>{t("Прогноз сильно изменился")}</h3><p>{largestChange ? `${t("Максимальное изменение")} ${numberLabel(Math.abs(largestChange.difference) * 100, 0)} ${t("п.п. в")} ${dateLabel(largestChange.point.target_time, timezone)}.` : ""}</p><div><Link href="/agent-log">{t("Почему? Открыть журнал")}</Link><Link href="/forecast">{t("Сравнить версии")}</Link></div></article>}
+          {!sources.loading && !sources.error && <article className="overview-alert success-alert"><h3>{t("История измерений в порядке")}</h3><p>{sources.data?.find((source) => source.status === "ready")?.coverage != null ? `${t("Покрытие")} ${numberLabel((sources.data?.find((source) => source.status === "ready")?.coverage ?? 0) * 100, 1)}%.` : t("Источник готов к расчёту.")}</p></article>}
+          {sources.loading && <div className="notice loading"><span className="spinner" />{t(" Загружаем данные…")}</div>}
+          {transport === "api" && sources.error && <div className="notice danger">{t(sources.error)}</div>}
+        </aside>
+      </div>
+    </>}
+  </div>;
 }
