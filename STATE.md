@@ -2,14 +2,14 @@
 
 ## Snapshot
 
-- Updated UTC: 2026-09-23 09:12:58Z.
+- Updated UTC: 2026-09-23 09:14:02Z.
 - Branch/worktree: `chore/integrate-s06-e5`, `C:/Users/elnar.saparov/Desktop/HACK/hack-8e4ccf84-terra-worktrees/integrate-s06-e5`.
-- Last verified task commits: `d094908` (implementation) and `865262d` (branch handoff); integration base is `origin/main` at `f7d1ed9`; merge is staged and uncommitted.
+- Last verified task commits: `d094908` (implementation) and `865262d` (branch handoff); verified integration commit is `8a7d746` on `origin/main`.
 - Demo: `npm run dev`; `POST /api/v1/training-jobs` creates a durable queued job and returns HTTP 202. The S07 dispatcher/tick integration is outside this branch.
 
 ## Active task and tangible result
 
-- S06 / E5 TypeScript model and validation, owner Codex, status VALIDATED in the private integration worktree; `origin/main` push pending.
+- S06 / E5 TypeScript model and validation, owner Codex, status PUSHED and integrated into `origin/main`.
 - Implemented nonlinear ridge features, train-only scaling, resumable sufficient-statistics/optimization checkpoints, empirical power curve, mean baseline, pre-February rolling validation over 3/6/12-month and full-history candidates, fair same-pair comparison, deterministic best-candidate selection, JSON artifacts, and idempotent training-job creation.
 - Touched paths: `src/server/ml/**`, `src/app/api/v1/training-jobs/**`, runtime adapter `app/api/v1/training-jobs/**`, `tests/ml/**`, package scripts/lockfile and `.gitignore`.
 - Acceptance evidence: February target poisoning does not change validation report or selection; eligible candidates use the same pair count; artifacts record code version, cutoff, input hash, training period and validation report; NaN/Infinity are rejected before persistence.
@@ -36,11 +36,16 @@
 
 ## Blockers, risks and next actions
 
-1. Commit the staged merge with this canonical state, fetch `origin/main`, and push the integration HEAD to `main` if the base remains unchanged.
-2. S01/S07 should call `FileTrainingJobStore.advance` from the protected bounded job tick and provide lease/heartbeat semantics; S02–S04 should adapt canonical observations/weather records into `TrainingExample` after E4.
-3. Validate quality on real admissible weather/target pairs after source timezone, availability and target semantics are resolved; current tests use deterministic fixtures and do not claim real-world improvement.
+1. S01/S07 should call `FileTrainingJobStore.advance` from the protected bounded job tick and provide lease/heartbeat semantics; S02–S04 should adapt canonical observations/weather records into `TrainingExample` after E4.
+2. Validate quality on real admissible weather/target pairs after source timezone, availability and target semantics are resolved; current tests use deterministic fixtures and do not claim real-world improvement.
 
 ## Recent tangible milestones
 
-- 2026-09-23 09:12Z: private integration worktree passed fresh install, tests, lint and build; normal `origin/main` push pending.
+- 2026-09-23 09:14Z: `origin/main` verified at integration commit `8a7d746`; task implementation `d094908` is an ancestor and remote feature branch points to `865262d`.
 - S00 input audit is merged on `origin/main` through `f7d1ed9`; its documented unknowns remain unresolved downstream gates.
+
+## Remote result
+
+- Feature branch: `origin/feat/typescript-model-validation` at `865262d`.
+- Main integration: `origin/main` at `8a7d746`; `git merge-base --is-ancestor d094908 origin/main` passed.
+- No deployment was performed; the integration is source and test complete.
