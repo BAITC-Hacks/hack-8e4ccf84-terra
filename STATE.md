@@ -1,8 +1,8 @@
-# Project state — local main integration
+# Project state — local main
 
-- Updated (UTC): 2026-09-23 09:31Z
-- Branch/worktree: `chore/integrate-s04-local` / `.worktrees/s04-integration`
-- Last verified prior commit: `0248d79` (local main, includes S01 and S07); pending merge includes S04 `9802da4`
+- Updated (UTC): 2026-09-23 09:32Z
+- Branch/worktree: `main` / primary worktree; integration branch `chore/integrate-s04-local` retained
+- Last verified local main commit: `27ec473` includes S01, S07, and S04 task commit `9802da4`
 - Remote freshness: UNKNOWN. Fetch returned `Repository not found`; the user requested local main integration and will push personally.
 - Demo path: `npm run dev` exposes the S05 Russian dashboard at `/overview`, `/forecast`, `/sources`, `/agent-log`. The S04 authenticated API produced a 24-hour published baseline in an isolated PostgreSQL smoke test. A real S02/S03 data flow has not been demonstrated.
 
@@ -28,6 +28,6 @@
 
 ## Risks and next actions
 
-1. Finish this merge, update local `main`, and leave both branches unpushed for the user.
-2. Restore GitHub access and push local `main` when the user is ready; do not claim remote integration before verifying it.
-3. When S02/S03 land, reconcile metric and quality vocabulary, weather publication timing, S05 API contract, and wire the integrated S07 queue to the same S04 publication service.
+1. User pushes local `main` when remote access is ready, then verifies that `9802da4` is an ancestor of `origin/main`.
+2. When S02/S03 land, reconcile metric and quality vocabulary, weather publication timing, S05 API contract, and wire the integrated S07 queue to the same S04 publication service.
+3. Confirm S00 source interval and power semantics before official forecast export or unit conversion.
