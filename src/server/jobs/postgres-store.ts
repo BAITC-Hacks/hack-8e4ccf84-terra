@@ -86,7 +86,8 @@ export class PostgresJobStore implements JobStore {
     return rows.length === 1;
   }
 
-  async advance(id: string, token: string, now: string, checkpoint: Record<string, unknown>, nextStep: number, resultId?: string): Promise<boolean> {
+  async advance(id: string, token: string, now: string, checkpoint: Record<string, unknown>, nextStep: number,
+    resultId?: string, event?: Omit<DecisionEvent, "id" | "sequence">): Promise<boolean> {
     return this.sql.begin(async (tx) => {
       const owned = await tx`SELECT * FROM jobs WHERE id = ${id} AND kind = 'agent' AND status = 'running'
         AND lease_until > ${now} AND checkpoint->>'leaseToken' = ${token} FOR UPDATE`;
@@ -96,11 +97,13 @@ export class PostgresJobStore implements JobStore {
         checkpoint = ${tx.json(json({ ...state, data: checkpoint, step: nextStep,
           resultId: resultId ?? null, leaseToken: null, nextRunAt: now }))},
         lease_until = NULL, updated_at = ${now}, error_code = NULL WHERE id = ${id}`;
+      if (event) await this.insertEvent(tx, event);
       return true;
     });
   }
 
-  async fail(id: string, token: string, now: string, code: string, retryable: boolean, retryDelayMs: number): Promise<boolean> {
+  async fail(id: string, token: string, now: string, code: string, retryable: boolean, retryDelayMs: number,
+    event?: Omit<DecisionEvent, "id" | "sequence">): Promise<boolean> {
     return this.sql.begin(async (tx) => {
       const owned = await tx`SELECT * FROM jobs WHERE id = ${id} AND kind = 'agent' AND status = 'running'
         AND lease_until > ${now} AND checkpoint->>'leaseToken' = ${token} FOR UPDATE`;
@@ -112,17 +115,31 @@ export class PostgresJobStore implements JobStore {
         checkpoint = ${tx.json(json({ ...state, leaseToken: null,
           nextRunAt: retry ? new Date(Date.parse(now) + retryDelayMs).toISOString() : now }))},
         lease_until = NULL, updated_at = ${now} WHERE id = ${id}`;
+      if (event) await this.insertEvent(tx, event);
       return true;
+    });
+  }
+
+  async cancel(id: string, now: string): Promise<JobRecord | null> {
+    return this.sql.begin(async (tx) => {
+      const rows = await tx`SELECT * FROM jobs WHERE id = ${id} AND kind = 'agent' FOR UPDATE`;
+      if (!rows.length) return null;
+      const current = decode(rows[0]);
+      if (["completed", "failed", "cancelled"].includes(current.status)) return current;
+      if (current.checkpoint.publicationCommitted) return current;
+      const updated = await tx`UPDATE jobs SET status = 'cancelled', lease_until = NULL,
+        checkpoint = checkpoint || '{"leaseToken": null}'::jsonb, updated_at = ${now}
+        WHERE id = ${id} RETURNING *`;
+      await this.insertEvent(tx, { jobId: id, step: "cancel", kind: "cancelled", reason: "CANCELLED",
+        details: {}, createdAt: now });
+      return decode(updated[0]);
     });
   }
 
   async appendEvent(event: Omit<DecisionEvent, "id" | "sequence">): Promise<DecisionEvent> {
     return this.sql.begin(async (tx) => {
       await tx`SELECT id FROM jobs WHERE id = ${event.jobId} FOR UPDATE`;
-      const rows = await tx`INSERT INTO agent_events (job_id, sequence, step, kind, reason, details, created_at)
-        VALUES (${event.jobId}, (SELECT COALESCE(MAX(sequence), 0) + 1 FROM agent_events WHERE job_id = ${event.jobId}),
-          ${event.step}, ${event.kind}, ${event.reason}, ${tx.json(json(event.details))}, ${event.createdAt}) RETURNING *`;
-      return this.decodeEvent(rows[0]);
+      return this.insertEvent(tx, event);
     });
   }
 
@@ -135,5 +152,13 @@ export class PostgresJobStore implements JobStore {
     return { id: row.id as string, jobId: row.job_id as string, sequence: Number(row.sequence),
       step: row.step as string, kind: row.kind as DecisionEvent["kind"],
       reason: row.reason as string, details: row.details as Record<string, unknown>, createdAt: iso(row.created_at) };
+  }
+
+  private async insertEvent(query: postgres.TransactionSql,
+    event: Omit<DecisionEvent, "id" | "sequence">): Promise<DecisionEvent> {
+    const rows = await query`INSERT INTO agent_events (job_id, sequence, step, kind, reason, details, created_at)
+      VALUES (${event.jobId}, (SELECT COALESCE(MAX(sequence), 0) + 1 FROM agent_events WHERE job_id = ${event.jobId}),
+        ${event.step}, ${event.kind}, ${event.reason}, ${query.json(json(event.details))}, ${event.createdAt}) RETURNING *`;
+    return this.decodeEvent(rows[0]);
   }
 }
