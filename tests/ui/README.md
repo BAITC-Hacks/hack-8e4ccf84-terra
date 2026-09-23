@@ -43,3 +43,19 @@ S00 audit: original normalized power scale has unknown denominator; no MW/MWh or
 With S01–S04 and an authenticated development session: choose “Настоящий API”, verify assets/connections, upload each original CSV with confirmed semantics, follow the job/report, run a forecast, compare two persisted versions and export. Repeat refresh failure, empty result, partial data and stale data. Check immutable IDs/units/timestamps against DB/API. S07/S08 routes may remain unavailable until their own slices land; UI must show errors honestly.
 
 Router integration: root app remains active for S06 API compatibility. Root UI routes only re-export src/app pages/layout; src/app owns UI implementation. S01 can consolidate these adapters later. S06 API files are unchanged.
+
+## Industrial portal: authentication, languages and themes
+
+`/login` is the public entrance. Russian and the light theme are the defaults. English/Kazakh and theme preferences are saved in non-sensitive cookies and applied to the initial server HTML. The two-second wind-turbine entrance can be skipped; reduced-motion preferences disable rotation. It appears on a full page load, not every client-side navigation.
+
+Dashboard pages are protected by the existing signed, HttpOnly, SameSite=Strict administrator session on the server (proxy and layout). There is no browser-only authentication or demo bypass. Configure `ADMIN_PASSWORD` (12+ characters) and `SESSION_SECRET` (32+ characters) in an ignored `.env.local` or deployment secrets. Use distinct random values; there is no bundled default password. `ADMIN_API_TOKEN` remains server-only for the existing S08 bridge. HTTPS sets the session cookie Secure. The existing shared administrator role is retained; account registration and multi-user roles are outside this task.
+
+Additional validation:
+
+- `node --test tests/ui/platform.test.cjs tests/ui/client.test.cjs tests/ui/csv.test.mjs`
+- `node tests/ui/platform.cjs` against the production server (default port 3107; `UI_BASE_URL` overrides it).
+- Both browser scripts load an ignored `.env.local` if present, or accept `ADMIN_PASSWORD` from the environment. The platform suite also uses `SESSION_SECRET` to test an actually expired signature. Never log or commit those values.
+- `platform.cjs` tests real authentication, protected pages/APIs, wrong credentials, Origin checks, language/theme persistence, all translated pages, mobile navigation, logout, forged/expired sessions and reduced motion.
+- `dashboard.cjs` tests the existing 13 dashboard flows after a real sign-in. Forecast/import API responses in its contract scenarios remain mocked. This does not claim real S02–S04 end-to-end integration.
+
+All interface copy and synthetic fixture explanations are translated. Data returned by a real server retains its source language. Numerical values, identifiers, units and timestamps are preserved; labels and display dates/numbers follow the selected locale.

@@ -6,14 +6,15 @@ const path = require('node:path');
 const Module = require('node:module');
 const ts = require('typescript');
 const cache = new Map();
-function load(name) {
-  if (cache.has(name)) return cache.get(name);
-  const filename = path.resolve(`src/components/dashboard/${name}.ts`);
+function load(name, parent = path.resolve("src/components/dashboard")) {
+  const candidate = path.resolve(parent, name);
+  const filename = fs.existsSync(candidate + ".ts") ? candidate + ".ts" : path.join(candidate, "index.ts");
+  if (cache.has(filename)) return cache.get(filename);
   const mod = new Module(filename); mod.filename = filename; mod.paths = Module._nodeModulePaths(path.dirname(filename));
   const originalRequire = mod.require.bind(mod);
-  mod.require = id => id.startsWith('./') ? load(id.slice(2)) : originalRequire(id);
+  mod.require = id => id.startsWith('.') ? load(id, path.dirname(filename)) : originalRequire(id);
   mod._compile(ts.transpileModule(fs.readFileSync(filename,'utf8'), {compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,filename);
-  cache.set(name,mod.exports); return mod.exports;
+  cache.set(filename,mod.exports); return mod.exports;
 }
 const schema = load('contracts'); const fixture = load('fixtures'); const {createClient} = load('client');
 test('all synthetic fixtures obey runtime schemas in each mode and scenario', () => {
