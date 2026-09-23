@@ -1,27 +1,38 @@
-# Project state
+# Project state — S03/S09 and industrial connectors
 
-- Updated UTC: 2026-09-23 10:50Z.
-- Branch/worktree: `chore/integrate-s03-weather-runs` / private integration worktree.
-- Base reconciled: local `main` at `b6a3b4b` (S09 integration); remote remains `origin/main` at `8d25bab` because this is a local-only integration.
-- Active task: S03 and S09 are reconciled and validated; local `main` fast-forward is next.
-- Demo: portal preview is available at `http://localhost:3107/login` when locally configured. No weather UI/API is wired.
+- Updated UTC: 2026-09-23 10:41Z.
+- Branch/worktree: `chore/integrate-oracle-wincc` / private integration worktree.
+- Base: `origin/main` at `0def4de`; task branch `origin/feat/oracle-wincc-connectors` at `c74b955`.
+- Active task: merge validated Oracle/WinCC workflows with the latest S03/S09 main; final integration checks and main push pending.
+- Demo: authenticated `/sources` runs explicitly synthetic Oracle history and WinCC live workflows end to end. API mode requires real server-side gateways and never falls back to fixtures.
 
 ## Integrated implementation
 
-- S03 adds an Open-Meteo Single Runs connector, cycle selection, provenance/raw-byte hashing, availability policy, complete 24/48-hour target validation, and admissible saved fallback behavior.
-- S09 adds a deterministic CC0 48-hour smoke fixture, Makefile targets, fail-closed verification wrapper, acceptance matrix, and clean-environment/backup procedure. It does not assert model quality or successful AC-01–AC-16.
-- S03 persistence remains an injected test-only in-memory port; PostgreSQL restart recovery and canonical S01 `WeatherRun` integration are unimplemented.
-- Probe coordinates `43.25, 76.95` are not a confirmed station. Historical publication timestamp, production availability delay, source timezone, interval, and target semantics need owner confirmation.
-- Existing S00/S01/S02/S04/S05/S06/S07/S08 and protected multilingual portal work are retained.
+- S03 Open-Meteo Single Runs connector, cycle selection, provenance/raw-byte hashing, availability policy, 24/48-hour target validation and admissible saved fallback behavior are preserved.
+- S09 deterministic CC0 smoke fixture, Makefile targets, fail-closed wrapper, acceptance matrix and clean-environment/backup procedure are preserved. Missing `demo:*` owner contracts still fail closed and are not product acceptance.
+- Protected multilingual portal, sign-in, themes, S00/S01/S02/S04/S05/S06/S07/S08 code and prior documentation are preserved.
+- Oracle: verify gateway access, discover tables/fields, map timestamp and normalized power to a turbine, then enable historical loading.
+- Siemens WinCC: verify gateway access, discover tag groups, map power and wind-speed tags to a turbine, then enable live updates.
+- `POST /api/v1/industrial-connectors/[kind]` validates test/discover/enable actions, keeps tokens server-side, rejects malformed responses and sanitizes failures.
+- Connector UI copy is available in Russian, Kazakh and English and follows the portal theme/session architecture.
 
-## Verification
+## Boundaries and risks
 
-- PASS after S03/S09 reconciliation: `node --test tests/weather/weather.test.mjs` (25 offline tests), `node --test tests/acceptance/harness.test.mjs` (2 tests), `npm run lint`, `npm run typecheck`, and `npm run build`.
-- PASS expected fail-closed behavior: `node tests/acceptance/run.mjs verify` exits 2 / `BLOCKED` without a `demo:verify` contract; this is not product acceptance.
-- BLOCKED: PostgreSQL weather persistence/restart validation and actual station/month coverage.
+- Real Oracle/WinCC operation requires deployed gateways matching `docs/industrial-connectors.md` and the four documented URL/token variables. No plant endpoints or credentials were available.
+- S03 persistence remains an injected in-memory port; PostgreSQL restart recovery and canonical S01 `WeatherRun` integration remain incomplete.
+- Probe coordinates and source time/publication semantics remain unconfirmed. No MW/MWh or official forecast-quality claim is made; February actuals remain evaluation-only.
+- Agent audit gaps, production tick/replay and remaining real S02/S03/UI payload alignment are unchanged.
+
+## Validation
+
+- PASS before integration: connector branch combined TypeScript suite 31/31, industrial/UI adapter suite 7/7, lint, typecheck and production build.
+- PASS before integration: authenticated browser walkthrough reached “История загружается” for Oracle and “Обновления поступают” for WinCC; English localization verified.
+- PASS on latest main before this merge: S03 weather tests 25/25, S09 harness 2/2, lint, typecheck and production build, as recorded by its integrator.
+- EXPECTED BLOCKED: `node tests/acceptance/run.mjs verify` exits 2 until owners provide the missing `demo:verify` contract.
+- NOT RUN: real Oracle, WinCC and PostgreSQL restart integrations because external endpoints/credentials are unavailable.
 
 ## Next actions
 
-1. Fast-forward local `main` to this verified integration commit; do not push without a user request.
-2. Implement canonical immutable `WeatherRun` persistence via S01 and verify saved fallback after PostgreSQL restart.
-3. Owners S01–S08 must supply fixed `demo:*` contracts and pass AC-01–AC-16; wire S03 weather and real data/UI integration before operational use.
+1. Run critical checks in this integration worktree, commit the merge, push `HEAD:main`, and verify task ancestry.
+2. Configure real Oracle/WinCC gateways and repeat the two workflows against plant infrastructure.
+3. Complete S03 persistence and remaining owner `demo:*` acceptance contracts.

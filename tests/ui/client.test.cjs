@@ -29,6 +29,18 @@ test('all synthetic fixtures obey runtime schemas in each mode and scenario', ()
     }
   }
 });
+test('fixture industrial connectors expose Oracle history and WinCC streaming workflows', async () => {
+  const client = createClient('fixture','live','ready');
+  for (const kind of ['oracle','wincc']) {
+    assert.equal((await client.industrial(kind,{action:'test'})).status,'healthy');
+    const discovery = await client.industrial(kind,{action:'discover'});
+    assert.ok(discovery.resources.length > 0);
+    const resource = discovery.resources[0];
+    const enabled = await client.industrial(kind,{action:'enable',assetId:'demo-line',resource:resource.name,fields:resource.fields.slice(0,2),mapping:{a:resource.fields[0],b:resource.fields[1]}});
+    assert.equal(enabled.enabled,true);
+    assert.equal(enabled.mode,kind === 'oracle' ? 'history' : 'stream');
+  }
+});
 test('API adapter rejects malformed schemas, JSON, auth and network errors without exposing bodies', async () => {
   const originalFetch = global.fetch; const client = createClient('api','live','ready');
   try {

@@ -69,3 +69,10 @@ allowlisted `demo:<action>` npm script and fails closed with exit code 2 until t
 owner supplies it. The acceptance matrix and clean-environment/backup procedure are in
 [docs/acceptance.md](docs/acceptance.md) and [docs/demo.md](docs/demo.md). The CC0 synthetic smoke
 fixture is documented in [samples/README.md](samples/README.md); it is not forecast-quality evidence.
+
+## Industrial connectors
+
+`/sources` includes complete setup flows for Oracle history and Siemens WinCC live tags: test
+access, discover tables/tags, map fields to a turbine, and enable history or updates. Fixture mode
+uses clearly labelled synthetic metadata. API mode requires the server-only gateway variables in
+`.env.example`; see `docs/industrial-connectors.md` for the gateway contract.

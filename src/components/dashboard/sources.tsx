@@ -6,6 +6,7 @@ import { useDashboard } from "./shell";
 import { Badge, ResourceNotice, useResource } from "./resource";
 import { csvRows, download, parseCsv, validateMapping } from "./csv";
 import { JobStatus } from "./job";
+import { IndustrialConnectors } from "./industrial-connectors";
 const fields = [["timestamp", "Время"], ["wind_speed", "Скорость ветра · м/с"], ["power", "Нормализованная мощность · исходная шкала"], ["temperature", "Температура · °C"]];
 function ImportReport({ id }: {
     id: string;
@@ -105,6 +106,7 @@ export function SourcesPage() {
     <div className="page-heading"><div><div className="eyebrow">{t("ДАННЫЕ / ПРОИСХОЖДЕНИЕ И КАЧЕСТВО")}</div><h1>{t("Источники данных")}</h1><p>{t("От исходной строки до надёжного входа для прогноза.")}</p></div><a className="button primary" href="#csv-import">{t("+ Импорт CSV")}</a></div>
     <ResourceNotice {...sources} empty={sources.data?.length === 0}/>
     <div className="source-grid">{sources.data?.map(source => <section className="panel source-card" key={source.id}><div className="inline-heading"><span className="source-icon">▤</span><Badge status={source.status}/></div><h2>{source.name}</h2><p>{source.type}</p><dl className="metadata"><dt>{t("Обновлено")}</dt><dd>{source.updated_at ? `${dateLabel(source.updated_at, timezone)} ${timezone}` : t("Нет данных")}</dd><dt>{t("Покрытие")}</dt><dd>{source.coverage == null ? t("Нет данных") : `${numberLabel(source.coverage * 100, 1)}%`}</dd></dl>{source.error && <p className="warning-text">{source.error}</p>}{source.status === "planned" && <p>{t("Подключение запланировано. Данные не поступают.")}</p>}</section>)}</div>
+    <IndustrialConnectors client={client} assets={assets.data ?? []} transport={transport}/>
     <section id="csv-import" className="panel"><div className="panel-heading"><div><div className="eyebrow">{t("01 / ЗАГРУЗКА И СОПОСТАВЛЕНИЕ")}</div><h2>{t("Импортировать историю")}</h2><p>{t("Предпросмотр первых пяти строк. Полная валидация выполняется на сервере.")}</p></div></div>
     <ResourceNotice {...assets}/><form onSubmit={submit} onChange={() => setConfirmed(false)}>
       <div className="upload-zone"><label>{t("CSV с измерениями")}<input aria-label={t("CSV с измерениями")} type="file" accept=".csv,text/csv" onChange={chooseFile} disabled={reading || busy}/></label><p>{t("До 100 МБ · исходный файл передаётся без изменения")}</p></div>
