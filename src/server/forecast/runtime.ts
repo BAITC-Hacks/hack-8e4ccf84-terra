@@ -3,6 +3,7 @@ import type {ModelVersion} from "../contracts";
 import {PostgresObservationReader, PostgresWeatherRunReader} from "../data/snapshot/postgres-readers";
 import {PostgresForecastStore} from "./postgres-store";
 import {ForecastService} from "./service";
+import {baselineInference, type ForecastInference} from "./inference";
 
 let sql: ReturnType<typeof postgres> | undefined;
 export function forecastDatabase() {
@@ -27,16 +28,21 @@ export async function resolveForecastModelId(requested: string): Promise<string>
   return rows[0].id as string;
 }
 
-export async function forecastRuntime(modelId: string): Promise<ForecastService> {
-  const db = forecastDatabase();
+export async function loadForecastModel(db: ReturnType<typeof postgres>, modelId: string): Promise<ModelVersion> {
   const rows = await db`SELECT * FROM model_versions WHERE id = ${modelId} AND status = 'approved'`;
   if (!rows.length) throw new Error("MODEL_NOT_APPROVED");
   const row = rows[0];
-  const model: ModelVersion = {id: row.id, name: row.name, version: row.version,
+  return {id: row.id, name: row.name, version: row.version,
     status: row.status, artifactId: row.artifact_id, codeVersion: row.code_version,
     featureSpec: row.feature_spec, trainingCutoff: row.training_cutoff?.toISOString() ?? null,
     parameters: row.parameters, metrics: row.metrics};
+}
+
+export async function forecastRuntime(modelId: string,
+  inference: ForecastInference = baselineInference): Promise<ForecastService> {
+  const db = forecastDatabase();
+  const model = await loadForecastModel(db, modelId);
   return new ForecastService(new PostgresObservationReader(db),
     new PostgresWeatherRunReader(db), new PostgresForecastStore(db),
-    process.env.FORECAST_CONFIG_VERSION || "baseline-v1", model);
+    process.env.FORECAST_CONFIG_VERSION || "baseline-v1", model, inference);
 }

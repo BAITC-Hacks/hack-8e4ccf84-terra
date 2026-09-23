@@ -61,3 +61,11 @@
 - PASS: seven task sections and existing repository references checked; git diff --check. Application tests/build not run: documentation-only change.
 - Remote fetch BLOCKED: Repository not found. User requests local main delivery; no remote completion claimed.
 - Next: dispatch P1-P6 when requested; run P7 after their integration. Preserve historical-viewer state above.
+
+## P6 runtime wiring — active branch handoff
+
+- Updated UTC: 2026-09-23T12:21:00Z; owner Codex; branch feat/p6-runtime-wiring; last verified base 1923ce2; changes uncommitted.
+- Status: integration pending. Shared injected inference boundary for agent and synchronous forecast, canonical dashboard envelopes/durable launch, pinned-trigger input seam, migration/dispatcher Compose ordering implemented. Other parallel work is not claimed as integrated.
+- Acceptance still pending: actual P2 default runtime inference, P3/P5 worker activation, PostgreSQL/Compose smoke after neighboring integrations. See docs/handoffs/parallel-P6.md for exact contracts and draft P3 temperature gap.
+- PASS before user stopped tests: npm test 49/49, forecast/agent/replay/UI regression 24/24, runtime adapter suite 7/7 (PostgreSQL opt-in skipped). PASS: local production build, lint, Compose config; final typecheck passed. Further tests/PostgreSQL/Compose smoke SKIP by explicit user instruction.
+- Remote synchronization BLOCKED: Repository not found. Next: final validation, task commit, serialized private-worktree integration into local main; P7 remains separate.

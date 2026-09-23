@@ -5,7 +5,60 @@ import { agentRunSchema, evaluationSchema, forecastSchema, industrialResponseSch
 import * as fixture from "./fixtures";
 import { historyAssetsSchema, historyDemoAssets, historyDemoForecasts, historicalForecasts, historyResponseSchema } from "./history-data";
 
-// Only this UI adapter knows the provisional wire shape. No server modules enter the bundle.
+// Canonical API envelopes are translated here; server modules never enter the bundle.
+const canonicalForecastsSchema = z.object({ forecasts: z.array(historyResponseSchema.shape.forecasts.element.extend({
+  incompleteReasons: z.array(z.string()),
+  snapshot: z.object({ weatherRunIds: z.array(z.string()),
+    missing: z.array(z.string()), payload: z.object({ agent: z.object({ briefing: z.string() }).optional() }).passthrough() }),
+})) }).transform(({ forecasts }) => forecasts.flatMap(run => run.request.assetIds.map(assetId => forecastSchema.parse({
+  id: run.id, asset_id: assetId, issued_at: run.request.issuedAt, mode: run.request.mode,
+  horizon_hours: run.request.horizonHours, model_version: run.request.modelVersionId,
+  weather_run_id: run.snapshot.weatherRunIds.join(", "), input_snapshot_id: run.inputSnapshotId,
+  unit: "normalized", stale: false,
+  briefing: [run.snapshot.payload.agent?.briefing,
+    ...new Set([...run.incompleteReasons, ...run.snapshot.missing])].filter(Boolean).join(" · "),
+  points: Array.from({ length: run.request.horizonHours }, (_, index) => {
+    const target = new Date(Date.parse(run.request.issuedAt) + (index + 1) * 3_600_000).toISOString();
+    const point = run.status === "published" ? run.values.find(value => value.assetId === assetId && Date.parse(value.targetTime) === Date.parse(target)) : undefined;
+    return { target_time: target, lead_hour: index + 1, prediction: point?.value ?? null,
+      actual: null, status: point ? "ready" : "missing" };
+  }),
+}))));
+
+const canonicalJobSchema = z.object({ id: z.string(), status: jobSchema.shape.status,
+  progress: z.object({ step: z.number().int().min(0).max(8), attempt: z.number().int().nonnegative() }),
+  result_id: z.string().nullable(), error: z.object({ code: z.string() }).nullable(),
+}).transform(job => jobSchema.parse({ ...job, progress: job.status === "succeeded" ? 1 : job.progress.step / 8, error: job.error?.code ?? null }));
+
+const canonicalAgentSchema = z.object({ id: z.string(), mode: agentRunSchema.shape.mode,
+  status: z.string(), result_id: z.string().nullable(),
+  events: z.array(z.object({ id: z.string(), createdAt: z.iso.datetime({ offset: true }),
+    step: z.string(), reason: z.string(), kind: z.enum(["selected", "completed", "retry", "failed", "fallback", "cancelled"]),
+    details: z.object({ durationMs: z.number().nonnegative().optional(), code: z.string().optional() }).passthrough(),
+  })), next_cursor: z.number().int().nullable(),
+}).transform(run => ({ ...run, forecast_id: run.result_id, steps: run.events.map(event => ({
+  id: event.id, time: event.createdAt, tool: event.step, reason: event.reason,
+  duration_ms: event.details.durationMs ?? 0,
+  status: event.kind === "failed" || event.kind === "cancelled" ? "failed" as const : event.kind === "selected" || event.kind === "retry" ? "running" as const : "succeeded" as const,
+  error: event.details.code ?? null,
+})) }));
+
+const metricsSchema = z.object({ n: z.number().int().positive(), mae: z.number().nonnegative(), rmse: z.number().nonnegative() });
+const canonicalEvaluationSchema = z.object({ evaluation: z.object({ id: z.string(), evaluatedPairCount: z.number().int().nonnegative(),
+  coverage: z.number().min(0).max(1), metrics: z.array(z.object({ dimension: z.string(), model: metricsSchema.nullable(),
+    comparison: z.object({ model: metricsSchema, baseline: metricsSchema }).nullable() })),
+  exclusions: z.array(z.object({ reason: z.string() })),
+}) }).transform(({ evaluation: report }) => {
+  const overall = report.metrics.find(metric => metric.dimension === "overall");
+  return evaluationSchema.parse({ id: report.id, n: report.evaluatedPairCount, coverage: report.coverage,
+    mae: report.evaluatedPairCount ? overall?.model?.mae ?? null : null,
+    rmse: report.evaluatedPairCount ? overall?.model?.rmse ?? null : null,
+    baseline_mae: report.evaluatedPairCount ? overall?.comparison?.baseline.mae ?? null : null,
+    exclusions: [...new Set(report.exclusions.map(item => item.reason)),
+      ...(report.evaluatedPairCount === 0 ? ["Нет допустимых пар прогноза и факта; метрики недоступны."] : [])],
+  });
+});
+
 async function request<T>(path: string, schema: z.ZodType<T>, signal?: AbortSignal, init?: RequestInit, locale: Locale = "ru"): Promise<T> {
   const t = (key: string, params?: Record<string, string | number>) => translate(locale, key, params);
   const timeout = AbortSignal.timeout(20_000);
@@ -57,12 +110,24 @@ export function createClient(transport: Transport, mode: Mode, scenario: Scenari
         possiblyTruncated: responses.some(response => response.forecasts.length >= 100) };
     },
     assets: (signal?: AbortSignal) => transport === "fixture" ? demo(scenario === "empty" ? [] : fixture.assets, signal) : api("/assets", sourceAssetsSchema, signal),
-    forecasts: (signal?: AbortSignal) => transport === "fixture" ? demo(fixture.forecasts(mode, scenario), signal) : api(`/forecasts?mode=${mode}`, z.array(forecastSchema), signal),
+    forecasts: (signal?: AbortSignal) => transport === "fixture" ? demo(fixture.forecasts(mode, scenario), signal) : api(`/forecasts?mode=${mode}`, canonicalForecastsSchema, signal),
     connections: (signal?: AbortSignal) => transport === "fixture" ? demo(scenario === "empty" ? [] : fixture.connections, signal) : api("/connections", sourceConnectionsSchema, signal),
-    agentRun: (id: string, signal?: AbortSignal) => transport === "fixture" ? demo(fixture.agentRun(mode), signal) : api(`/agent-runs/${encodeURIComponent(id)}`, agentRunSchema, signal),
+    agentRun: async (id: string, signal?: AbortSignal) => {
+      if (transport === "fixture") return demo(fixture.agentRun(mode), signal);
+      let run = await api(`/agent-runs/${encodeURIComponent(id)}?limit=100`, canonicalAgentSchema, signal);
+      const steps = [...run.steps];
+      let cursor = 0;
+      while (run.next_cursor !== null) {
+        if (run.next_cursor <= cursor) throw new Error(t("API вернул неверный формат данных."));
+        cursor = run.next_cursor;
+        run = await api(`/agent-runs/${encodeURIComponent(id)}?limit=100&after=${cursor}`, canonicalAgentSchema, signal);
+        steps.push(...run.steps);
+      }
+      return agentRunSchema.parse({ ...run, steps });
+    },
     importReport: (id: string, signal?: AbortSignal) => transport === "fixture" ? demo(fixture.report, signal) : api(`/imports/${encodeURIComponent(id)}`, sourceReportSchema, signal),
-    evaluation: (id: string, signal?: AbortSignal) => transport === "fixture" ? demo(fixture.evaluation, signal) : api(`/evaluations/${encodeURIComponent(id)}`, evaluationSchema, signal),
-    job: (id: string, signal?: AbortSignal) => api(`/jobs/${encodeURIComponent(id)}`, jobSchema, signal),
+    evaluation: (id: string, signal?: AbortSignal) => transport === "fixture" ? demo(fixture.evaluation, signal) : api(`/evaluations/${encodeURIComponent(id)}`, canonicalEvaluationSchema, signal),
+    job: (id: string, signal?: AbortSignal) => api(`/jobs/${encodeURIComponent(id)}`, canonicalJobSchema, signal),
     importCsv: (body: FormData) => transport === "fixture" ? demo({ id: "demo-import" }) : api("/imports", z.object({ id: z.string() }), undefined, { method: "POST", headers: { "Idempotency-Key": crypto.randomUUID() }, body }),
     weather: (input: {latitude: number; longitude: number; initializedAt: string}) => transport === "fixture"
       ? demo({status: "healthy" as const, provider: "Open-Meteo Single Runs", initializedAt: input.initializedAt, checkedAt: new Date().toISOString(), hours: 120, fields: ["temperature_2m", "wind_speed_10m", "wind_speed_100m", "wind_direction_100m"], units: {temperature_2m: "°C", wind_speed_10m: "m/s", wind_speed_100m: "m/s", wind_direction_100m: "°"}, publishedAt: null})
@@ -75,7 +140,7 @@ export function createClient(transport: Transport, mode: Mode, scenario: Scenari
       }
       return api(`/industrial-connectors/${kind}`, industrialResponseSchema, undefined, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(action) });
     },
-    startForecast: (body: { asset_ids: string[]; issued_at: string; horizon_hours: number; mode: Mode; model_version: string; data_policy: "history_only" }, backtest: boolean) => transport === "fixture" ? demo({ job_id: "demo-forecast-job" }) : api(backtest ? "/backtest-jobs" : "/forecast-jobs", z.object({ job_id: z.string() }), undefined, { method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": crypto.randomUUID() }, body: JSON.stringify(body) }),
+    startForecast: (body: { asset_ids: string[]; issued_at: string; horizon_hours: number; mode: Mode; model_version: string; data_policy: "history_only" }, backtest: boolean) => transport === "fixture" ? demo({ job_id: "demo-forecast-job" }) : api("/agent-runs", z.object({ job_id: z.string() }), undefined, { method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": crypto.randomUUID() }, body: JSON.stringify({ ...body, mode: backtest ? "backtest" : body.mode }) }),
     exportCsv: async (id: string) => {
       const response = await fetch(`/api/v1/forecasts/${encodeURIComponent(id)}/export`, { credentials: "same-origin", cache: "no-store", signal: AbortSignal.timeout(20_000) }).catch(() => { throw new Error(t("Не удалось связаться с API экспорта.")); });
       if (!response.ok) {
