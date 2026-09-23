@@ -1,9 +1,9 @@
 # Project state — overview redesign implementation
 
-- Updated UTC: 2026-09-23 11:45Z
-- Branch/worktree: `chore/integrate-terra-overview` / private integration worktree.
-- Base/integration: task commit `e9dfb21` merged over local `main` at `4ed268c`; merge commit `04879a4`. `origin` is unavailable (`Repository not found`).
-- Owner/status: Codex; overview implementation is committed, locally integrated, and production build passes. Remote synchronization is blocked.
+- Updated UTC: 2026-09-23 11:44Z
+- Branch/worktree: local `main` / primary working tree.
+- Base/integration: local `main` fast-forwarded through integration commit `f30815d`; task commit `e9dfb21` is verified as an ancestor. `origin` is unavailable (`Repository not found`).
+- Owner/status: Codex; overview implementation is committed on local `main` and production build passes. Remote synchronization remains blocked.
 
 ## Integrated implementation
 
@@ -52,6 +52,5 @@
 
 ## Next actions
 
-1. Retry task-branch and integration-HEAD pushes when `origin` access is restored; push integration HEAD to `main` and verify `e9dfb21` ancestry on `origin/main`.
-2. Fast-forward the checked-out local `main` only after remote synchronization can be verified.
-3. After owner data is available, confirm asset/time/power semantics and the historical weather availability policy.
+1. Retry the task-branch and local `main` pushes when `origin` access is restored; verify `e9dfb21` ancestry on `origin/main`.
+2. After owner data is available, confirm asset/time/power semantics and the historical weather availability policy.
