@@ -1,9 +1,9 @@
 # Project state — backend specification audit
 
 - Updated UTC: 2026-09-23 11:12Z
-- Branch/worktree: `fix/backend-spec-audit` / `hack-8e4ccf84-terra-worktrees/backend-spec-audit`
-- Base: latest fetched `origin/main` at `50ad10b`; audit branch is cleanly rebased and ready to push.
-- Owner/status: Codex; confirmed forecast-integrity fixes implemented and validated; remote integration pending.
+- Branch/worktree: `chore/integrate-backend-spec-audit` / private integration worktree.
+- Base/integration: latest fetched `origin/main` at `50ad10b`; task `580fd3d` merged by `37a3a21`.
+- Owner/status: Codex; confirmed forecast-integrity fixes integrated and validated; remote `main` push pending.
 
 ## Current implementation
 
@@ -18,6 +18,7 @@
 
 - PASS after latest rebase: core (32), foundation (4), agent (12), replay (1), weather (25), forecast (7), lint, typecheck, and production build.
 - PASS before latest rebase (unaffected): acceptance harness (2).
+- PASS in private integration worktree: core (32), foundation (4), agent (12), replay (1), weather (25), forecast (7), acceptance harness (2), lint, typecheck, and production build.
 - PASS before latest rebase: Compose config/build/startup and application/database healthchecks; `/api/health` returned `database=ready`.
 - PASS before latest rebase: disposable PostgreSQL 16 migrations; CSV import produced three canonical observations and a persisted 24-point forecast; a separate clean database passed agent claim/fencing/checkpoint/restart integration.
 - FAIL (pre-existing, unrelated): UI localization suite reports missing English/Kazakh translation for Russian `Проверяем…`; this branch does not change frontend/i18n.
@@ -38,6 +39,6 @@
 
 ## Next actions
 
-1. Push `fix/backend-spec-audit`, then merge it from a private integration worktree into the latest `origin/main`.
-2. Verify the task commit and canonical state are present on remote `main`.
+1. Push the integration HEAD to `origin/main` without rewriting history.
+2. Verify task commit `580fd3d` and this canonical state are present on remote `main`.
 3. After owner data is available, confirm turbine/time/power semantics, persist trustworthy archival forecast runs, and execute the February replay/evaluation.
