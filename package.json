@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
+    "lint": "eslint --ignore-pattern .worktrees/**",
     "test": "tsx --test tests/**/*.test.ts",
     "test:ml": "tsx --test tests/ml/**/*.test.ts",
     "typecheck": "tsc --noEmit",
@@ -16,7 +16,12 @@
     "test:agent": "node --test tests/agent/workflow.test.cjs tests/agent/reliability.test.cjs",
     "test:agent:integration": "node --test tests/agent/postgres.test.cjs",
     "test:agent:replay": "node --test tests/agent/replay.test.cjs",
-    "test:agent:openai": "node --test tests/agent/openai-smoke.test.cjs"
+    "test:agent:openai": "node --test tests/agent/openai-smoke.test.cjs",
+    "demo:import": "node scripts/demo-acceptance.mjs import",
+    "demo:train": "node scripts/demo-acceptance.mjs train",
+    "demo:backtest": "node scripts/demo-acceptance.mjs backtest",
+    "demo:export": "node scripts/demo-acceptance.mjs export",
+    "demo:verify": "node scripts/demo-acceptance.mjs verify"
   },
   "dependencies": {
     "@openai/agents": "^0.18.0",

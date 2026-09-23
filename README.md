@@ -432,7 +432,7 @@ node --test tests/acceptance/harness.test.mjs
 node tests/acceptance/run.mjs verify
 ```
 
-Harness проверяет fail-closed контракт `import/train/backtest/export/verify`. Пока `demo:*` scripts не интегрированы, `verify` ожидаемо завершается кодом 2. Это не ошибка harness и не подтверждение полного E2E.
+Harness подключён к `demo:import/train/backtest/export/verify`. Команды выполняют synthetic component integration suites на disposable PostgreSQL, сохраняют журналы и отдельный historical BLOCKED отчёт. Это ещё не единая сквозная цепочка; `demo:verify` не возвращает общий PASS. Настройка и повторный запуск: [docs/demo.md](docs/demo.md).
 
 ## Структура репозитория
 
