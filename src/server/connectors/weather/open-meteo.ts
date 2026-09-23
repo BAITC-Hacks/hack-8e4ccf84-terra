@@ -74,6 +74,15 @@ export class OpenMeteoWeather {
   }
 
   async fetch_run(run_id: string, as_of: string): Promise<SavedWeatherRun> {
+    return this.fetchRun(run_id, as_of, true);
+  }
+
+  /** Download for archival storage only. Historical admissibility is not asserted. */
+  async fetch_archive(run_id: string): Promise<SavedWeatherRun> {
+    return this.fetchRun(run_id, this.now().toISOString(), false);
+  }
+
+  private async fetchRun(run_id: string, as_of: string, enforceAvailability: boolean): Promise<SavedWeatherRun> {
     const time = utc(run_id);
     const asOf = utc(as_of);
     if (time < ARCHIVE_START || time % (6 * HOUR) !== 0) {
@@ -81,22 +90,32 @@ export class OpenMeteoWeather {
     }
     const initialized_at = new Date(time).toISOString();
     const policy = this.config.availability;
-    if (time > asOf || (policy.kind === "assumed" && utc(availableAt(initialized_at, initialized_at, policy)) > asOf)) {
+    if (time > asOf || (enforceAvailability && policy.kind === "assumed" && utc(availableAt(initialized_at, initialized_at, policy)) > asOf)) {
       throw new WeatherError("RUN_AFTER_AS_OF", "Run was not available at the forecast issue time.");
     }
     const request_url = runUrl(this.config, initialized_at);
     let bytes: Buffer;
-    try {
-      const response = await this.http(request_url, { signal: AbortSignal.timeout(15_000), cache: "no-store", redirect: "error" });
-      if (!response.ok) throw new WeatherError("PROVIDER_ERROR", "Archived weather request failed.");
-      bytes = Buffer.from(await response.arrayBuffer());
-    } catch {
-      throw new WeatherError("PROVIDER_ERROR", "Archived weather is unavailable; retry or use a saved admissible run.");
+    for (let attempt = 0; ; attempt++) {
+      try {
+        const response = await this.http(request_url, { signal: AbortSignal.timeout(15_000), cache: "no-store", redirect: "error" });
+        if (!response.ok) {
+          if (response.status !== 429 && response.status < 500)
+            throw new WeatherError("ARCHIVE_UNAVAILABLE", "Requested archived run is unavailable or access was denied.");
+          throw new WeatherError("PROVIDER_ERROR", "Archived weather request failed temporarily.");
+        }
+        bytes = Buffer.from(await response.arrayBuffer());
+        break;
+      } catch (error) {
+        if (error instanceof WeatherError && error.code === "ARCHIVE_UNAVAILABLE") throw error;
+        if (attempt >= 2)
+          throw new WeatherError("PROVIDER_ERROR", "Archived weather is unavailable after three attempts.");
+        await new Promise(resolve => setTimeout(resolve, 100 * 2 ** attempt));
+      }
     }
     const downloaded_at = this.now().toISOString();
     if (utc(downloaded_at) < time) throw new WeatherError("INVALID_TIME", "Download clock precedes initialization.");
     const available_at = availableAt(initialized_at, downloaded_at, policy);
-    if (utc(available_at) > asOf) {
+    if (enforceAvailability && utc(available_at) > asOf) {
       throw new WeatherError("RUN_AFTER_AS_OF", "Observed download became available after the forecast issue time.");
     }
     return {

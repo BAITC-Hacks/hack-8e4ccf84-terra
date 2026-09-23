@@ -1,7 +1,7 @@
 # P2 — trained inference handoff
 
 Updated: 2026-09-23 UTC. Owner: P2 / Codex. Branch: `feat/p2-trained-inference`.
-Status: implementation validated locally; serialized integration pending. Historical approval BLOCKED by missing archived training inputs. P6 wiring pending; this is not P7 E2E.
+Status: implementation validated in the task worktree; repeated integration checks skipped by explicit user instruction; local main delivery via serialized fast-forward. Historical approval BLOCKED by missing archived training inputs. P6 wiring pending; this is not P7 E2E.
 
 ## Delivered boundary
 
@@ -65,4 +65,6 @@ Real resource audit: turbine 1 has 142360 CSV rows; turbine 2 has 149499. Last n
 - PASS: full suite `node node_modules/tsx/dist/cli.mjs --test tests/**/*.test.ts`, 51/51 (same command as npm test); `npm run typecheck`; `npm run lint` and focused ESLint over ML/tests/CLI; `npm run build`, 21 pages; staged diff check and scoped secret-pattern review (no matches).
 - Initial build FAILED due to a node_modules junction outside Turbopack root; fixed by physical local `npm ci --prefer-offline --no-audit --no-fund`, without manifest/lockfile changes. An early build during dependency extraction failed on missing Next declarations; canonical build/typecheck passed after installation finished.
 - Remote fetch BLOCKED: configured GitHub origin returns `Repository not found`.
-- Next: final checks/review, task commit and serialized local-main integration; P6 connects both inference paths; obtain real archive training inputs; P7 runs complete acceptance after parallel integration.
+- Next: P6 connects both inference paths; obtain real archive training inputs; P7 runs complete acceptance after parallel integration.
+
+- Repeated integration checks SKIPPED by explicit user instruction; task checks already passed; task commit c1ba6aa2b915c31934c484c52bc8cf5bbf4424c0, base e285f93ec0a49208ee854047109861face3879fa. The dependency junction is intentional in the integration worktree; webpack supports it. Remote push also failed with Repository not found.

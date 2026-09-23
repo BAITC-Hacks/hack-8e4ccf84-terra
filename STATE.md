@@ -1,11 +1,11 @@
-# Project state — historical forecast viewer on local main
+# Project state — P1 and P4 local integration
 
-- Updated UTC: 2026-09-23T11:59:42.650Z
-- Branch/worktree: local main / primary working tree, explicitly requested by the user. No worktree or push for this task.
-- Base/integration: last verified base 49eaa72; historical-viewer changes uncommitted pending the local feature commit. Concurrent connector, client and translation changes are preserved.
-- Owner/status: Codex; historical viewer implemented and validated locally, prepared for the requested commit. Remote synchronization is outside this task by explicit instruction.
+- Updated UTC: 2026-09-23T12:26:00Z
+- Branch/worktree: chore/integrate-p1-weather / private integration worktree under the shared lock; delivery target local main.
+- Base/integration: verified local main be3f5a3 includes historical viewer 66421cf and P4 1c8901a; this integration tree also includes P1 69982e9. Canonical handoff reconciled; this integration commit delivers P1 while preserving P4.
+- Owner/status: P1/Codex; P1 task validated and P4 preserved. P2/P3/P5/P6 branches remain active; their completion is UNKNOWN here. Remote fetch/push BLOCKED: Repository not found.
 
-## Historical viewer (current task)
+## Historical viewer (prior integrated task)
 
 - Acceptance: default protected landing page and first navigation item is /history; turbine selection, inclusive issue-date range within 2026-01-31–2026-02-28 UTC, exact 24/48-hour horizon, sequential daily navigation, graph/table, explicit missing and incomplete releases.
 - Demo: two synthetic turbines, 29 daily issues, no invented actuals; target hours after February remain visible and are not claimed as February evaluation.
@@ -26,7 +26,7 @@
 - PostgreSQL migrations, confirmed CSV ingestion, canonical observations, persistence forecasts, durable agent jobs, and replay runtime are integrated.
 - CSV training rows are mirrored transactionally into canonical `observations`; evaluation-only targets remain isolated.
 - Forecast publication requires `normalized`, weather eligibility is bounded by recorded availability, and backtest enforces `target_time = issued_at + lead_hour`.
-- Open-Meteo evidence does not yet populate canonical production weather tables; official February scoring remains blocked by missing actuals and trusted historical publication times.
+- P1 CLI now persists complete validated Open-Meteo archives in canonical tables atomically. Unknown publication/availability stay NULL, so official February consumption remains blocked by provenance; missing actuals independently block scoring.
 
 ## Validation
 
@@ -50,7 +50,7 @@
 
 ## Next actions
 
-1. Review /history locally with the user; do not push (user instruction).
+1. Continue independently owned P2/P3/P5/P6 work; preserve integrated history and P4.
 2. Next UX slice: connect the historical viewer to durable full-period execution and visible agent stages, using verified archival inputs.
 3. Existing backend work: confirm asset/time/power semantics, persist trustworthy archival weather, connect an approved trained artifact, and obtain February actuals before official evaluation.
 
@@ -60,31 +60,64 @@
 - Scope: docs/parallel-agent-completion-spec.md defines six parallel ownership-scoped tasks, fixed integration contracts, P7 E2E acceptance, and serialized delivery to local main through private integration worktrees.
 - PASS: seven task sections and existing repository references checked; git diff --check. Application tests/build not run: documentation-only change.
 - Remote fetch BLOCKED: Repository not found. User requests local main delivery; no remote completion claimed.
-- Next: dispatch P1-P6 when requested; run P7 after their integration. Preserve historical-viewer state above.
+- Next: finish active parallel branches and run P7 after integration. Preserve historical-viewer state above.
+
+## P1 canonical weather ingestion
+
+- Updated UTC: 2026-09-23T12:26:00Z; task feat/p1-weather-ingestion at 69982e9 (implementation df8d383); merged with main be3f5a3 including P4. Owner: P1/Codex. Validated local integration; further repeated checks explicitly waived by the user.
+- Implemented: archived Single Runs fetch with bounded retry, raw/hash plus canonical weather rows in one transaction, immutable/idempotent repeats, strict validation, UTC range CLI with per-asset/issue coverage. Paths: weather connector, scripts/weather-ingest.ts, tests/weather, docs/handoffs/parallel-P1.md.
+- PASS: weather 25/25; P1 PostgreSQL 16 integration 3/3 (atomic visibility/rollback, concurrent duplicate prevention, consumer gates, two-issue CLI rerun); npm test 44 passed / 1 DB skip (DB tested separately); agent 12/12; foundation 4/4; lint, typecheck and production build. Final post-review lint/typecheck/build rerun PASS.
+- Constraint: unknown historical published_at/available_at stay NULL; research assumptions remain isolated metadata. Archived ingestion works, official historical consumption is BLOCKED. Consumer success test supplies clearly test-only publication evidence; no actual publication timestamps fabricated in production.
+- Remote fetch/task push BLOCKED: Repository not found. Next: obtain confirmed weather publication/asset semantics; continue P2/P3/P5/P6 and P7; retry remote delivery when access returns. No combined P7 E2E claimed.
+- P1 contract review: CLI explicitly requires timeZone=UTC (IANA), with no local-calendar inference; PostgreSQL CLI 3/3, typecheck and production build PASS for this final refinement.
+
+## P4 batch replay — locally validated integration
+
+- Updated UTC: 2026-09-23T12:24:54.6985223Z; owner P4/Codex; integration branch chore/integrate-p4-february.
+- Verified task commit: 1c8901a; integration base: 1923ce2a6b9fbf6f89c8f4397d5e9a72f9a27f1e. Canonical state prepared for local main; this merge commit records the integration.
+- Implemented: 116 sequential default releases, explicit timezone/hour, whole-range preflight, durable existing agent jobs, deterministic resume, bounded polling/cancel, canonical provenance export and February target mask. See docs/handoffs/parallel-P4.md for exact commands and limitations.
+- PASS in task: 51 tests, agent 12, replay 1, lint, typecheck, production build (21 pages), CLI help, diff/secret review. PASS repeated in integration: npm test, test:agent, test:agent:replay, typecheck and production build; no shared implementation files changed by P4.
+- Scope: only P4 new batch/CLI/tests/handoff paths plus this integration state entry. Other task statuses remain as recorded above; P4 makes no new completion claims for other tasks.
+- BLOCKED remote fetch/push: Repository not found. No origin/main claim. Real PostgreSQL replay and official February qualification remain P7 work; missing actuals and historical provenance are not replaced by fixtures.
+- Next: fast-forward local main to this verified integration, verify task ancestry; P7 runs documented CLI after P1/P2/P6 wiring and inputs are available. Retry remote synchronization when repository access is restored.
+
+- P1 final integration evidence: combined npm test PASS (53 passed, 1 DB skip; P1 PostgreSQL 3/3 separately), typecheck PASS; production build compiled/typechecked and generated pages. User explicitly requests immediate main delivery without more tests. Separate live archived weather smoke PASS (120 hours, publication still UNKNOWN).
+
+## Parallel P2 — approved trained inference
+
+- Updated UTC: 2026-09-23T12:28:21.7723618Z; owner P2/Codex; integration branch chore/integrate-p2-trained. Last verified task commit: c1ba6aa2b915c31934c484c52bc8cf5bbf4424c0; integration base: e285f93ec0a49208ee854047109861face3879fa.
+- Validated code on this lineage: predictApprovedModel returns canonical normalized 24/48-hour values; strict artifact/schema/checksum/version/approval and forecast-feature gates; reproducible training CLI with pre-February temporal folds and paired persistence comparison.
+- P2 owned paths: src/server/ml, tests/ml, scripts/train-approved.ts, docs/handoffs/parallel-P2.md. Agent/forecast wiring remains P6; preserve other active P1/P3/P4/P5/P6 tasks and their handoffs.
+- PASS task: 51 tests, 15 ML tests, typecheck, lint, canonical production build (21 pages), diff/secret review. Repeated integration tests/build/lint/typecheck SKIPPED by explicit user instruction to deliver to main immediately; task checks above already passed. Integration diff reviewed.
+- Synthetic measured validation only: N=144, power_curve:3m MAE approximately 7.52e-17 versus persistence MAE 0.34; synthetic artifact remains candidate. This is not evidence of real historical skill or P7 E2E.
+- BLOCKED historical approval: canonical archived pre-February training forecast snapshots and confirmed data semantics are absent. CSV weather is observed; February actuals remain evaluation-only and unavailable. P6 must preserve temperature and feature height in both snapshot paths and load trusted approved artifacts.
+- BLOCKED remote fetch/push: Repository not found. Local main delivery uses serialized lock and fast-forward; no origin/main claim.
+- Next: P6 connects trained inference in both runtime paths; obtain archived training inputs and run node node_modules/tsx/dist/cli.mjs scripts/train-approved.ts --input manifest.json; P7 performs combined acceptance after all parallel tasks.
+
+## P5 evaluation — local integration
+
+- Updated UTC: 2026-09-23T12:29:06.4028948Z; owner P5/Codex; branch chore/integrate-p5-evaluation; verified task commit 223df62; integration base b82ddbfd6eeb6bab7ec609f05585f33f391ee9ca.
+- Implemented isolated immutable actual revisions, versioned persisted EvaluationReport, explicit February calendar, normalized MAE/RMSE/N/coverage and common-pair baseline, semantic manifest and worker/CLI. See docs/handoffs/parallel-P5.md.
+- PASS on task branch: npm test (49/49 including disposable PostgreSQL); final P5 suite (7/7); lint; typecheck; production build (21 pages); diff/secret review. Initial dependency-related checks recovered after independent npm ci.
+- Integration tests intentionally NOT REPEATED per user's latest instruction to deliver immediately to main. Merge only overlaps STATE.md; all existing P1/P2/P4 handoffs and code are preserved.
+- BLOCKED remote fetch/push: Repository not found. No origin/main claim. Real February actuals and unconfirmed source semantics remain external blockers; P6 worker wiring and P7 E2E remain separate.
+- Next: P6 can call evaluatePublishedForecasts after migration and actual ingestion; obtain confirmed actuals/semantics for official metrics; retry remote sync when available.
 
 
-## P6 runtime wiring — active branch handoff
+## P3 — durable input triggers, local integration
 
-- Updated UTC: 2026-09-23T12:21:00Z; owner Codex; branch feat/p6-runtime-wiring; last verified base 1923ce2; changes uncommitted.
-- Status: integration pending. Shared injected inference boundary for agent and synchronous forecast, canonical dashboard envelopes/durable launch, pinned-trigger input seam, migration/dispatcher Compose ordering implemented. Other parallel work is not claimed as integrated.
-- Acceptance still pending: actual P2 default runtime inference, P3/P5 worker activation, PostgreSQL/Compose smoke after neighboring integrations. See docs/handoffs/parallel-P6.md for exact contracts and draft P3 temperature gap.
-- PASS before user stopped tests: npm test 49/49, forecast/agent/replay/UI regression 24/24, runtime adapter suite 7/7 (PostgreSQL opt-in skipped). PASS: local production build, lint, Compose config; final typecheck passed. Further tests/PostgreSQL/Compose smoke SKIP by explicit user instruction.
-- Remote synchronization BLOCKED: Repository not found. Next: final validation, task commit, serialized private-worktree integration into local main; P7 remains separate.
+- Updated UTC: 2026-09-23T12:29:50.945Z; owner Codex; integration branch chore/integrate-p3-input-triggers. Verified task commit c07e170; integration base 6ea303d.
+- Implemented: canonical weather/measurement discovery, explicit timezone release schedule, PostgreSQL event/snapshot ledger, idempotent existing agent-job enqueue, restart/cancel/DB-failure recovery, standalone CLI. Handoff: docs/handoffs/parallel-P3.md.
+- PASS on task commit: trigger/PostgreSQL/CLI tests 12/12; npm test 44 passed (DB case run separately); agent 12/12; replay 1/1; forecast 7/7; typecheck, lint, production build and diff review.
+- Integration checks intentionally not repeated: user explicitly requested immediate main delivery without repeated tests. Existing integrated tasks and their handoffs are preserved.
+- P6 integration pending: require readTriggerSnapshot(sql,eventKey) for input-trigger jobs so runtime pins observation revisions/weather values; add Compose worker wiring. Current P3 publication evidence uses a test-only adapter, not production fallback. P7 E2E remains pending.
+- Remote synchronization BLOCKED: fetch and task-branch push return Repository not found. Local main delivery does not claim origin/main.
+- Next: P6 connects snapshot inputs and deployment; P7 runs combined E2E; restore remote access and synchronize without rewriting history.
+## P6 runtime wiring — integrated delivery
 
-## P5 evaluation — task branch handoff
-
-- Updated UTC: 2026-09-23T12:15:56.7417713Z; owner P5 / Codex; branch feat/p5-forecast-evaluation; last verified base 1923ce2; implementation uncommitted, not yet on main.
-- Implemented isolated, immutable evaluation actual revisions and versioned reports over canonical published forecasts; explicit February calendar; normalized-only metrics and frozen pre-February baseline; manifest and worker/CLI. See docs/handoffs/parallel-P5.md.
-- PASS: npm test (49/49, disposable PostgreSQL included); final P5 tests (7/7 including concurrent creation); npm run lint; npm run typecheck; npm run build (21 pages); diff and secret-pattern review. Initial dependency-related build/typecheck failures resolved by independent npm ci.
-- BLOCKED external inputs: no real February actuals or confirmed source semantics. Remote fetch returns Repository not found. P6 automatic worker wiring and P7 combined E2E remain separate.
-- Next: commit P5, serialize local-main integration using shared lock and preserve other tasks; P6 can attach the worker after migration.
-
-
-P6 dependency integration: P2 c1ba6aa, P3 c07e170 and P5 223df62 are now present on the P6 task branch. Their main integration state is tracked separately; prior branch handoffs above are historical.
-
-## P6 production dependency wiring — delivery update
-
-- Updated UTC: 2026-09-23T12:34:45.3070672Z; last verified task milestone cb657c3; production wiring changes uncommitted.
-- P2 approved inference is connected in both production paths, P3 pinned reader is connected, P3/P5 Compose workers are configured. Dashboard canonical envelopes and history behavior preserved.
-- Integration pending: P3 snapshots lack temperature; P5 saved evaluation API still uses legacy registry. See docs/handoffs/parallel-P6.md. No February E2E or real trained artifact claim.
-- User override: do not run tests or start project; prioritize main integration. Further runtime checks skipped. Typecheck and Next compile/typecheck passed after dependency wiring.
+- Updated UTC: 2026-09-23; owner P6/Codex; verified implementation commits cb657c3 and 119bbb8. Current merge preserves P1–P5 and concurrent history/chart/KPI/job UI work from main.
+- Implemented: approved P2 inference in agent and synchronous runtime with registry/byte/checksum/version gates; complete trained snapshot features; P3 pinned reader; P3/P5 worker Compose wiring; canonical dashboard envelopes/durable launches without synthetic fallback.
+- Status: integration pending. P3 pinned snapshots still omit temperature; P5 persisted evaluation retrieval still needs its API-owner integration. Real approved historical artifact/semantics/weather publication evidence/February actuals remain unavailable. See docs/handoffs/parallel-P6.md.
+- PASS before user stopped tests: 49 unit tests, 24 forecast/agent/replay/UI regressions, 7 runtime adapter tests; PostgreSQL opt-in skipped. Subsequent production wiring: typecheck and full Next build PASS, with dynamic artifact-path tracing warnings. Compose base+worker config PASS. No new tests or project startup after explicit user instruction; integration runtime checks skipped.
+- Remote fetch and task push attempts returned Repository not found. Local main delivery is separate from remote completion.
+- Next: resolve P3 complete-feature snapshot and P5 saved-report API gaps; obtain real approved inputs, then P7 acceptance when authorized. No overall E2E claim.

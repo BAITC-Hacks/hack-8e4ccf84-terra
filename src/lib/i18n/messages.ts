@@ -1,6 +1,12 @@
 // User-facing copy. Russian is the source locale.
 import { historyMessages } from "./history-messages";
 export const messages: Record<string, { en: string; kk: string }> = {
+"Диапазон": {en:"Range",kk:"Аралық"},
+"Наведите, коснитесь графика или используйте стрелки клавиатуры.": {en:"Hover, touch the chart or use the arrow keys.",kk:"Меңзерді апарыңыз, графикті түртіңіз немесе бағыттау пернелерін қолданыңыз."},
+"исходная шкала": {"en":"source scale","kk":"бастапқы шкала"},
+"ч с разницей ≥0,15 в исходной шкале": {"en":"h with a difference ≥0.15 on the source scale","kk":"сағ айырмасы бастапқы шкалада ≥0,15"},
+"Нормализованная мощность в исходной шкале; пропуски не заменяются нулями": {"en":"Normalized power on the source scale; gaps are not replaced with zero","kk":"Бастапқы шкаладағы нормаланған қуат; бос мәндер нөлмен алмастырылмайды"},
+"в исходной шкале ·": {"en":"on the source scale ·","kk":"бастапқы шкалада ·"},
   ...historyMessages,
 "Данных пока нет": {"en":"No data yet","kk":"Деректер әлі жоқ"},
 "Чтобы получить первый прогноз выработки, подключите историю измерений и прогноз погоды.": {"en":"Connect measurement history and weather forecasts to generate your first power forecast.","kk":"Алғашқы қуат болжамын алу үшін өлшемдер тарихы мен ауа райы болжамын қосыңыз."},
@@ -17,6 +23,29 @@ export const messages: Record<string, { en: string; kk: string }> = {
 "Загружаем актуальную версию": {"en":"Loading the latest version","kk":"Соңғы нұсқа жүктелуде"},
 "Открыть подробный прогноз": {"en":"Open detailed forecast","kk":"Толық болжамды ашу"},
 "Ключевые показатели прогноза": {"en":"Forecast key indicators","kk":"Болжамның негізгі көрсеткіштері"},
+"Демо": {"en":"Demo","kk":"Демо"},
+"Подробности версии": {"en":"Version details","kk":"Нұсқа мәліметтері"},
+"Идентификатор прогноза": {"en":"Forecast ID","kk":"Болжам идентификаторы"},
+"Максимальная выработка": {"en":"Maximum generation","kk":"Ең жоғары өндіріс"},
+"Минимальная выработка": {"en":"Minimum generation","kk":"Ең төмен өндіріс"},
+"в нормализованной шкале": {"en":"on the normalized scale","kk":"нормаланған шкалада"},
+"В доступных часах нет значения": {"en":"No value in the available hours","kk":"Қолжетімді сағаттарда мән жоқ"},
+"Максимум среди доступных почасовых значений прогноза. Формула нормализации не подтверждена.": {"en":"Maximum of the available hourly forecast values. The normalization formula is unconfirmed.","kk":"Қолжетімді сағаттық болжам мәндерінің максимумы. Нормалау формуласы расталмаған."},
+"Минимум среди доступных почасовых значений прогноза. Формула нормализации не подтверждена.": {"en":"Minimum of the available hourly forecast values. The normalization formula is unconfirmed.","kk":"Қолжетімді сағаттық болжам мәндерінің минимумы. Нормалау формуласы расталмаған."},
+"Наибольшее изменение": {"en":"Largest change","kk":"Ең үлкен өзгеріс"},
+"п.п.": {"en":"pp","kk":"п.т."},
+"Нет предыдущей версии": {"en":"No previous version","kk":"Алдыңғы нұсқа жоқ"},
+"{count} часов с изменением ≥ 15 п.п.": {"en":"{count} hours with a change ≥ 15 pp","kk":"Өзгерісі ≥ 15 п.т. болған {count} сағат"},
+"Нет совпадающих целевых часов": {"en":"No matching target hours","kk":"Сәйкес келетін мақсатты сағаттар жоқ"},
+"Разница между новым и предыдущим прогнозом в процентных пунктах. Например: 39% → 67% = +28 п.п.": {"en":"Difference between the new and previous forecasts in percentage points. Example: 39% → 67% = +28 pp.","kk":"Жаңа және алдыңғы болжам арасындағы пайыздық тармақ айырмасы. Мысалы: 39% → 67% = +28 п.т."},
+"Для выбранных версий: {before}% → {after}% в {time}.": {"en":"For the selected versions: {before}% → {after}% at {time}.","kk":"Таңдалған нұсқалар үшін: {time} уақытында {before}% → {after}%."},
+"Версии сравниваются только для одного объекта и совпадающих целевых часов.": {"en":"Versions are compared only for the same asset and matching target hours.","kk":"Нұсқалар тек бір нысан және сәйкес мақсатты сағаттар бойынша салыстырылады."},
+"Интеграл нормализованной мощности": {"en":"Normalized power integral","kk":"Нормаланған қуат интегралы"},
+"доля·ч": {"en":"fraction·h","kk":"үлес·сағ"},
+"Сумма прогноза × 1 час": {"en":"Forecast sum × 1 hour","kk":"Болжам қосындысы × 1 сағат"},
+"{count} из {total} часов с данными": {"en":"{count} of {total} hours have data","kk":"{total} сағаттың {count} сағатында дерек бар"},
+"Сумма доступных нормализованных значений мощности, умноженных на интервал {hours} ч. Формула нормализации неизвестна, поэтому показатель не является энергией или эквивалентом полной мощности.": {"en":"Sum of the available normalized power values multiplied by the {hours}-hour interval. The normalization formula is unknown, so this metric is neither energy nor a full-power equivalent.","kk":"Қолжетімді нормаланған қуат мәндерінің {hours} сағаттық аралыққа көбейтілген қосындысы. Нормалау формуласы белгісіз, сондықтан бұл көрсеткіш энергия да, толық қуат эквиваленті де емес."},
+"Нормализованная шкала; пропуски не заменяются нулями": {"en":"Normalized scale; missing values are not replaced with zero","kk":"Нормаланған шкала; бос мәндер нөлмен алмастырылмайды"},
 "Пик выработки": {"en":"Peak generation","kk":"Өндірістің ең жоғары мәні"},
 "от номинала": {"en":"of nominal","kk":"номиналдан"},
 "Минимум": {"en":"Minimum","kk":"Ең төмен мән"},
@@ -208,9 +237,9 @@ export const messages: Record<string, { en: string; kk: string }> = {
     "en": "Version",
     "kk": "Нұсқа"
   },
-  "Ветер меняется.": {
-    "en": "The wind changes.",
-    "kk": "Жел өзгереді."
+  "Прогноз выработки ВЭС": {
+    "en": "Wind power forecast",
+    "kk": "ЖЭС өндірісінің болжамы"
   },
   "Ветроэнергетика": {
     "en": "Wind energy",
@@ -251,10 +280,6 @@ export const messages: Record<string, { en: string; kk: string }> = {
   "Вход ещё не настроен. Обратитесь к администратору.": {
     "en": "Sign-in is not configured yet. Contact your administrator.",
     "kk": "Кіру әлі бапталмаған. Әкімшіге хабарласыңыз."
-  },
-  "Вы готовы.": {
-    "en": "You're ready.",
-    "kk": "Сіз дайынсыз."
   },
   "Выберите колонку CSV": {
     "en": "Select a CSV column",
@@ -684,6 +709,10 @@ export const messages: Record<string, { en: string; kk: string }> = {
     "en": "Refresh status",
     "kk": "Күйді жаңарту"
   },
+  "Обновляем…": {
+    "en": "Updating…",
+    "kk": "Жаңартылуда…"
+  },
   "Обновлений нет": {
     "en": "No updates",
     "kk": "Жаңартулар жоқ"
@@ -787,10 +816,6 @@ export const messages: Record<string, { en: string; kk: string }> = {
   "Ошибок строк нет.": {
     "en": "No row errors.",
     "kk": "Жолдарда қате жоқ."
-  },
-  "ПЛАТФОРМА ВЕТРОЭНЕРГЕТИКИ": {
-    "en": "WIND ENERGY PLATFORM",
-    "kk": "ЖЕЛ ЭНЕРГЕТИКАСЫ ПЛАТФОРМАСЫ"
   },
   "ПРОГНОЗ / ПОЧАСОВАЯ МОЩНОСТЬ": {
     "en": "FORECAST / HOURLY POWER",
@@ -916,6 +941,18 @@ export const messages: Record<string, { en: string; kk: string }> = {
     "en": "Check job",
     "kk": "Тапсырманы тексеру"
   },
+  "Статус обновлён · {time}": {
+    "en": "Status updated · {time}",
+    "kk": "Күй жаңартылды · {time}"
+  },
+  "Не удалось обновить статус. Повторите запрос.": {
+    "en": "Could not refresh the status. Retry the request.",
+    "kk": "Күйді жаңарту мүмкін болмады. Сұрауды қайталаңыз."
+  },
+  "Не удалось обновить статус. {message}": {
+    "en": "Could not refresh the status. {message}",
+    "kk": "Күйді жаңарту мүмкін болмады. {message}"
+  },
   "Проверить задачу и журнал →": {
     "en": "Check job and log →",
     "kk": "Тапсырма мен журналды тексеру →"
@@ -927,6 +964,10 @@ export const messages: Record<string, { en: string; kk: string }> = {
   "Проверяем доступ…": {
     "en": "Verifying access…",
     "kk": "Қолжетімділік тексерілуде…"
+  },
+  "Проверяем…": {
+    "en": "Checking…",
+    "kk": "Тексерілуде…"
   },
   "Прогноз": {
     "en": "Forecast",
@@ -940,21 +981,13 @@ export const messages: Record<string, { en: string; kk: string }> = {
     "en": "Generation forecasts, data health and visibility into every calculation.",
     "kk": "Өндіру болжамдары, деректер күйі және әр есептеудің ашықтығы."
   },
-  "Прогноз на 24–48 часов": {
-    "en": "24–48 hour forecasts",
-    "kk": "24–48 сағаттық болжам"
-  },
-  "Прогнозируйте выработку, следите за качеством данных и принимайте решения в одном рабочем пространстве.": {
-    "en": "Forecast generation, monitor data quality and make decisions in one workspace.",
-    "kk": "Өндіруді болжаңыз, деректер сапасын бақылаңыз және бір жұмыс кеңістігінде шешім қабылдаңыз."
+  "Почасовой прогноз на 24–48 часов на основе погоды и данных турбин.": {
+    "en": "Hourly forecasts for the next 24–48 hours using weather and turbine data.",
+    "kk": "Ауа райы мен турбина деректері негізінде алдағы 24–48 сағатқа арналған сағаттық болжам."
   },
   "Прогресс задачи": {
     "en": "Job progress",
     "kk": "Тапсырманың орындалуы"
-  },
-  "Прозрачность каждого расчёта": {
-    "en": "Visibility into every calculation",
-    "kk": "Әр есептеудің ашықтығы"
   },
   "Происхождение результата": {
     "en": "Result provenance",

@@ -1,7 +1,7 @@
 # P3 — automatic input triggers
 
 Owner: Codex. Branch: `feat/p3-input-triggers`. Base: local `main` at `1923ce2`.
-Updated: 2026-09-23 UTC. P3 implemented and validated on the task branch; local main integration pending.
+Updated: 2026-09-23 UTC. P3 implemented and validated at task commit c07e170; prepared for local main delivery through chore/integrate-p3-input-triggers. Integration tests are not repeated by explicit user request.
 
 ## Delivered boundary
 
@@ -58,4 +58,4 @@ Omit endAt for ongoing scheduling. Hourly releases use all 24 issueHours. Pendin
 - PASS: `npm run typecheck`, `npm run lint`, `npm run build` (21 generated pages), `git diff --check`, staged diff review and scoped secret-pattern review (no matches).
 - Resolved build environment issue: Turbopack rejected an external node_modules junction. Replaced only this task's junction with local dependencies (`npm ci --ignore-scripts`). Checks attempted during installation lacked local executables and are not counted as passes; final checks above passed with the completed installation.
 - Remote fetch BLOCKED: configured GitHub repository returns `Repository not found`. No remote completion claimed.
-- Next: serialize local main integration under the shared lock and update canonical STATE.md. P6 must connect pinned snapshots and deployment; P7 validates overall E2E. Official February weather/actuals provenance remains outside P3.
+- Local delivery: task c07e170 merged with the current main under the shared lock; canonical STATE.md records the combined state. P6 must connect pinned snapshots and deployment; P7 validates overall E2E. Official February weather/actuals provenance remains outside P3.
