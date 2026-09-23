@@ -9,7 +9,7 @@
 - PASS: platform browser 10, dashboard browser 14, connector browser 4 groups; history browser scenario suite; chart pointer/keyboard/touch/bounds/gaps; UX 30 page-locale-theme-width combinations (320,390,768,1440px), modal focus, English copy, partial totals and empty-source assertions. No runtime exceptions. Production Edge headless; visual chart light/dark review.
 - Latest mobile tooltip check found touch dismissal after layout shift; touch selection is now pinned until another selection or blur. PASS after fix: production build, chart browser regression and lint. Existing API/DB limitations are not resolved by browser contract mocks.
 - Paths: shared chart, UI fixtures/contracts, overview/shell, CSS/i18n, tests/ui. No dependency changes or credentials committed.
-- Integration: retained `docs/parallel-agent-completion-spec.md` unchanged and reconciled its state; application tree matches tested task. PASS integration: core 42, UI unit 13, lint, typecheck, production build. Application files match the browser-tested task. Next: main push, remote/local verification.
+- Integration: retained `docs/parallel-agent-completion-spec.md` unchanged and reconciled its state; application tree matches tested task. PASS integration: core 42, UI unit 13, lint, typecheck, production build. Application files match the browser-tested task. Integration `7b08fb0` verified on origin/main; task `3ee1708` is an ancestor. Next: user visual review at port 3112; backend/data integration limitations remain unchanged.
 
 ## Preserved project work and limitations
 
