@@ -2,52 +2,47 @@
 
 ## Snapshot
 
-- Updated UTC: 2026-09-23 08:51:53Z.
-- Branch/worktree: `docs/s00-data-audit`, `C:/Users/Kassym/Desktop/TTT/hack-8e4ccf84-terra-worktrees/s00-data-audit`.
-- Last verified base: `c2b4003` (`origin/main`); last verified task commit: `716c63b`; this post-push handoff edit: `uncommitted`.
-- Remote access: PASS, `git fetch --all --prune` and final `git fetch origin`; base unchanged at final fetch. Earlier access/untracked-scaffold claims were stale: scaffold is tracked.
-- Demo: `npm run dev`, `/` still contains the Next.js starter. Build exposes `/` and `/_not-found`; wind forecasting, API and DB execution are not verified end to end.
+- Updated UTC: 2026-09-23 09:01:06Z.
+- Branch/worktree: `feat/backtest-evaluation-export`, `C:/Users/elnar.saparov/Desktop/HACK/hack-8e4ccf84-terra-worktrees/backtest-evaluation-export`.
+- Current rebase base: `origin/main` at `f7d1ed9`; S08 task commit is being replayed and its final hash is pending.
+- Demo: production Next.js exposes `POST /api/v1/backtest-jobs`, `GET /api/v1/evaluations/{id}` and `GET /api/v1/forecasts/{id}/export`; set `ADMIN_API_TOKEN` and use a matching Bearer token.
 
-## Active task and tangible result
+## Integrated foundation and current task
 
-- S00 / E1 input audit, owner Codex, status PUSHED (verified artifact commit `716c63b`).
-- Acceptance: inspect all resources; document schema, cadence, actual period, timezone/interval uncertainties, units/normalization, power granularity, numeric coordinates, evaluation-only February, raw examples and blockers; preserve datasets.
-- Artifacts: `docs/data-contract.md`, `docs/data-audit.md`; required handoff: `STATE.md`. No application changes.
-- All S00 documentary criteria verified. Unresolved source semantics are recorded, not silently assumed; downstream final forecasting gate remains blocked.
-- Source modules under `src/agent`, `src/db`, `src/domain/demo`, `src/ui` remain existing foundation work; their runtime completion/owner is UNKNOWN. S00 does not replace that work or claim it integrated.
+- S00 / E1 audit is integrated on `main` via `716c63b` and follow-up state. It verified two UTF-8 ten-minute CSV histories through 2026-01-31, with no February actuals.
+- S00 constraints remain authoritative: power is source-scale 0–1 with UNKNOWN physical semantics; source timezone, interval convention, measurement availability and official issue schedule remain UNKNOWN; the two series must not be summed or labelled MW/MWh.
+- S08 / E7 backtest, evaluation and export, owner Codex, status `VALIDATED` on the task worktree.
+- Implemented a sequential historical runner behind an injected production forecast-service boundary, an evaluator-only actuals reader, leak checks, deterministic rerun comparison, February metrics and FR-10 CSV export.
+- Metrics include MAE, RMSE, N, coverage and exclusions overall, per asset, per lead bucket 1–24/25–48 and per asset/lead. Baseline comparison uses only common finite pairs; N=0 is represented by null metrics.
+- March target tails remain exportable but are excluded from the fixed `[2026-02-01, 2026-03-01)` evaluation interval. Training cutoff cannot exceed the issue time or 2026-01-31.
+- API requests require an explicit ordered UTC issue schedule, return 202 with idempotent `job_id`, reject conflicting idempotency keys and use safe error envelopes.
 
-## Verified findings and constraints
+## Integration constraints
 
-- Two UTF-8 CSVs, 142360 / 149499 records, ten-minute grid with gaps, actual range 2023-03-11 through 2026-01-31. No February actuals despite filenames.
-- Raw power spans 0–1, but physical target and normalization formula are UNKNOWN. Do not aggregate the two source series or label MW/MWh.
-- Numeric coordinates resolved from PDF map redirects: (43.645150, 78.535604), (43.643198, 78.538828); user mapping confirmation remains per FR-01.
-- UNKNOWN: source timezone, timestamp interval convention, measurement averaging, availability delay, issue schedule. Explicit configuration is required before canonical time/weather alignment.
-- February 2026 actuals remain evaluation-only, including no training, tuning or lags until explicit organizer authorization. Archive weather availability is S03 work.
+- `origin/main` does not yet contain S01/S04/S06/S07. Updated `SLICES.md` explicitly permits S08 to start with local interfaces and fixtures before Gate C.
+- The in-memory registry is an integration adapter, not durable storage. S01/S07 must connect queue/persistence and S04/S06 must implement `BacktestForecastService` before a real February run.
+- Root `app/` currently wins over `src/app/`; small bridge handlers make the required API routes live without moving another owner's App Router files.
+- February actuals remain evaluation-only and are absent from the supplied resources, so no real February quality claim is made.
 
 ## Validation
 
 | Check | Result | Evidence |
 |---|---|---|
-| Full CSV audit via read-only Python stdin | PASS | Every row parsed; schema, duplicate/time/grid/range/coverage checks recorded in audit |
-| Execute Python block copied from `docs/data-audit.md` via `python -` | PASS | SHA-256, counts, gaps, hourly groups, intersections and zero February rows asserted |
-| PDF text, URI annotations and rendered pages 1–2 | PASS | pypdf extraction and pdftoppm visual inspection; coordinate redirects HTTP 200 |
-| `git diff --exit-code origin/main -- resources` | PASS | No dataset changes; CSV hashes match documented originals |
-| `npm ci --no-audit --no-fund` | PASS | Lockfile install, no tracked dependency changes |
+| `npx --yes tsx --test tests/backtest/*.test.ts` | PASS | 13/13: metrics, common-pair baseline, March exclusion, N=0, sequential isolation, leakage, cutoff, 1e-6 reproducibility, CSV and API/idempotency/auth |
 | `npm run lint` | PASS | ESLint exit 0 |
-| `npm run build` | PASS | Next.js 16.3.6 production build and TypeScript completed |
-| `git diff --check` | PASS | No whitespace errors |
-| Unit tests | NOT_RUN | No test script configured; documentary audit validation executed instead |
+| `npx tsc --noEmit` | PASS | TypeScript exit 0 after Next type generation |
+| `npm run build` | PASS | Next.js 16.3.6 compiled; all three S08 API routes appear as dynamic routes |
+| Manual production HTTP check on port 3108 | PASS | First POST queued; same key/body reused same job; unauthenticated POST returned 401 |
+| S00 CSV/PDF audit checks | PASS | Results and exact evidence remain in `docs/data-audit.md` and commit `716c63b` |
+| Secret-pattern review | PASS | Findings are existing environment-variable names, redaction options or a test-only dummy token |
 
-Tool limitations recovered: bare `pdftotext` unavailable; fitz unavailable; used bundled pypdf and pdftoppm. Web opener failed on map shortlinks; Python HTTP redirect resolution succeeded. These do not block the audit.
+## Blockers, risks and next actions
 
-## Blockers and next actions
+1. Finish the rebase, rerun critical checks, push the task branch, and integrate it into `main` from a separate worktree.
+2. At Gate C, connect `BacktestForecastService`, `ActualsReader` and `BacktestRegistry` to canonical S04/S06/S07 contracts and PostgreSQL; remove root route bridges if S01 moves the app to `src/app`.
+3. Obtain February evaluation-only actuals and the organizer-approved release schedule before producing an official evaluation report.
 
-1. Integrate S00 docs; S01 may define raw/unknown metadata contracts. Obtain organizer answers B01–B04/B06 in `docs/data-audit.md` before final time/target conversion.
-2. Obtain February evaluation-only actuals (B05); do not report February model metrics without them.
-3. S03 verifies weather archives and publication availability (B07). No weather suitability claim is made here.
+## Recent tangible milestones
 
-## Remote result
-
-Artifact commit `716c63be2065c64985bf3a9f6e9adfba1b954a87` verified by `git ls-remote origin refs/heads/docs/s00-data-audit`; upstream matches and worktree was clean after push. Branch: [docs/s00-data-audit](https://github.com/BAITC-Hacks/hack-8e4ccf84-terra/tree/docs/s00-data-audit). This state-only follow-up records that verified push. No deployment or merge claimed.
-
-Self-review: staged documentation and state diffs reviewed; `git diff --cached --check` passed; targeted secret-pattern search in docs/STATE returned no matches.
+- 2026-09-23 09:01Z: S08 passes 13 focused tests, lint, typecheck, production build and a live protected/idempotent HTTP smoke test.
+- 2026-09-23 08:51Z: S00 audit and data contract verified and integrated; unresolved source semantics remain explicit.
