@@ -20,6 +20,7 @@
 - PASS before latest-main merge: Compose config/build/startup and application/database healthchecks; `/api/health` returned `database=ready`.
 - PASS before latest-main merge: disposable PostgreSQL 16 migrations; CSV import produced three canonical observations and a persisted 24-point forecast; a separate clean database passed agent claim/fencing/checkpoint/restart integration.
 - PASS after incorporating `cee93a6`: core (32), foundation (4), agent (12), replay (1), weather (25), forecast (7), acceptance harness (2), lint, typecheck, and production build.
+- PASS after incorporating UI-prototype `b7fee06`: core (32), lint, typecheck, and hermetic Docker production build. A local build retry encountered a concurrently damaged `node_modules`; `npm ci` restored lint/typecheck and the clean container build passed.
 - FAIL (pre-existing, unrelated): UI localization suite reports missing English/Kazakh translation for Russian `Проверяем…`; the audit does not change frontend/i18n.
 - EXPECTED BLOCKED: `node tests/acceptance/run.mjs verify` reports missing `demo:verify`; the fail-closed harness itself passes.
 - BLOCKED by inputs/provenance: no February actuals, no provider-proven historical publication time, and unconfirmed turbine/time/power semantics.
