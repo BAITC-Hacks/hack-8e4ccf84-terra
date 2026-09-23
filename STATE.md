@@ -1,10 +1,10 @@
 # Project state — S03/S09 and industrial connectors
 
-- Updated UTC: 2026-09-23 10:48Z.
+- Updated UTC: 2026-09-23 10:51Z.
 - Branch/worktree: `chore/integrate-oracle-wincc` / private integration worktree.
 - Base: `origin/main` at `0def4de`; task branch `origin/feat/oracle-wincc-connectors` at `c74b955`.
-- Last verified commit: `f306354` (latest `origin/main` merged; full validation passed; push pending).
-- Active task: validated Oracle/WinCC workflows are merged with the latest S03/S09 main; remote main push and ancestry verification are next.
+- Last verified integration: `origin/main` at `1e9c688`; task commits `6c7449a` and `c74b955` are verified ancestors.
+- Active task: Oracle/WinCC workflows are integrated and pushed to `origin/main`; real plant validation awaits gateway endpoints and credentials.
 - Demo: authenticated `/sources` runs explicitly synthetic Oracle history and WinCC live workflows end to end. API mode requires real server-side gateways and never falls back to fixtures.
 
 ## Integrated implementation
@@ -33,6 +33,5 @@
 
 ## Next actions
 
-1. Fetch latest `origin/main`, push this validated integration with `HEAD:main`, and verify task ancestry.
-2. Configure real Oracle/WinCC gateways and repeat the two workflows against plant infrastructure.
-3. Complete S03 persistence and remaining owner `demo:*` acceptance contracts.
+1. Configure real Oracle/WinCC gateways and repeat the two workflows against plant infrastructure.
+2. Complete S03 persistence and remaining owner `demo:*` acceptance contracts.
