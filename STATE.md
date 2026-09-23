@@ -1,9 +1,9 @@
-# Project state — README and overview integration
+# Project state — README on local main
 
-- Updated UTC: 2026-09-23 11:45Z
-- Branch/worktree: `chore/integrate-russian-readme` / `.worktrees/integrate-russian-readme`
-- Base/integration: latest last-known `origin/main` at `ab2622c` is merged; README task `75119a5` and overview task `e9dfb21` are both present in integration commit `1c2753d`.
-- Owner/status: Codex; concurrent state conflicts were reconciled without discarding either task and final combined checks pass. Remote sync and local `main` advancement are blocked.
+- Updated UTC: 2026-09-23 11:49Z
+- Branch/worktree: local `main` / primary working tree; canonical state prepared from `chore/integrate-russian-readme`.
+- Base/integration: local `main` fast-forwarded to `649e379`; README task `75119a5` and overview task `e9dfb21` are verified ancestors.
+- Owner/status: Codex; detailed Russian README is validated and present on local `main`. Remote synchronization remains blocked.
 
 ## Integrated implementation
 
@@ -37,6 +37,6 @@
 
 ## Next actions
 
-1. Preserve the integration branch while the primary `main` worktree contains unrelated uncommitted history-page work; do not overwrite it.
-2. When repository access is restored and the primary worktree is clean, advance `main` to the integration HEAD, push the README task branch and `main`, then verify `75119a5` and `e9dfb21` ancestry on `origin/main`.
+1. Preserve the unrelated uncommitted history-page work currently present in the primary worktree.
+2. When repository access is restored, push the README task branch and local `main`, then verify `75119a5` and `e9dfb21` ancestry on `origin/main`.
 3. After owner data is available, confirm semantics, persist trustworthy archival weather runs, connect an approved trained artifact, and execute February replay/evaluation.
