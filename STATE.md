@@ -61,3 +61,13 @@
 - PASS: seven task sections and existing repository references checked; git diff --check. Application tests/build not run: documentation-only change.
 - Remote fetch BLOCKED: Repository not found. User requests local main delivery; no remote completion claimed.
 - Next: dispatch P1-P6 when requested; run P7 after their integration. Preserve historical-viewer state above.
+
+## P4 batch replay — locally validated integration
+
+- Updated UTC: 2026-09-23T12:24:54.6985223Z; owner P4/Codex; integration branch chore/integrate-p4-february.
+- Verified task commit: 1c8901a; integration base: 1923ce2a6b9fbf6f89c8f4397d5e9a72f9a27f1e. Canonical state prepared for local main; this merge commit records the integration.
+- Implemented: 116 sequential default releases, explicit timezone/hour, whole-range preflight, durable existing agent jobs, deterministic resume, bounded polling/cancel, canonical provenance export and February target mask. See docs/handoffs/parallel-P4.md for exact commands and limitations.
+- PASS in task: 51 tests, agent 12, replay 1, lint, typecheck, production build (21 pages), CLI help, diff/secret review. PASS repeated in integration: npm test, test:agent, test:agent:replay, typecheck and production build; no shared implementation files changed by P4.
+- Scope: only P4 new batch/CLI/tests/handoff paths plus this integration state entry. Other task statuses remain as recorded above; P4 makes no new completion claims for other tasks.
+- BLOCKED remote fetch/push: Repository not found. No origin/main claim. Real PostgreSQL replay and official February qualification remain P7 work; missing actuals and historical provenance are not replaced by fixtures.
+- Next: fast-forward local main to this verified integration, verify task ancestry; P7 runs documented CLI after P1/P2/P6 wiring and inputs are available. Retry remote synchronization when repository access is restored.
