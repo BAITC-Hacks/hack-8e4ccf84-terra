@@ -1,6 +1,7 @@
 // User-facing copy. Russian is the source locale.
 import { historyMessages } from "./history-messages";
 export const messages: Record<string, { en: string; kk: string }> = {
+"Нет допустимых пар прогноза и факта; метрики недоступны.": {en:"No valid forecast and actual pairs; metrics are unavailable.",kk:"Болжам мен нақты мәндердің жарамды жұптары жоқ; метрикалар қолжетімсіз."},
 "Состояние источников": {"en":"Source status","kk":"Дереккөз күйі"},
 "CSV: {hours} ч · UTC · единицы и версии.": {"en":"CSV: {hours} h · UTC · units and versions.","kk":"CSV: {hours} сағ · UTC · өлшем бірліктері мен нұсқалар."},
 "Загрузка погоды": {"en":"Loading weather","kk":"Ауа райын жүктеу"},

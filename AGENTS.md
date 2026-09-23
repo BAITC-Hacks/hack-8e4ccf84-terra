@@ -9,18 +9,17 @@ Your job is not only to write code.
 For every assigned task, you must independently:
 
 1. understand and validate the task;
-2. inspect the existing repository and read `STATE.md`;
+2. inspect the existing repository;
 3. synchronize with the latest remote state;
 4. create an isolated Git branch and worktree;
 5. implement the smallest complete solution;
 6. verify the solution against the task requirements;
 7. run all relevant automated checks;
 8. review your own diff;
-9. update `STATE.md` with verified progress and the next action;
-10. commit the finished work;
-11. push the task branch to the remote repository;
-12. integrate the validated task into the latest `main` from a separate integration worktree;
-13. push `main` to `origin` and verify that the remote contains the task commit.
+9. commit the finished work;
+10. push the task branch to the remote repository;
+11. integrate the validated task into the latest `main` from a separate integration worktree;
+12. push `main` to `origin` and verify that the remote contains the task commit.
 
 Do not stop after generating code.
 
@@ -66,7 +65,6 @@ First inspect:
 * `AGENTS.md`;
 * `README*`;
 * `TODO.md`;
-* `STATE.md` (create it from the template below if absent);
 * the `resources/` directory, if present: it contains the task specifications (Р СћР вЂ”) and datasets.
   Read the relevant specification and inspect the available datasets before implementation; treat
   them as task inputs and use them to shape and verify the solution;
@@ -79,46 +77,6 @@ First inspect:
 * environment configuration.
 
 Prefer extending existing architecture over inventing parallel abstractions.
-
----
-
-## 1.3 Persistent project state (`STATE.md`)
-
-`STATE.md` at the repository root is the short, versioned handoff for the **current branch**.
-Track the actual project state there; Git history and code remain authoritative. Do not rely on
-chat history as the only record of unfinished work. Read `AGENTS.md`, `STATE.md`, `TODO.md`, and
-relevant code at the start of every new session, task, or resumed worktree. If `STATE.md` is
-missing, create it from the template provided alongside this file and fill only verified facts.
-
-On resumption, check the state against `git status`, branch and commit, recent commits, existing
-code, tests, and the current task. Mark stale or uncertain claims as `UNKNOWN` until verified.
-Never report a feature as complete solely because `STATE.md` says it is. A fresh session should
-be able to answer what works, what is blocked, and what exact command or change comes next.
-
-Update `STATE.md` after each meaningful milestone, before each commit that changes the project,
-and before stopping or handing work to someone else. Include:
-
-* UTC update time, branch, and last **verified** commit (use `uncommitted` for pending changes);
-* current demo path and what actually works end to end;
-* active task, owner, status, acceptance criteria, and touched paths;
-* recent decisions and constraints that change implementation;
-* exact checks run with PASS/FAIL/BLOCKED and their outcomes;
-* blockers and known risks, with their concrete next action;
-* next one to three actions, including commands where useful;
-* relevant branch, PR, or deployment links only when verified.
-
-Keep it brief and current. Do not paste transcripts, entire TODO lists, secrets, credentials,
-private data, or bulky logs. Use `UNKNOWN` where facts are not verified. Replace obsolete detail;
-let commits preserve history. `STATE.md` is a handoff, not proof of test success.
-
-If parallel worktrees touch `STATE.md`, each branch records its own status; it must not claim that
-unmerged work is on the base branch. On integration, reconcile all branches' state with the merged
-code and preserve other developers' still-active work. Never resolve a `STATE.md` conflict by
-blindly accepting one side. The integrator updates the canonical state after merging.
-
-A `STATE.md`-only commit is not a substitute for the hackathon's hourly tangible progress.
-Record the real artifact, code, test, or demo milestone for each active hour. If a task is blocked,
-record the blocker and the last verified result; do not invent progress.
 
 ---
 
@@ -801,9 +759,8 @@ git fetch origin main
 
 Create a uniquely named private integration branch/worktree from `origin/main` using the
 repository's worktree naming convention. Merge the validated task branch into it without
-discarding commits from `origin/main`. Reconcile `STATE.md` against the combined code: record
-the new canonical state and preserve other developers' active tasks. Review the complete
-integration diff, run the relevant checks again, and commit the merge and any state update.
+discarding commits from `origin/main`. Review the complete integration diff, run the relevant
+checks again, and commit the merge.
 
 Push the integration HEAD to `main` with a normal fast-forward remote update:
 
@@ -812,8 +769,8 @@ git push origin HEAD:main
 ```
 
 If the push is rejected because `main` moved, fetch again, incorporate `origin/main` into the
-private integration branch, resolve conflicts, reconcile `STATE.md`, rerun affected checks, and
-retry the normal push. Never overwrite remote history or bypass branch protection. If branch
+private integration branch, resolve conflicts, rerun affected checks, and retry the normal push.
+Never overwrite remote history or bypass branch protection. If branch
 protection, permissions, unresolved conflicts, or failing checks prevent integration, leave the
 validated task branch pushed and report the exact blocker; do not claim completion.
 
@@ -855,11 +812,7 @@ Confirm:
 * commit exists;
 * the task branch exists on the remote;
 * the task commit is an ancestor of `origin/main`;
-* the remote `main` contains the integration commit and the verified `STATE.md` update.
-
-A local commit or task-branch push alone is not task completion. If the final `STATE.md` update
-needs a follow-up commit, push it to `main` and verify that push too. Do not claim an unpushed
-state update is remote.
+* the remote `main` contains the integration commit.
 
 ---
 
@@ -961,7 +914,7 @@ TASK RECEIVED
     РІвЂ вЂњ
 READ TASK
     РІвЂ вЂњ
-INSPECT REPOSITORY AND READ STATE.md
+INSPECT REPOSITORY
     РІвЂ вЂњ
 FETCH REMOTE
     РІвЂ вЂњ
@@ -993,8 +946,6 @@ SELF-REVIEW DIFF
     РІвЂ вЂњ
 RECHECK ORIGINAL TASK
     РІвЂ вЂњ
-UPDATE STATE.md WITH VERIFIED HANDOFF
-    РІвЂ вЂњ
 COMMIT
     РІвЂ вЂњ
 FETCH REMOTE
@@ -1007,13 +958,11 @@ PUSH TASK BRANCH
     РІвЂ вЂњ
 CREATE PRIVATE INTEGRATION WORKTREE FROM origin/main
     РІвЂ вЂњ
-MERGE TASK BRANCH AND RECONCILE STATE.md
-    РІвЂ вЂњ
 RE-RUN RELEVANT VALIDATION
     РІвЂ вЂњ
 PUSH INTEGRATION HEAD TO origin/main
     РІвЂ вЂњ
-VERIFY TASK COMMIT AND STATE.md ON origin/main
+VERIFY TASK COMMIT ON origin/main
     РІвЂ вЂњ
 REPORT RESULT
 ```
@@ -1072,7 +1021,6 @@ A task is DONE only when all relevant conditions are satisfied:
 [ ] task understood
 [ ] acceptance criteria identified
 [ ] latest remote state fetched
-[ ] STATE.md read, checked against code, and updated with verified handoff
 [ ] isolated branch created
 [ ] isolated worktree created
 [ ] implementation complete
@@ -1089,7 +1037,7 @@ A task is DONE only when all relevant conditions are satisfied:
 [ ] task integrated with latest origin/main in a private worktree
 [ ] integration diff and checks reviewed
 [ ] main pushed to origin without rewriting history
-[ ] remote main contains task commit and canonical STATE.md
+[ ] remote main contains task commit
 ```
 
 If one of the relevant items is missing, the task is not complete.
@@ -1155,8 +1103,8 @@ If `origin/main` cannot be fetched or updated because the remote is unavailable,
 
 1. Do not discard, reset, or rewrite any commits or changes.
 2. In a separate integration worktree, integrate the validated task branch into the existing local `main`, preserving its history and resolving conflicts before committing.
-3. Run the relevant integration checks and update `STATE.md` with the verified local `main` commit.
+3. Run the relevant integration checks against the verified local `main` commit.
 4. Keep the task branch and integration commit available locally. Mark remote synchronization as `BLOCKED`; do not claim the task is present on `origin/main`.
-5. When `origin/main` becomes available, fetch it, integrate the local `main` changes with the latest remote state without rewriting history, rerun the relevant checks, and push `main` to `origin`. Verify the remote contains the task commit, then update `STATE.md`.
+5. When `origin/main` becomes available, fetch it, integrate the local `main` changes with the latest remote state without rewriting history, rerun the relevant checks, and push `main` to `origin`. Verify the remote contains the task commit.
 
 A task may be reported as **implemented and validated locally** while the remote push is blocked. It is fully complete under the normal Definition of Done only after the changes are verified on `origin/main`.

@@ -4,7 +4,8 @@ import type {
   ObservationReader, WeatherRunReader,
 } from "../contracts";
 import {buildForecastSnapshot, targetHours, type ForecastInputSnapshot} from "../data/snapshot/build";
-import {predictPersistence} from "../ml/baseline/persistence";
+import {assertApprovedModel, baselineInference, type ForecastInference} from "./inference";
+import {buildModelSnapshot} from "./snapshot";
 
 export interface StoredForecast extends Omit<ForecastRun, "idempotencyKey" | "incompleteReasons"> {
   idempotencyKey: string;
@@ -48,15 +49,15 @@ export class ForecastService {
     private readonly store: ForecastStore,
     private readonly configVersion: string,
     private readonly model: ModelVersion,
+    private readonly inference: ForecastInference = baselineInference,
   ) {}
 
   async run(request: ForecastRequest): Promise<StoredForecast> {
     if (request.dataPolicy !== "history_only") throw new Error("EVALUATION_DATA_FORBIDDEN");
-    if (request.modelVersionId !== this.model.id || this.model.status !== "approved" ||
-      this.model.name !== "persistence") throw new Error("MODEL_NOT_APPROVED");
-    const snapshot = await buildForecastSnapshot(request, this.observations, this.weather,
+    assertApprovedModel(request, this.model);
+    const snapshot = await (this.model.name === "persistence" ? buildForecastSnapshot : buildModelSnapshot)(request, this.observations, this.weather,
       this.configVersion);
-    const values = snapshot.missing.length ? [] : predictPersistence(request, snapshot);
+    const values = snapshot.missing.length ? [] : await this.inference(request, snapshot, this.model);
     const incompleteReasons = [...snapshot.missing, ...validateForecastValues(request, values)];
     const status = incompleteReasons.length ? "incomplete" : "published";
     const createdAt = new Date().toISOString();

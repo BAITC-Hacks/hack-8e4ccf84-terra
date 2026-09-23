@@ -1,6 +1,7 @@
 services:
   db:
     image: postgres:16-alpine
+    restart: unless-stopped
     environment:
       POSTGRES_DB: terra
       POSTGRES_USER: terra
@@ -12,17 +13,38 @@ services:
       interval: 5s
       timeout: 3s
       retries: 12
-  app:
-    build: .
+  migrate:
+    image: ${COMPOSE_PROJECT_NAME:-terra}-runtime
+    command: ["node", "scripts/migrate.mjs"]
+    restart: "no"
     depends_on:
       db:
         condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://terra:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@db:5432/terra
+  app:
+    build: .
+    image: ${COMPOSE_PROJECT_NAME:-terra}-runtime
+    command: ["npm", "run", "start"]
+    init: true
+    restart: unless-stopped
+    stop_grace_period: 90s
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     environment:
       DATABASE_URL: postgres://terra:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@db:5432/terra
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:?set ADMIN_PASSWORD in .env}
       ADMIN_API_TOKEN: ${ADMIN_API_TOKEN:?set ADMIN_API_TOKEN in .env}
       SESSION_SECRET: ${SESSION_SECRET:?set SESSION_SECRET in .env}
       JOB_TICK_SECRET: ${JOB_TICK_SECRET:?set JOB_TICK_SECRET in .env}
+      AGENT_LLM_ENABLED: ${AGENT_LLM_ENABLED:-false}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-}
+      FORECAST_CONFIG_VERSION: ${FORECAST_CONFIG_VERSION:-agent-v1}
+      ARTIFACT_ROOT: /app/artifacts
     ports:
       - "${APP_PORT:-3000}:3000"
     volumes:
@@ -33,6 +55,19 @@ services:
       timeout: 5s
       retries: 12
       start_period: 20s
+  dispatcher:
+    image: ${COMPOSE_PROJECT_NAME:-terra}-runtime
+    command: ["node", "scripts/job-dispatcher.mjs"]
+    init: true
+    restart: unless-stopped
+    stop_grace_period: 90s
+    depends_on:
+      app:
+        condition: service_healthy
+    environment:
+      JOB_DISPATCHER_BASE_URL: http://app:3000
+      JOB_TICK_SECRET: ${JOB_TICK_SECRET:?set JOB_TICK_SECRET in .env}
+      JOB_DISPATCHER_INTERVAL_MS: ${JOB_DISPATCHER_INTERVAL_MS:-1000}
 volumes:
   postgres_data:
   artifacts:
