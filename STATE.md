@@ -2,9 +2,12 @@
 
 ## Snapshot
 
-- Updated UTC: 2026-09-23T08:58:00Z.
+- Updated UTC: 2026-09-23T09:01:00Z.
 - Branch/worktree: `feat/s03-weather-runs`, `C:/Users/Kassym/Desktop/TTT/hack-8e4ccf84-terra-worktrees/s03-weather`.
-- Last verified base: `c2b4003` (`origin/main`); pending task changes: `uncommitted`.
+- Last verified base: `0d251d6` (`origin/main`); implementation: `7ba273e`.
+- Verified remote push: `origin/feat/s03-weather-runs` = `7ba273ec803822a80c1f40cd8f002b711485941a` (ls-remote matches HEAD).
+- Pending changes: documentation handoff only, `uncommitted`; implementation milestone PUSHED.
+- Main integration BLOCKED: SLICES.md requires published S01 contracts before combining dependent slices; full S03 is not completed.
 - Remote access: fetch and fast-forward base synchronization PASS. Previous access blocker is stale.
 - Demo: `npm run dev` still serves the starter page; no weather UI/API is wired.
 - Existing agent foundation is tracked on the base; its database/OpenAI workflow remains NOT_RUN.
@@ -16,7 +19,7 @@
   provenance; explicit availability assumption or observed download time; available_at <= T;
   exactly 24/48 complete target hours; admissible saved fallback or explicit error.
 - Touched: `docs/weather-verification.md`, `src/server/connectors/weather/**`,
-  `src/server/data/weather/**`, `tests/weather/**`, this handoff.
+  `src/server/data/weather/**`, `tests/weather/**`, this handoff and `docs/handoffs/kassymzhan-s03.md`.
 - Persistence is an injected S03-local port. Only tests have an in-memory implementation.
   PostgreSQL persistence/restart recovery and canonical S01 integration are NOT implemented.
 - Other slices are not claimed complete. S00 has a separate local worktree; its results are
@@ -60,4 +63,4 @@
 ## Tangible milestone
 
 2026-09-23: real archive probe artifacts, connector/selection implementation and 25 passing
-behavior tests prepared in isolated worktree. Full S03 remains blocked, not end-to-end complete.
+behavior tests pushed from isolated worktree as `7ba273e`. Rebased over instruction-only main updates; 25 tests rerun PASS. Full S03 remains blocked, not end-to-end complete.
