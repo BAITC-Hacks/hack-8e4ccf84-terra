@@ -14,6 +14,7 @@ TERRA — прототип платформы, которая формирует
 - [Как работает система](#как-работает-система)
 - [Архитектура](#архитектура)
 - [Быстрый запуск в Docker](#быстрый-запуск-в-docker)
+- [Deploy на сервер и обновление](#deploy-на-сервер-и-обновление)
 - [Локальный запуск](#локальный-запуск)
 - [Интерфейс](#интерфейс)
 - [Основной сценарий через API](#основной-сценарий-через-api)
@@ -196,6 +197,85 @@ docker compose down
 ```
 
 Команда `docker compose down --volumes` дополнительно и необратимо удалит локальные тома PostgreSQL и артефактов.
+
+## Deploy на сервер и обновление
+
+Поддерживаемый репозиторием способ — Docker Compose на сервере с постоянным диском. Нужны Git-доступ к репозиторию и Docker Compose v2. Сначала разворачивается приложение с PostgreSQL и dispatcher; исторические данные, модель и дополнительные workers настраиваются отдельно. Deploy сам по себе не создаёт февральские прогнозы.
+
+### Первый deploy
+
+В чистом checkout ветки `main`:
+
+```bash
+git clone https://github.com/BAITC-Hacks/hack-8e4ccf84-terra.git terra
+cd terra
+git switch main
+git pull --ff-only origin main
+cp .env.example .env
+```
+
+На Windows вместо `cp` можно использовать `Copy-Item .env.example .env`. Замените placeholders в `.env`: `POSTGRES_PASSWORD`, `ADMIN_PASSWORD`, `ADMIN_API_TOKEN`, `SESSION_SECRET`, `JOB_TICK_SECRET`. Используйте разные случайные значения; пароль БД — буквенно-цифровой, поскольку Compose подставляет его непосредственно в URL. `ADMIN_PASSWORD` должен иметь минимум 12 символов, `SESSION_SECRET` — 32. Для первого запуска оставьте `AGENT_LLM_ENABLED=false`. `.env` не входит в Git и Docker build context.
+
+Установите постоянный `COMPOSE_PROJECT_NAME=terra` в `.env`: от него зависят имена образа и томов. Для публичного сервера поставьте HTTPS reverse proxy перед приложением. В текущем Compose порт публикуется как `${APP_PORT:-3000}:3000`; если proxy работает на том же хосте, `APP_PORT=127.0.0.1:3000` ограничивает доступ localhost. TLS/proxy конфигурация в репозитории отсутствует. Proxy должен сохранять внешний Host и передавать схему HTTPS; после настройки проверьте вход через домен и атрибут Secure у cookie. Не считайте готовность health endpoint проверкой входа.
+
+```bash
+docker compose config --quiet
+docker compose build app
+docker compose up -d db
+docker compose run --rm migrate
+docker compose up -d app dispatcher
+docker compose ps -a
+docker compose logs --tail=100 migrate app dispatcher
+curl --fail http://127.0.0.1:3000/api/health
+```
+
+Сначала собирается общий образ, затем применяются миграции, затем поднимается приложение. `up` может повторно запустить сервис `migrate` как зависимость; migration runner пропускает имена из `schema_migrations`. При ошибке миграции остановитесь и исправьте её причину до запуска приложения. Ожидаемый health: `{"status":"ok","database":"ready"}`; `migrate` завершается с кодом 0, `app` и `db` становятся healthy, dispatcher остаётся запущенным. Войдите как `admin`, выберите «Настоящий API», создайте объект и импортируйте историю. Пустая БД не содержит готовой ML-модели и архивной погоды.
+
+Compose передаёт контейнерам только переменные из соответствующих `environment` секций. Например, `ADMIN_USERNAME`, дополнительные LLM limits и industrial gateway variables из `.env` автоматически внутрь `app` не попадут: для них нужен явный локальный Compose override. Значение `ARTIFACT_ROOT` в контейнере уже задано как `/app/artifacts`.
+
+### Данные, модель и дополнительные workers
+
+CSV из `resources/` исключены из Docker image: загружайте их через «Источники» или API импорта. Weather/training/replay CLI и их ограничения описаны в разделе [Agentic AI, replay и модель](#agentic-ai-replay-и-модель). Файлы конфигураций CLI должны быть доступны внутри контейнера через явно добавленный bind mount либо скопированы туда; пути хоста не становятся путями контейнера автоматически.
+
+Approved artifact храните в томе `artifacts` внутри `/app/artifacts`; соответствующий `raw_artifacts.path` должен указывать на контейнерный абсолютный путь. Зарегистрируйте согласованные SHA-256, approval, версию и cutoff в реестре модели по [P6](docs/handoffs/parallel-P6.md). Нельзя просто назвать произвольный JSON approved-моделью.
+
+Для input-trigger и evaluation создайте JSON по [P3](docs/handoffs/parallel-P3.md) и [P5](docs/handoffs/parallel-P5.md), затем добавьте в `.env` абсолютные пути **на сервере deploy**:
+
+```dotenv
+INPUT_TRIGGER_CONFIG=/srv/terra-config/input-trigger.json
+EVALUATION_CONFIG=/srv/terra-config/evaluation.json
+EVALUATION_POLL_MS=30000
+```
+
+```bash
+docker compose -f compose.yaml -f compose.workers.yaml config --quiet
+docker compose -f compose.yaml -f compose.workers.yaml up -d
+docker compose -f compose.yaml -f compose.workers.yaml logs --tail=100 input-trigger evaluation
+```
+
+Оба файла обязательны для этого overlay. Workers не получают погоду сами и не устраняют пробел температуры в trigger snapshot или отсутствие февральского факта. Evaluation требует конкретные опубликованные `forecastRunIds` и подтверждённый semantic manifest. Не включайте его с выдуманными UUID или неподтверждённой семантикой.
+
+### Обновление существующего deploy
+
+Сохраните предыдущий commit SHA, резервную копию PostgreSQL и тома `artifacts`. Остановите writers на время согласованной копии и миграции (если overlay включён, используйте оба `-f` во всех соответствующих командах):
+
+```bash
+git rev-parse HEAD
+docker compose stop dispatcher app
+git pull --ff-only origin main
+docker compose build app
+docker compose run --rm migrate
+docker compose up -d app dispatcher
+docker compose ps -a
+docker compose logs --tail=100 app dispatcher
+curl --fail http://127.0.0.1:3000/api/health
+```
+
+При включённом overlay также остановите `input-trigger evaluation` перед копированием/миграцией и поднимите их после успешной миграции с обоими Compose-файлами. При любой ошибке команды обновления не переходите к следующему шагу. Данные сохраняются в `postgres_data` и `artifacts`; не используйте `down --volumes` при обновлении. Изменение `POSTGRES_PASSWORD` в `.env` не меняет пароль уже созданного пользователя в существующей БД.
+
+Автоматического rollback миграций нет. Откат приложения к предыдущему commit допустим только при совместимости схемы; иначе нужен согласованный план восстановления БД и artifacts из резервной копии. Проверяйте deploy отдельно от качества прогноза: health и работа dispatcher не подтверждают успешный исторический replay.
+
+Приведённые команды — инструкция оператору. При подготовке этого README deploy, сборка, тесты и запуск сервисов не выполнялись.
 
 ## Локальный запуск
 
