@@ -7,7 +7,7 @@
 - Tests updated for current /history landing, username authentication and overview headings. Added chart and UX regression runners.
 - PASS: `npm test` 42; `node --test tests/ui/client.test.cjs tests/ui/platform.test.cjs tests/ui/csv.test.mjs` 13; typecheck, lint, production build; diff and secret review.
 - PASS: platform browser 10, dashboard browser 14, connector browser 4 groups; history browser scenario suite; chart pointer/keyboard/touch/bounds/gaps; UX 30 page-locale-theme-width combinations (320,390,768,1440px), modal focus, English copy, partial totals and empty-source assertions. No runtime exceptions. Production Edge headless; visual chart light/dark review.
-- Latest chart CSS readability/mobile-tooltip refinement rebuilt and chart browser suite rechecked. Existing API/DB limitations are not resolved by browser contract mocks.
+- Latest mobile tooltip check found touch dismissal after layout shift; touch selection is now pinned until another selection or blur. PASS after fix: production build, chart browser regression and lint. Existing API/DB limitations are not resolved by browser contract mocks.
 - Paths: shared chart, UI fixtures/contracts, overview/shell, CSS/i18n, tests/ui. No dependency changes or credentials committed.
 - Next: commit/push task; integrate latest main in a private worktree, preserving parallel completion specification; verify remote/local main.
 

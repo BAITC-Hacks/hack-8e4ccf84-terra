@@ -1,5 +1,5 @@
 "use client";
-import {useId, useState} from "react";
+import {useId, useRef, useState} from "react";
 import { usePreferences } from "../platform/preferences";
 import type { Forecast, Point } from "./contracts";
 
@@ -7,6 +7,7 @@ export function ForecastChart({ points, previous, timezone }: {points: Point[]; 
   const {t, dateLabel, numberLabel} = usePreferences();
   const [activeTime, setActiveTime] = useState<string>();
   const tipId = useId();
+  const touchSelected = useRef(false);
   const previousByTime = new Map(previous?.points.map(point => [point.target_time, point.prediction]));
   const values = points.flatMap(point => [point.prediction, point.actual, previousByTime.get(point.target_time), ...(point.interval ?? [])]).filter((v): v is number => v != null);
   const min = Math.min(0, ...values), max = Math.max(1, ...values);
@@ -48,7 +49,7 @@ export function ForecastChart({ points, previous, timezone }: {points: Point[]; 
     <div className="chart-stage">
       <svg viewBox="0 0 930 290" role="img" tabIndex={0} aria-describedby={active ? tipId : undefined}
         aria-label={t("Почасовой прогноз на {p0} часов. Нормализованная мощность. Время {p1}. Точные значения доступны в таблице.", {p0: points.length, p1: timezone})}
-        onPointerMove={hover} onPointerDown={hover} onPointerLeave={() => setActiveTime(undefined)}
+        onPointerMove={event => { if (!touchSelected.current) hover(event); }} onPointerDown={event => { touchSelected.current = event.pointerType === "touch"; hover(event); }} onPointerLeave={() => { if (!touchSelected.current) setActiveTime(undefined); }}
         onFocus={() => setActiveTime(points[0]?.target_time)} onBlur={() => setActiveTime(undefined)}
         onKeyDown={event => {
           if (event.key === "Escape") {setActiveTime(undefined); return;}
