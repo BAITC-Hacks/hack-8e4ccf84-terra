@@ -1,9 +1,31 @@
-# Project state — overview redesign implementation
+# Project state — all connector workspace
 
-- Updated UTC: 2026-09-23 11:44Z
-- Branch/worktree: local `main` / primary working tree.
-- Base/integration: local `main` fast-forwarded through integration commit `f30815d`; task commit `e9dfb21` is verified as an ancestor. `origin` is unavailable (`Repository not found`).
-- Owner/status: Codex; overview implementation is committed on local `main` and production build passes. Remote synchronization remains blocked.
+- Updated UTC: 2026-09-23 11:53Z.
+- Branch: `chore/integrate-all-connectors`; latest main `ab2622c`; task `458ef18` verified on `origin/feat/all-connectors`. Integration checks passed; pending main push.
+- Owner: Codex. User narrowed full redesign to connectors, then selected all five connector types.
+- Demo: `http://localhost:3111/sources` in this integration worktree; auth remains required. Default synthetic mode is explicit.
+- Implemented: reference-styled CSV/Weather/PostgreSQL-SCADA/Oracle/WinCC catalog; three gateway setup workflows; weather probe; canonical CSV request/report adapter; RU/EN/KK and both themes.
+- Paths: connector UI/client/contracts, scoped CSS/i18n, industrial gateway contracts, weather probe/route, connector and UI tests, gateway docs and empty env templates. Other dashboard redesign was deferred and is not included.
+- PASS: `npm test` (37); `node --test tests/ui/client.test.cjs tests/ui/platform.test.cjs` (8); `npm run lint`; `npm run typecheck`; `npm run build`.
+- PASS: `node tests/ui/connectors.cjs` (4 groups, actual auth/validation/unconfigured routes plus fixture/canonical-wire browser checks); `node tests/ui/dashboard.cjs` (14 scenarios), Edge headless at port 3110. RU/EN/KK, light/dark, 390px layout, no runtime errors. Screenshots visually reviewed.
+- PASS: authenticated real `POST /api/v1/connectors/weather` for coordinates 45/65 and UTC cycle 2026-01-01 00:00 returned HTTP 200, healthy, 120 hours. This is connectivity evidence, not approved asset coordinates or historical availability evidence.
+- PASS: diff/secret review; credentials stay in ignored local env. No new dependencies.
+- BLOCKED live industrial verification: no configured PostgreSQL/Oracle/WinCC gateways; each actual route safely returns `not_configured`. These are external gateway adapters, not bundled database/SCADA drivers.
+- NOT RUN: full browser-to-PostgreSQL CSV persistence (no configured disposable DB; `docker` unavailable in this shell). Canonical CSV wire UI and existing import service tests pass.
+- Constraint: Weather probe does not schedule or persist runs. CSV mapping is stored with imports, not a recurring schedule. Historical backend provenance/February blockers below remain.
+- Integration preserves the concurrent overview redesign `e9dfb21`, already verified on origin/main at `ab2622c`; its previous remote blocker is resolved. Both scoped CSS blocks retained; overview implementation is unchanged. Added missing EN/KK overview catalog entries and adjusted the heading assertion to the merged design. PASS after integration: core 37, UI unit 8, lint, typecheck, production build, connector browser 4 groups and dashboard browser 14 at port 3111. Next: push main, verify remote ancestry.
+
+## Preserved overview handoff
+
+- Overview hierarchy, derived KPIs, chart, alerts, onboarding and normalized units from e9dfb21 retained.
+- Prior overview task reported typecheck/build/diff checks PASS; automated tests were skipped by that task instruction.
+
+## Preserved backend handoff (historical validation)
+
+- Updated UTC: 2026-09-23 11:21Z
+- Branch/worktree: `chore/integrate-backend-spec-audit` / private integration worktree.
+- Base/integration: backend-audit task `580fd3d` and merge `37a3a21` were integrated with the latest agent-remediation documentation; remote `main` reached `5ab785f` before this final handoff update.
+- Owner/status: Codex; final checks pass, the task branch is remote, and `580fd3d` was verified as an ancestor of `origin/main`.
 
 ## Integrated implementation
 
@@ -21,7 +43,7 @@
 - PASS before latest-main merge: disposable PostgreSQL 16 migrations; CSV import produced three canonical observations and a persisted 24-point forecast; a separate clean database passed agent claim/fencing/checkpoint/restart integration.
 - PASS after incorporating `cee93a6`: core (32), foundation (4), agent (12), replay (1), weather (25), forecast (7), acceptance harness (2), lint, typecheck, and production build.
 - PASS after incorporating UI-prototype `b7fee06`: core (32), lint, typecheck, and hermetic Docker production build. A local build retry encountered a concurrently damaged `node_modules`; `npm ci` restored lint/typecheck and the clean container build passed.
-- FAIL (pre-existing, unrelated): UI localization suite reports missing English/Kazakh translation for Russian `Проверяем…`; the audit does not change frontend/i18n.
+- RESOLVED by the connector task: `Проверяем…` now has English/Kazakh translations; UI localization checks pass.
 - EXPECTED BLOCKED: `node tests/acceptance/run.mjs verify` reports missing `demo:verify`; the fail-closed harness itself passes.
 - BLOCKED by inputs/provenance: no February actuals, no provider-proven historical publication time, and unconfirmed turbine/time/power semantics.
 - SKIP unless explicitly configured: live OpenAI smoke (`RUN_OPENAI_SMOKE=1` plus a verified model/key).
@@ -39,18 +61,9 @@
 ## UI/UX prototype
 
 - Added 2026-09-23 11:25Z: `docs/design/terra-redesign.html` — standalone static HTML proposal for the dashboard (overview, forecast, sources, run log) with a demo/real data toggle. Synthetic data only; not wired into `src/` and not part of the build.
-- Implemented the prototype's overview hierarchy in the live `/overview` route: forecast heading, four derived KPI cards, current/previous forecast chart, data-quality alerts, source actions, and a real-data onboarding state.
-- Preserved canonical normalized units: the UI does not invent MW/MWh while the asset nominal capacity is unconfirmed.
-- Touched paths: `src/components/dashboard/overview.tsx`, `src/app/globals.css`.
-
-## Overview validation
-
-- PASS: `npm run typecheck`.
-- PASS: `npm run build` (Next.js 16.3.6 production build, all 19 static pages generated).
-- SKIPPED by explicit task instruction: automated test suites.
-- PASS: `git diff --check`.
 
 ## Next actions
 
-1. Retry the task-branch and local `main` pushes when `origin` access is restored; verify `e9dfb21` ancestry on `origin/main`.
-2. After owner data is available, confirm asset/time/power semantics and the historical weather availability policy.
+1. After owner data is available, confirm asset/time/power semantics and the historical weather availability policy.
+2. Persist trustworthy archival forecast runs in canonical PostgreSQL and execute the February replay/evaluation.
+3. Wire an approved trained artifact into production inference and add actual-arrival evaluation.

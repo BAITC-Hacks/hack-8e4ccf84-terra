@@ -22,9 +22,9 @@ async function visible(locator) { await locator.waitFor({ state: 'visible' }); }
   const pass = name => { checks++; console.log(`PASS ${name}`); };
   try {
     assert.ok(process.env.ADMIN_PASSWORD, 'Set ADMIN_PASSWORD for the test server');
-    assert.equal((await page.request.post(base + '/api/auth/session', {data:{password:process.env.ADMIN_PASSWORD}})).status(),200);
+    assert.equal((await page.request.post(base + '/api/auth/session', {data:{username:process.env.ADMIN_USERNAME || 'admin',password:process.env.ADMIN_PASSWORD}})).status(),200);
     await page.goto(base); await page.waitForURL('**/overview');
-    await visible(page.getByRole('heading', { name: 'Энергия завтрашнего дня' }));
+    await visible(page.getByRole('heading', { name: /Энергия завтрашнего дня|Прогноз на 48 часов/ }));
     await visible(page.getByRole('img', { name: /Почасовой прогноз/ }));
     assert.equal(await page.locator('html').getAttribute('lang'), 'ru');
     fs.mkdirSync('.next/ui-qa', { recursive: true });
@@ -71,6 +71,7 @@ async function visible(locator) { await locator.waitFor({ state: 'visible' }); }
     await page.getByLabel('Исходный часовой пояс', { exact: true }).selectOption('UTC');
     await page.getByLabel('Смысл метки времени', { exact: true }).selectOption('interval_start');
     assert.equal(await page.getByRole('button', { name: 'Проверить демосценарий импорта' }).isDisabled(), true);
+    await page.getByLabel('Основание доступности данных').fill('Available after interval');
     await page.getByRole('checkbox').check();
     await page.getByRole('button', { name: 'Проверить демосценарий импорта' }).click();
     await visible(page.getByRole('heading', { name: 'Отчёт импорта · demo-import' }));
@@ -79,17 +80,17 @@ async function visible(locator) { await locator.waitFor({ state: 'visible' }); }
     assert.equal(await page.getByRole('checkbox').isChecked(), false);
     await page.screenshot({ path: '.next/ui-qa/sources.png', fullPage: true });
     pass('CSV preview, mapping, confirmation invalidation and import report');
-    await page.getByRole('button',{name:'Проверить доступ',exact:true}).first().click();
+    await page.locator('#connector-oracle').getByRole('button',{name:'Проверить доступ',exact:true}).click();
     await visible(page.getByText('Доступ подтверждён',{exact:true}).first());
     await page.getByLabel('Oracle · исторические данные · Поле времени').selectOption('EVENT_TIME');
     await page.getByLabel('Oracle · исторические данные · Поле мощности').selectOption('ACTIVE_POWER_NORM');
-    await page.getByRole('button',{name:'Включить загрузку истории',exact:true}).click();
-    await visible(page.getByText('История загружается',{exact:true}));
+    await page.locator('#connector-oracle').getByRole('button',{name:'Включить загрузку истории',exact:true}).click();
+    await visible(page.locator('#connector-oracle').getByText('Шлюз принял настройку подключения',{exact:true}));
     await page.getByRole('button',{name:'Проверить доступ',exact:true}).last().click();
     await page.getByLabel('Siemens WinCC · текущие данные · Тег мощности').selectOption('TURBINE_01.ActivePower');
     await page.getByLabel('Siemens WinCC · текущие данные · Тег скорости ветра').selectOption('TURBINE_01.WindSpeed');
     await page.getByRole('button',{name:'Включить получение обновлений',exact:true}).click();
-    await visible(page.getByText('Обновления поступают',{exact:true}));
+    await visible(page.locator('#connector-wincc').getByText('Шлюз принял настройку подключения',{exact:true}));
     pass('Oracle history and Siemens WinCC live connector workflows');
     await page.getByRole('link', { name: 'Журнал агента', exact: true }).click();
     await visible(page.getByRole('heading', { name: 'fetch_weather_run' }));
@@ -111,8 +112,7 @@ async function visible(locator) { await locator.waitFor({ state: 'visible' }); }
       else if (url.pathname === '/api/v1/jobs/api-job-1') data = { id:'api-job-1', status:'succeeded', progress:1, result_id:'api-evaluation', error:null };
       else if (url.pathname.startsWith('/api/v1/evaluations/')) data = zeroPairs ? { ...fixture.evaluation, n:0, mae:0, rmse:0, baseline_mae:0, coverage:0 } : fixture.evaluation;
       else if (url.pathname === '/api/v1/connections') data = fixture.connections;
-      else if (url.pathname === '/api/v1/imports' && req.method() === 'POST') data = { job_id:'api-import-job' };
-      else if (url.pathname === '/api/v1/jobs/api-import-job') data = { id:'api-import-job', status:'succeeded', progress:1, result_id:'api-import-report', error:null };
+      else if (url.pathname === '/api/v1/imports' && req.method() === 'POST') data = { id:'api-import-report' };
       else if (url.pathname === '/api/v1/imports/api-import-report') data = { ...fixture.report, id:'api-import-report' };
       else return route.fulfill({ status:404, body:'unknown' });
       await route.fulfill({ status:req.method() === 'POST' ? 202 : 200, contentType:'application/json', body:JSON.stringify(data) });
@@ -149,11 +149,12 @@ async function visible(locator) { await locator.waitFor({ state: 'visible' }); }
     for (const [label,column] of [['Время','t'],['Скорость ветра · м/с','w'],['Нормализованная мощность · исходная шкала','p'],['Температура · °C','c']]) await page.getByLabel(label,{exact:true}).selectOption(column);
     await page.getByLabel('Исходный часовой пояс',{exact:true}).selectOption('UTC');
     await page.getByLabel('Смысл метки времени',{exact:true}).selectOption('interval_end');
+    await page.getByLabel('Основание доступности данных').fill('Available after interval');
     await page.getByRole('checkbox').check();
     await page.getByRole('button',{name:'Загрузить и проверить',exact:true}).click();
     await visible(page.getByRole('heading',{name:'Отчёт импорта · api-import-report'}));
     const imported = requests.find(req => req.path === '/api/v1/imports' && req.method === 'POST');
-    assert.match(imported.headers['content-type'], /multipart\/form-data/); assert.match(imported.body, /interval_end/); assert.match(imported.body, /"power":"p"/);
+    assert.match(imported.headers['content-type'], /multipart\/form-data/); assert.match(imported.body, /interval_end/); assert.match(imported.body, /"normalizedPower":"p"/);
     pass('API import posts file, mapping and explicit source options, then retrieves report');
     await page.setViewportSize({width:390,height:844});
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);

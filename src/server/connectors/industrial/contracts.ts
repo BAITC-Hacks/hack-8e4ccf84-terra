@@ -1,6 +1,6 @@
 import {z} from "zod";
 
-export const industrialKindSchema = z.enum(["oracle", "wincc"]);
+export const industrialKindSchema = z.enum(["oracle", "wincc", "postgres"]);
 export type IndustrialKind = z.infer<typeof industrialKindSchema>;
 
 export const industrialResourceSchema = z.object({
@@ -17,7 +17,11 @@ export const industrialActionSchema = z.discriminatedUnion("action", [
     resource: z.string().min(1).max(300),
     fields: z.array(z.string().min(1).max(300)).min(2).max(20),
     mapping: z.record(z.string(), z.string().min(1).max(300)),
-  }),
+  }).refine(value => new Set(value.fields).size === value.fields.length &&
+    Object.keys(value.mapping).length >= 2 &&
+    new Set(Object.values(value.mapping)).size === Object.keys(value.mapping).length &&
+    Object.values(value.mapping).every(field => value.fields.includes(field)),
+  {message: "Mapping must contain distinct selected fields."}),
 ]);
 export type IndustrialAction = z.infer<typeof industrialActionSchema>;
 

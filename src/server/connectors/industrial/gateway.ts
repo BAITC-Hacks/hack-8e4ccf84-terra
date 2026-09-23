@@ -10,11 +10,11 @@ import {
 type GatewayConfig = {baseUrl: string; token: string};
 
 function configuredGateway(kind: IndustrialKind): GatewayConfig {
-  const prefix = kind === "oracle" ? "ORACLE" : "WINCC";
+  const prefix = kind.toUpperCase();
   const baseUrl = process.env[`${prefix}_CONNECTOR_GATEWAY_URL`]?.trim();
   const token = process.env[`${prefix}_CONNECTOR_TOKEN`]?.trim();
   if (!baseUrl || !token || token.startsWith("replace-with-")) {
-    throw new AppError("not_configured", `${kind === "oracle" ? "Oracle" : "Siemens WinCC"} gateway is not configured.`);
+    throw new AppError("not_configured", "Connector gateway is not configured.");
   }
   return {baseUrl: baseUrl.replace(/\/$/, ""), token};
 }
@@ -34,6 +34,7 @@ export async function runIndustrialAction(
       body: JSON.stringify(action.action === "enable" ? action : {action: action.action}),
       signal: AbortSignal.timeout(15_000),
       cache: "no-store",
+      redirect: "error",
     });
   } catch {
     throw new AppError("connector_unavailable", `${kind === "oracle" ? "Oracle" : "Siemens WinCC"} gateway is unavailable.`);
