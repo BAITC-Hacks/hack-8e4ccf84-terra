@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "db:migrate": "node scripts/migrate.mjs",
+    "test:foundation": "node --test tests/foundation/*.test.mjs"
   },
   "dependencies": {
     "@openai/agents": "^0.18.0",
