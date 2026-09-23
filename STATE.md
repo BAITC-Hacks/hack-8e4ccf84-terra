@@ -1,47 +1,41 @@
-# Project state — backend integrity and agent runtime
+# Project state — Russian README integration
 
-- Updated UTC: 2026-09-23 11:21Z
-- Branch/worktree: `chore/integrate-backend-spec-audit` / private integration worktree.
-- Base/integration: backend-audit task `580fd3d` and merge `37a3a21` were integrated with the latest agent-remediation documentation; remote `main` reached `5ab785f` before this final handoff update.
-- Owner/status: Codex; final checks pass, the task branch is remote, and `580fd3d` was verified as an ancestor of `origin/main`.
+- Updated UTC: 2026-09-23 11:42Z
+- Branch/worktree: `chore/integrate-russian-readme` / `.worktrees/integrate-russian-readme`
+- Base/integration: latest local `main` and last-known `origin/main` at `4ed268c`; README task commit `75119a5` is merged in the current integration worktree.
+- Owner/status: Codex; conflict reconciled without dropping the backend audit handoff, integration checks pass, merge commit pending.
 
 ## Integrated implementation
 
-- Preserved explicit development sign-in, the durable wind-agent runtime, and `docs/agent-subsystem-remediation-spec.md` from current `main`.
-- Preserved the S03 Open-Meteo Single Runs connector and saved provenance evidence. Its local repository is not a production adapter for canonical PostgreSQL weather tables.
-- CSV import now mirrors accepted training rows transactionally into canonical `observations`; evaluation-only targets remain isolated. Migration `0002_bridge_import_observations.sql` backfills existing accepted training rows.
-- Forecast publication rejects any output unit other than `normalized`; weather without `published_at` is eligible only with an explicit availability assumption.
-- Backtest leakage validation enforces `target_time = issued_at + lead_hour` exactly.
-- Compose includes an application healthcheck. Detailed audit evidence and gaps are in `docs/backend-spec-audit.md`.
+- The root README is now a detailed Russian project guide covering the task, verified status, architecture, Docker/local setup, UI, API flow, data contract, agent/replay/model behavior, tests, environment, repository layout, and limitations.
+- Protected Next.js dashboard exposes overview, forecast, sources, and agent journal pages with explicit synthetic fixture and real-API modes.
+- PostgreSQL migrations, confirmed CSV ingestion, canonical observations, persistence forecasts, durable agent jobs, and replay runtime are integrated.
+- CSV training rows are mirrored transactionally into canonical `observations`; evaluation-only targets remain isolated.
+- Forecast publication requires `normalized`, weather eligibility is bounded by recorded availability, and backtest enforces `target_time = issued_at + lead_hour`.
+- Open-Meteo evidence does not yet populate canonical production weather tables; official February scoring remains blocked by missing actuals and trusted historical publication times.
 
 ## Validation
 
-- PASS on the audit branch and before latest-main merge: core (32), foundation (4), agent (12), replay (1), weather (25), forecast (7), acceptance harness (2), lint, typecheck, and production build.
-- PASS before latest-main merge: Compose config/build/startup and application/database healthchecks; `/api/health` returned `database=ready`.
-- PASS before latest-main merge: disposable PostgreSQL 16 migrations; CSV import produced three canonical observations and a persisted 24-point forecast; a separate clean database passed agent claim/fencing/checkpoint/restart integration.
-- PASS after incorporating `cee93a6`: core (32), foundation (4), agent (12), replay (1), weather (25), forecast (7), acceptance harness (2), lint, typecheck, and production build.
-- PASS after incorporating UI-prototype `b7fee06`: core (32), lint, typecheck, and hermetic Docker production build. A local build retry encountered a concurrently damaged `node_modules`; `npm ci` restored lint/typecheck and the clean container build passed.
-- FAIL (pre-existing, unrelated): UI localization suite reports missing English/Kazakh translation for Russian `Проверяем…`; the audit does not change frontend/i18n.
-- EXPECTED BLOCKED: `node tests/acceptance/run.mjs verify` reports missing `demo:verify`; the fail-closed harness itself passes.
+- PASS on README task branch: all relative README links resolve; `git diff --check` is clean.
+- PASS on README task branch: core 32/32, foundation 4/4, agent 12/12, replay 1/1, weather 25/25, acceptance harness 2/2.
+- PASS on README task branch: lint, typecheck, and production build.
+- PASS after merging into latest local `main`: core 32/32, lint, typecheck, and production build.
+- PASS from prior backend integration: disposable PostgreSQL migrations/import/forecast and agent fencing/restart integration; Compose config/build/startup and healthchecks.
+- EXPECTED BLOCKED: `node tests/acceptance/run.mjs verify` has no integrated `demo:verify` script.
 - BLOCKED by inputs/provenance: no February actuals, no provider-proven historical publication time, and unconfirmed turbine/time/power semantics.
-- SKIP unless explicitly configured: live OpenAI smoke (`RUN_OPENAI_SMOKE=1` plus a verified model/key).
+- BLOCKED remote sync: fetch/push from this environment returns `Repository not found` for the configured GitHub remote.
+- SKIP unless explicitly configured: live OpenAI smoke.
 
 ## Decisions and constraints
 
-- Official specification v1.1 SHA-256: `6785661fbe95c0ee385b6740ca42cc6b2748e208c2802e9f34e7cfc9a6fb3974`.
-- No actual/reanalysis weather may substitute for unavailable historical forecasts.
-- Unknown publication time is not inferred from model run time; eligibility requires a recorded assumption.
-- Only `data_use=training` is bridged into canonical observations.
-- Only the persistence model currently has production inference support; unsupported artifacts fail explicitly.
-- Candidate turbine coordinates from the PDF remain unconfirmed configuration.
-- Development `test` credentials remain local-only and are not committed.
-
-## UI/UX prototype
-
-- Added 2026-09-23 11:25Z: `docs/design/terra-redesign.html` — standalone static HTML proposal for the dashboard (overview, forecast, sources, run log) with a demo/real data toggle. Synthetic data only; not wired into `src/` and not part of the build.
+- Documentation separates synthetic fixtures, implemented backend behavior, and unavailable official evidence.
+- No actual/reanalysis weather substitutes for unavailable historical forecasts.
+- README does not claim MW/MWh output, February metrics, trusted archival weather availability, or production ridge inference.
+- The standalone dispatcher and current real-API dashboard contract mismatch are documented as limitations.
+- The UI redesign HTML remains a standalone synthetic proposal, not part of the application build.
 
 ## Next actions
 
-1. After owner data is available, confirm asset/time/power semantics and the historical weather availability policy.
-2. Persist trustworthy archival forecast runs in canonical PostgreSQL and execute the February replay/evaluation.
-3. Wire an approved trained artifact into production inference and add actual-arrival evaluation.
+1. Commit the reconciled canonical state.
+2. When repository access is restored, push the task branch and integration HEAD to `origin/main` without rewriting history; verify `75119a5` ancestry.
+3. After owner data is available, confirm semantics, persist trustworthy archival weather runs, connect an approved trained artifact, and execute February replay/evaluation.
