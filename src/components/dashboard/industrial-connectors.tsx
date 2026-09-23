@@ -15,14 +15,14 @@ const definitions: Record<IndustrialKind, {
 }> = {
   postgres: {
     title: "PostgreSQL / SCADA", eyebrow: "DATABASE / SCADA",
-    description: "Проверка серверного шлюза, выбор таблицы и полей, привязка к турбине и запуск истории.",
+    description: "Выберите таблицу и свяжите поля с турбиной.",
     resourceLabel: "Таблица PostgreSQL", enableLabel: "Включить загрузку истории",
     mappings: [{key: "timestamp", label: "Поле времени"}, {key: "normalized_active_power", label: "Поле мощности"}],
   },
   oracle: {
     title: "Oracle · исторические данные",
     eyebrow: "КОННЕКТОР / ИСТОРИЧЕСКИЕ ДАННЫЕ",
-    description: "Проверка серверного шлюза, выбор таблицы и полей, привязка к турбине и запуск истории.",
+    description: "Выберите таблицу и свяжите поля с турбиной.",
     resourceLabel: "Таблица Oracle",
     enableLabel: "Включить загрузку истории",
     mappings: [{key: "timestamp", label: "Поле времени"}, {key: "normalized_active_power", label: "Поле мощности"}],
@@ -30,7 +30,7 @@ const definitions: Record<IndustrialKind, {
   wincc: {
     title: "Siemens WinCC · текущие данные",
     eyebrow: "КОННЕКТОР / ТЕКУЩИЕ ДАННЫЕ",
-    description: "Проверка промышленного шлюза, выбор тегов, привязка к турбине и подписка на обновления.",
+    description: "Выберите теги турбины для получения обновлений.",
     resourceLabel: "Группа тегов WinCC",
     enableLabel: "Включить получение обновлений",
     mappings: [{key: "normalized_active_power", label: "Тег мощности"}, {key: "wind_speed", label: "Тег скорости ветра"}],
@@ -78,8 +78,8 @@ function Setup({kind, client, assets, transport}: {kind: IndustrialKind; client:
   }
 
   return <section id={`connector-${kind}`} className="panel industrial-connector" aria-labelledby={`${kind}-title`}>
-    <div className="panel-heading"><div><div className="eyebrow">{t(definition.eyebrow)}</div><h2 id={`${kind}-title`}>{t(definition.title)}</h2><p>{t(definition.description)}</p></div><span className={`badge ${enabled ? "ready" : access === "error" ? "error" : access === "healthy" ? "ready" : "planned"}`}>{t(enabled ? "Включено" : access === "healthy" ? "Доступ подтверждён" : access === "checking" ? "Проверяем…" : access === "error" ? "Ошибка" : "Не проверено")}</span></div>
-    {transport === "fixture" && <div className="notice neutral">{t("Демонстрационный шлюз: таблицы, теги и успешный запуск синтетические.")}</div>}
+    <div className="panel-heading"><div><h2 id={`${kind}-title`}>{t(definition.title)}</h2><p>{t(definition.description)}</p></div><span className={`badge ${enabled ? "ready" : access === "error" ? "error" : access === "healthy" ? "ready" : "planned"}`}>{t(enabled ? "Включено" : access === "healthy" ? "Доступ подтверждён" : access === "checking" ? "Проверяем…" : access === "error" ? "Ошибка" : "Не проверено")}</span></div>
+    {transport === "fixture" && <div className="notice neutral">{t("Демо: реальное подключение не выполняется.")}</div>}
     <button type="button" onClick={testAccess} disabled={access === "checking" || busy}>{t(access === "checking" ? "Проверяем доступ…" : "Проверить доступ")}</button>
     {access === "healthy" && selected && <>
       <div className="form-grid">

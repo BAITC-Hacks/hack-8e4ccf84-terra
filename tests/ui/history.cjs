@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-require-imports -- Standalone browser QA, Playwright supplied by runner. */
+const {selectScenario} = require('./browser-helpers.cjs');
 const assert = require('node:assert/strict');
 const { spawn } = require('node:child_process');
 const { randomUUID } = require('node:crypto');
@@ -37,7 +38,7 @@ async function count(locator, expected) {
     await page.goto(base);
     await page.waitForURL('**/history');
     await page.locator('.launch-screen').waitFor({ state: 'hidden' });
-    await visible(page.getByRole('heading', { name: 'Исторический прогон', exact: true }));
+    await visible(page.getByRole('heading', { name: 'История прогнозов', exact: true }));
     await visible(page.getByText('Дней с полным прогнозом: 29 из 29', { exact: true }));
     assert.equal(await page.getByLabel('Режим', { exact: true }).count(), 0);
     assert.equal(await page.locator('.history-days button').count(), 29);
@@ -63,15 +64,15 @@ async function count(locator, expected) {
     assert.equal(await page.locator('.history-days button').count(), 0);
     await page.getByLabel('Первый день (UTC)').fill('2026-01-31');
     await page.getByLabel('Последний день (UTC)').fill('2026-02-28');
-    await page.getByLabel('Сценарий UI').selectOption('partial');
+    await selectScenario(page, 'partial');
     await visible(page.getByText('Доступно часов: 18 из 48. Пропуски не заменяются нулями.', { exact: true }));
-    await page.getByLabel('Сценарий UI').selectOption('empty');
+    await selectScenario(page, 'empty');
     await visible(page.getByRole('heading', { name: 'Турбины ещё не добавлены' }));
-    await page.getByLabel('Сценарий UI').selectOption('error');
+    await selectScenario(page, 'error');
     await visible(page.getByRole('alert').filter({ hasText: 'Демонстрация ошибки' }));
-    await page.getByLabel('Сценарий UI').selectOption('ready');
+    await selectScenario(page, 'ready');
     await visible(page.getByText('Дней с полным прогнозом: 29 из 29', { exact: true }));
-    for (const [language, heading] of [['en', 'Historical run'], ['kk', 'Тарихи есептеу']]) {
+    for (const [language, heading] of [['en', 'Forecast history'], ['kk', 'Болжамдар тарихы']]) {
       await page.locator('.language-control select').selectOption(language);
       await visible(page.getByRole('heading', { name: heading, exact: true }));
       await count(page.locator('.history-days button'), 29);

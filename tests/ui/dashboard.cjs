@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-require-imports -- CommonJS test harness supports runner-provided NODE_PATH dependencies. */
 /* Run against npm run start -- --port 3105. Playwright may be supplied by NODE_PATH.
    No server integration is claimed: API routes below are contract mocks. */
+const {selectScenario} = require('./browser-helpers.cjs');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -38,6 +39,7 @@ async function visible(locator) { await locator.waitFor({ state: 'visible' }); }
     await page.getByLabel('Горизонт', { exact: true }).selectOption('24');
     assert.equal(await page.locator('tbody tr').count(), 24);
     await page.getByLabel('Выпуск / версия').selectOption('demo-backtest-v1');
+    if (!(await page.locator('.forecast-details').evaluate(el => el.open))) await page.locator('.forecast-details summary').click();
     await visible(page.getByText('demo-backtest-v1', { exact: true }));
     pass('forecast horizon, versions and table');
     const [download] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: /Экспорт CSV/ }).click()]);
@@ -49,15 +51,17 @@ async function visible(locator) { await locator.waitFor({ state: 'visible' }); }
     await visible(page.locator('caption').filter({ hasText: 'Asia/Almaty' }));
     await page.getByLabel('Режим', { exact: true }).selectOption('replay');
     await visible(page.getByText('СИМУЛЯЦИЯ · REPLAY', { exact: true }));
+    if (!(await page.locator('.forecast-details').evaluate(el => el.open))) await page.locator('.forecast-details summary').click();
     await visible(page.getByText('demo-replay-v2', { exact: true }));
     await page.getByLabel('Режим', { exact: true }).selectOption('live');
+    if (!(await page.locator('.forecast-details').evaluate(el => el.open))) await page.locator('.forecast-details summary').click();
     await visible(page.getByText('demo-live-v2', { exact: true }));
     pass('explicit timezone and isolated replay/live data');
     for (const [scenario, text] of [['stale', 'Устаревшие данные.'], ['partial', 'Частичные данные:'], ['empty', 'Пока нет данных'], ['error', 'Демонстрация ошибки:'], ['loading', 'Загружаем данные…']]) {
-      await page.getByLabel('Сценарий UI').selectOption(scenario);
+      await selectScenario(page, scenario);
       await visible(page.getByText(text, { exact: false }).first());
     }
-    await page.getByLabel('Сценарий UI').selectOption('ready');
+    await selectScenario(page, 'ready');
     await page.getByLabel('Режим', { exact: true }).selectOption('backtest');
     await visible(page.getByRole('img', { name: /Почасовой прогноз/ }));
     await page.getByRole('button', { name: 'Запустить бэктест', exact: true }).click();
@@ -94,9 +98,10 @@ async function visible(locator) { await locator.waitFor({ state: 'visible' }); }
     await visible(page.locator('#connector-wincc').getByText('Шлюз принял настройку подключения',{exact:true}));
     pass('Oracle history and Siemens WinCC live connector workflows');
     await page.getByRole('link', { name: 'Журнал агента', exact: true }).click();
-    await visible(page.getByRole('heading', { name: 'fetch_weather_run' }));
+    await visible(page.getByRole('heading', { name: 'Загрузка погоды' }));
     assert.equal(await page.locator('.timeline li').count(), 4);
     await page.getByRole('link', { name: 'Открыть результат →' }).click();
+    if (!(await page.locator('.forecast-details').evaluate(el => el.open))) await page.locator('.forecast-details summary').click();
     await visible(page.getByText('demo-backtest-v2', { exact: true }));
     pass('agent steps and result navigation');
     await page.getByLabel('Данные', { exact: true }).selectOption('api');

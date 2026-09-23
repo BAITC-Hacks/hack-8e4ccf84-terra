@@ -76,6 +76,6 @@ export function ForecastChart({ points, previous, timezone }: {points: Point[]; 
         <small>{t("Нормализованная мощность, исходная шкала")}</small>
       </div>}
     </div>
-    <p className="chart-note">{t("Наведите, коснитесь графика или используйте стрелки клавиатуры.")} {t("Время: ")}{timezone}{t(". Пропуски не заменяются нулём; версии сравниваются по целевому часу.")}</p>
+    <p className="chart-note">{t("Значения: наведение, касание или стрелки клавиатуры.")} · {timezone}</p>
   </div>;
 }
