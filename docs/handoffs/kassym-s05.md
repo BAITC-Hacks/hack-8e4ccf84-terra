@@ -1,6 +1,6 @@
 # Касымжан / S05 — передача UI владельцу интеграции
 
-Четыре маршрута: `/overview`, `/forecast`, `/sources`, `/agent-log`. Стартовый `app/` перенесён в `src/app/`, иначе Next.js игнорирует новые маршруты. `src/server/**`, API, миграции и root-конфиги не менялись.
+Четыре маршрута: `/overview`, `/forecast`, `/sources`, `/agent-log`. UI реализован в `src/app/`; тонкие re-export маршруты в корневом `app/` сохраняют совместимость с параллельно интегрированным API-адаптером S06. Его файлы не менялись. `src/server/**`, API, миграции и root-конфиги не менялись.
 
 UI-local схемы: `src/components/dashboard/contracts.ts`; единственная граница транспорта: `client.ts`. Подробные предложения wire-контракта и команды проверки: [tests/ui/README.md](../../tests/ui/README.md).
 

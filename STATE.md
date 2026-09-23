@@ -1,40 +1,35 @@
-# Project state — S05 task branch
+# Project state
 
 ## Snapshot
-- Updated UTC: 2026-09-23 09:14Z; branch `feat/s05-dashboard`; owner S05/Codex for Касымжан.
-- Verified base `c2b4003`; refreshed origin/main `68e0714` includes S00 audit, S06 ML implementation and updated integration policy. Pending implementation: uncommitted.
-- Status: VALIDATED on fixture/mock API; real E4 integration BLOCKED on S01–S04 publication.
-- Demo: `npm run dev`, open `/overview`; `/forecast`, `/sources`, `/agent-log`. Default is visibly synthetic backtest data; switch “Настоящий API” for same-origin `/api/v1`.
+- Updated UTC: 2026-09-23 09:19Z. Branch/worktree: `feat/s05-dashboard`, `C:/Users/Kassym/Desktop/TTT/hack-8e4ccf84-terra-worktrees/s05-dashboard`.
+- Verified base: `origin/main` at `68e0714`; UI implementation `f1519cc`; root-router compatibility changes pending commit.
+- S05 owner: Codex / Касымжан. Status: VALIDATED on fixture/mock API; real E4 integration remains BLOCKED on S01–S04.
+- Demo: `npm run dev`, `/overview`, `/forecast`, `/sources`, `/agent-log`. Default visibly synthetic backtest; select “Настоящий API” for same-origin `/api/v1`.
 
-## Verified result
-- Four Russian pages; forecast graph/table, asset/release/horizon filters, previous-version alignment by target time, briefing, full-version CSV, source freshness/coverage and provenance.
-- Explicit live/backtest/replay, display timezone, normalized original scale. No MW/MWh or percent-of-rated conversion. Loading/empty/error/stale/partial states; refresh failure retains last successful forecast with warning.
-- CSV file preview, mapping, encoding/delimiter/decimal/source timezone/interval convention, confirmation invalidation, multipart import and job/report flow; report lookup and row/reason CSV.
-- Agent tool/reason/duration/error/result journal; job polling; forecast/backtest request; evaluation lookup with N=0 displayed as no data.
-- API responses validated; auth/network/malformed responses fail visibly without fixture fallback. UI-local proposal pending S01: `src/components/dashboard/contracts.ts` / `client.ts`.
-- Changed paths: `src/app`, `src/components/dashboard`, `tests/ui`, `docs/handoffs/kassym-s05.md`, this handoff. Starter root `app/` moved because it shadows `src/app`; no server slice/config/dependency changes.
+## S05 verified result
+- Russian overview/forecast/sources/agent log. Chart/table, asset/version/24–48h filters, previous version by target time, briefing, full-version CSV, provenance and source freshness/coverage.
+- Explicit live/backtest/replay, timezone and original normalized power scale. Loading/empty/error/stale/partial states; failed refresh retains last successful forecast. Missing hours remain chart gaps.
+- CSV bounded preview, mapping, encoding/delimiter/decimal/source timezone/interval convention and explicit confirmation, multipart import, job/report flow and row/reason CSV.
+- Agent tools/reasons/duration/errors/result links; job polling; forecast/backtest request and evaluation report with N=0 shown as no data.
+- Schema-checked API adapter fails visibly without fixture fallback. UI-local contract is provisional, pending S01. Details and actual API gate: `tests/ui/README.md`, `docs/handoffs/kassym-s05.md`.
+- UI implementation in `src/app` and `src/components/dashboard`. Root UI routes are thin re-exports to retain S06's existing root API adapter; no S06/API/server/config/dependency files changed by S05.
 
-## Checks
-- PASS `npm ci --no-audit --no-fund` (no dependency file changes).
-- PASS `npm run lint`.
-- PASS `npm run build` (Next 16.3.6, TypeScript, all four routes).
+## Preserved integrated work
+- S00 audit `716c63b`, merged through `f7d1ed9`: `docs/data-contract.md` and `docs/data-audit.md` remain authoritative. Two separate source series; normalization/physical target/source timezone/interval meaning/availability UNKNOWN; no February actuals. Do not aggregate source powers or claim measured performance from fixtures.
+- S06 implementation `d094908`, integration `8a7d746`, remote handoff `68e0714`: ridge features/train-only scaling/resumable checkpoints, empirical power curve, pre-February rolling validation and fair comparison, JSON artifacts and durable training-job enqueue are preserved.
+- Both S06 route files remain untouched. Build exposes `/api/v1/training-jobs`; artifacts use `.data/ml` / ML_ARTIFACT_DIR. S01/S07 must supply protected tick/lease orchestration. Real ML quality and dispatcher execution remain unverified.
+- Existing foundation `src/agent`, `src/db`, `src/domain/demo`, `src/ui` untouched; runtime completeness UNKNOWN. S01–S04 and S07–S08 implementation not present on inspected main (except S06); no completeness claims.
+
+## Verification after rebase and router integration
+- PASS `npm ci --no-audit --no-fund`. Initial retry encountered Windows file lock from our preview; stopped it and clean install succeeded.
+- PASS `npm test`: 6 ML tests.
 - PASS `node --test tests/ui/csv.test.mjs tests/ui/client.test.cjs`: 6 tests.
-- PASS `UI_BROWSER_CHANNEL=msedge node tests/ui/dashboard.cjs` with runner Playwright via NODE_PATH against production on port 3105: 13 scenarios (fixture + mocked API); desktop/mobile screenshots reviewed. Commands for Windows documented in tests/ui/README.md.
-- PASS actual missing `/api/v1` shows unavailable errors without synthetic fallback. Real successful API flow NOT_RUN; no handlers exist on inspected base.
-- PASS staged diff/secret review; no credentials or unrelated dependency/server changes. Refreshed-base verification pending.
-
-## Preserved project constraints / other work
-- S00 artifacts on origin/main: `docs/data-audit.md`, `docs/data-contract.md`; audit commit `716c63b`. Read and respected. Two separate source series; unknown normalization/physical target/timezone/interval meaning/availability. CSV has no February actuals. Do not merge source powers or manufacture performance metrics.
-- S01 owns contracts/DB/auth/config, S02 imports, S03 weather, S04 forecast, S06–S08 downstream calculation/agent/evaluation. Their implementation status remains UNKNOWN until merged; UI does not edit their files.
-- Existing foundation in src/agent, src/db, src/domain/demo, src/ui remains untouched; runtime completeness UNKNOWN.
+- PASS `npm run lint` and `npm run build`: TypeScript, four UI routes plus S06 training route.
+- PASS `UI_BROWSER_CHANNEL=msedge node tests/ui/dashboard.cjs` with runner Playwright via NODE_PATH, production port 3105: 13 scenarios; fixture + mock API; 1440px desktop and 390px mobile; screenshots reviewed, no runtime errors.
+- PASS missing real `/api/v1/assets`/forecasts return honest errors. Successful real E4 API flow NOT_RUN (dependent handlers absent).
+- PASS staged diff/whitespace/secret review; no credentials; `git diff --exit-code origin/main -- src/server src/app/api app/api package.json package-lock.json`.
 
 ## Next actions
-1. Review and commit S05, rebase onto refreshed origin/main, reconcile S00 STATE facts; rerun relevant checks and push task branch.
-2. Follow updated AGENTS standing instruction: merge in separate integration worktree, validate and fast-forward-push main; verify task ancestry and remote state.
-3. Owners publish S01–S04; align UI-local adapter and run real E4 acceptance described in tests/ui/README.md. Real API validation remains open.
-## Reconciled S06 integration
-- S06 / E5 is already integrated on origin/main: implementation `d094908`, integration `8a7d746`, handoff `68e0714`.
-- Preserved nonlinear ridge/train-only scaling/checkpoints, empirical power curve, pre-February rolling validation, fair comparison and durable training-job enqueue. S06 reported 6 passing tests, lint/build and queued HTTP 202; this branch will rerun its automated checks after integration.
-- Canonical route `src/app/api/v1/training-jobs` and S06 root runtime adapter `app/api/v1/training-jobs` remain untouched. Root app must remain active: add thin UI-only re-exports to src/app rather than remove another slice's API adapter.
-- S06 artifacts use ignored `.data/ml` / ML_ARTIFACT_DIR. S01/S07 must connect bounded advance to protected tick with leases; no dispatcher execution or real-model-quality claim is implied.
-- S00 unknown time/target/availability semantics and missing February actuals remain blockers for real E4/evaluation.
+1. Commit compatibility handoff, push S05 branch and verify remote SHA.
+2. Merge in separate integration worktree per current AGENTS standing instruction; rerun checks, reconcile state, push main and verify ancestry.
+3. S01–S04 owners publish contracts/API; align UI adapter and execute real E4 gate in tests/ui/README.md. S06 also awaits canonical data and bounded S07 execution.

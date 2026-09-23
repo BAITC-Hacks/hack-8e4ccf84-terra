@@ -41,3 +41,5 @@ S00 audit: original normalized power scale has unknown denominator; no MW/MWh or
 ## Real API E4 gate (not yet run)
 
 With S01–S04 and an authenticated development session: choose “Настоящий API”, verify assets/connections, upload each original CSV with confirmed semantics, follow the job/report, run a forecast, compare two persisted versions and export. Repeat refresh failure, empty result, partial data and stale data. Check immutable IDs/units/timestamps against DB/API. S07/S08 routes may remain unavailable until their own slices land; UI must show errors honestly.
+
+Router integration: root app remains active for S06 API compatibility. Root UI routes only re-export src/app pages/layout; src/app owns UI implementation. S01 can consolidate these adapters later. S06 API files are unchanged.
