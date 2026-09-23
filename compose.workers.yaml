@@ -1,0 +1,43 @@
+# Opt in with explicit deployment config files; no implicit asset/model/calendar selection.
+services:
+  input-trigger:
+    image: ${COMPOSE_PROJECT_NAME:-terra}-runtime
+    command: ["node", "--import", "tsx", "scripts/input-trigger-worker.ts", "/run/config/input-trigger.json"]
+    init: true
+    restart: unless-stopped
+    stop_grace_period: 45s
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      app:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://terra:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@db:5432/terra
+    volumes:
+      - type: bind
+        source: ${INPUT_TRIGGER_CONFIG:?set INPUT_TRIGGER_CONFIG to an explicit calendar/config JSON file}
+        target: /run/config/input-trigger.json
+        read_only: true
+        bind:
+          create_host_path: false
+  evaluation:
+    image: ${COMPOSE_PROJECT_NAME:-terra}-runtime
+    command: ["node", "--import", "tsx", "src/server/agent/evaluation-worker.ts", "/run/config/evaluation.json"]
+    init: true
+    restart: unless-stopped
+    stop_grace_period: 45s
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      app:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://terra:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@db:5432/terra
+      EVALUATION_POLL_MS: ${EVALUATION_POLL_MS:-30000}
+    volumes:
+      - type: bind
+        source: ${EVALUATION_CONFIG:?set EVALUATION_CONFIG to explicit publication IDs/calendar/manifest JSON}
+        target: /run/config/evaluation.json
+        read_only: true
+        bind:
+          create_host_path: false

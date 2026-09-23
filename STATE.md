@@ -81,3 +81,10 @@
 
 
 P6 dependency integration: P2 c1ba6aa, P3 c07e170 and P5 223df62 are now present on the P6 task branch. Their main integration state is tracked separately; prior branch handoffs above are historical.
+
+## P6 production dependency wiring — delivery update
+
+- Updated UTC: 2026-09-23T12:34:45.3070672Z; last verified task milestone cb657c3; production wiring changes uncommitted.
+- P2 approved inference is connected in both production paths, P3 pinned reader is connected, P3/P5 Compose workers are configured. Dashboard canonical envelopes and history behavior preserved.
+- Integration pending: P3 snapshots lack temperature; P5 saved evaluation API still uses legacy registry. See docs/handoffs/parallel-P6.md. No February E2E or real trained artifact claim.
+- User override: do not run tests or start project; prioritize main integration. Further runtime checks skipped. Typecheck and Next compile/typecheck passed after dependency wiring.

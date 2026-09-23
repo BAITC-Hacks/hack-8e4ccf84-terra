@@ -14,7 +14,7 @@ services:
       timeout: 3s
       retries: 12
   migrate:
-    build: .
+    image: ${COMPOSE_PROJECT_NAME:-terra}-runtime
     command: ["node", "scripts/migrate.mjs"]
     restart: "no"
     depends_on:
@@ -24,6 +24,7 @@ services:
       DATABASE_URL: postgres://terra:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@db:5432/terra
   app:
     build: .
+    image: ${COMPOSE_PROJECT_NAME:-terra}-runtime
     command: ["npm", "run", "start"]
     init: true
     restart: unless-stopped
@@ -43,6 +44,7 @@ services:
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_MODEL: ${OPENAI_MODEL:-}
       FORECAST_CONFIG_VERSION: ${FORECAST_CONFIG_VERSION:-agent-v1}
+      ARTIFACT_ROOT: /app/artifacts
     ports:
       - "${APP_PORT:-3000}:3000"
     volumes:
@@ -54,7 +56,7 @@ services:
       retries: 12
       start_period: 20s
   dispatcher:
-    build: .
+    image: ${COMPOSE_PROJECT_NAME:-terra}-runtime
     command: ["node", "scripts/job-dispatcher.mjs"]
     init: true
     restart: unless-stopped

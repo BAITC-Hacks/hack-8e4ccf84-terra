@@ -1,34 +1,28 @@
-# P6 — runtime wiring and canonical dashboard adapters
+# P6 runtime wiring
 
-- Owner: Codex. Branch: `feat/p6-runtime-wiring`; base local main `1923ce2`.
-- Status: **integration pending**, not complete. P2/P3/P5 have no integrated production modules in this branch yet. No overall February E2E claim.
-- Scope: agent/forecast modules, dashboard client, Compose, `tests/runtime-wiring`; history UI, shared contracts, package scripts, migrations and other task paths are unchanged.
+- Owner: Codex; branch feat/p6-runtime-wiring. Status: integration pending for the gaps below; not a P7 E2E claim.
+- P2 c1ba6aa, P3 c07e170 and P5 223df62 were merged as validated dependencies without editing their owned modules.
+- Both production paths now use createApprovedInference: explicit persistence baseline, otherwise P2 predictApprovedModel. Loader verifies registry approval/version/codeVersion/cutoff, trusted raw_artifacts SHA-256, parsed artifact checksum and confined artifact storage path. No fallback on trained-model failure.
+- Injected interfaces remain available for contract tests. Synchronous trained snapshots retain all selected-run features from the same read; agent retains temperature/height/quality flags. P3 trigger jobs use pinned snapshots and fail closed if missing or mismatched.
+- Dashboard translates canonical forecast/job/journal/evaluation envelopes; durable launches use /agent-runs; missing inputs and N=0 reasons remain visible; API errors never switch to fixtures. History UI is unchanged.
+- compose.yaml builds one shared runtime image; migration completion and DB/app health gate dispatcher startup. compose.workers.yaml adds existing P3 worker and an idempotent P5 polling wrapper, with environment secrets, explicit read-only config mounts and shutdown/restart handling.
 
-## Implemented boundary
+## Deployment contract
 
-- `ForecastInference` uses the exact persistence result type. `ForecastService`, `forecastRuntime`, `PostgresAgentPorts` and `createRuntime` accept the same async predictor. Approved registry selection is checked before inference. The default remains explicitly persistence-only; trained requests fail rather than falling back. Contract doubles exist only in tests.
-- The trained synchronous snapshot retains all features of the selected eligible run from the same reader call, hashes them, and freezes the result. Agent snapshots preserve temperature and height; forecast quality flags are carried from inference instead of labelling all outputs persistence. Per-job config version is preserved.
-- `TriggerSnapshotReader` provides a fail-closed P3 seam. Trigger event keys must match request mode/assets/model/config/hour/horizon and persisted digest. Weather and observation revisions come from the pinned snapshot, with deterministic gates reapplied. PostgreSQL JSONB key order is not treated as a new snapshot digest.
-- Dashboard reads canonical forecast/evaluation/job/agent envelopes. Forecast model ID/mode, null gaps and missing-input reasons remain visible; evaluation N=0 has null metrics and a reason. Launch uses existing durable `/agent-runs` for all three modes; job status and journal pagination use its real contracts. API failure never selects synthetic fixtures. Existing history adapter behavior is preserved.
-- Compose has a one-shot migration service; app waits for migrations and healthy DB; the existing dispatcher script runs once as a service after app health. Environment supplies secrets/optional LLM settings; restart/init/graceful stop configured. No second dispatcher implementation or queue.
+Use `docker compose -f compose.yaml -f compose.workers.yaml up --build -d` only when explicitly deploying. Set INPUT_TRIGGER_CONFIG to P3's calendar/config JSON and EVALUATION_CONFIG to P5's request JSON (forecastRunIds, calendarTimezone, manifest). EVALUATION_POLL_MS defaults to 30000. No calendar, asset IDs, model or semantic confirmation is invented. Worker reports are stored by P5; actual revisions cause new report versions.
 
-## Dependency work remaining
+Trained model files must be registered by the trusted operator in model_versions/raw_artifacts: approved status, model version, code_version, training_cutoff, artifact_id and raw file SHA-256. Store the exact JSON under ARTIFACT_ROOT (Compose: /app/artifacts), and use its container-visible absolute path in raw_artifacts.path. P2's self-checksum is separate from the raw byte SHA-256. No real artifact is approved by this wiring change.
 
-1. Once P2 is integrated, load the model's trusted `raw_artifacts` reference, verify raw SHA-256 plus registry version/codeVersion against the parsed deployment artifact, then call `predictApprovedModel` from both default production paths. Reject candidates/corrupt/mismatched artifacts. Test real P2 inference on a clearly marked controlled fixture; do not approve real models without historical evidence.
-2. Once P3 is integrated, inject `readTriggerSnapshot(sql,eventKey)` and add its worker to Compose using explicit config-file/calendar settings. Current inspected P3 draft snapshots retain only wind; P2 also requires temperature and heights. Do not pretend that this draft already supports trained trigger jobs.
-3. Once P5 is integrated, deploy a polling wrapper over its idempotent `evaluatePublishedForecasts` function with explicit canonical forecast IDs/calendar/semantic manifest. Connect saved evaluation retrieval through the existing API boundary with its owner; the current endpoint reads the legacy in-memory registry. Do not synthesize metrics on unavailable actuals.
-4. Re-run Compose build/startup, PostgreSQL runtime tests and both trained paths after integration. P7 owns complete historical E2E. Real archival evidence, confirmed semantics and February actuals remain external blockers.
+## Remaining integration gaps
 
-## Validation
+- P3 currently pins wind-only snapshots; trained P2 requires temperature and height. These trigger jobs fail MODEL_INPUTS_INVALID rather than reading newer inputs or inventing features. P3 must persist the complete immutable feature set before trained automatic-cycle acceptance.
+- Existing /evaluations/:id reads the legacy in-memory backtest registry. P5's persisted reports need a coordinated API-owner change; the client correctly handles the existing report envelope and unavailable response. P6 does not edit out-of-scope API/backtest files.
+- Real approved historical artifact, trusted archival publication times, confirmed source semantics and February actuals remain unavailable. No real model skill/February metrics are claimed.
 
-- PASS before the user's stop-tests instruction: `npm test` 49/49; existing forecast/agent/reliability/replay/UI client suites 24/24; targeted runtime wiring 7/7 (PostgreSQL opt-in case skipped).
-- PASS: lint and typecheck on the earlier boundary; final lint and typecheck passed. The initial test typing failure was corrected.
-- PASS: `docker compose -p terra-p6-check config --quiet` with ephemeral environment secrets.
-- PASS: canonical `npm run build` after physical task-local `npm ci`; 21 pages including history. Initial junction/Turbopack error was resolved without changing package manifests.
-- Docker rebuild passed its internal Next.js compile/typecheck/static generation; image export still in progress. Initial Docker context had the now-corrected test typing error. No failing image was deployed.
-- SKIP by explicit user instruction “не прогоняй тесты”: further test runs, PostgreSQL opt-in test and Compose smoke. Existing results above predate that instruction. Integration will use diff review/build checks without rerunning tests.
-- Remote fetch BLOCKED: configured GitHub origin returns `Repository not found`.
+## Checks and user overrides
 
-## Next action
-
-Finish verification, commit the independently buildable P6 boundary, integrate sequentially through the repository lock and a private integration worktree, and refresh this handoff with exact results and task/main SHAs. Preserve integration-pending status until all dependency work above is actually validated.
+- Before the user's stop-tests instruction: npm test 49 PASS; forecast/agent/replay/UI regression 24 PASS; runtime wiring 7 PASS, PostgreSQL opt-in skipped. Lint/typecheck/local Next build passed on the first wiring milestone.
+- After dependency wiring: typecheck and Next compile/typecheck passed; final build completion recorded during integration if available. Compose base+worker config parsed successfully. Earlier junction build failure and test typing failure were corrected.
+- Docker builds of the earlier wiring context passed Next compilation/typecheck; images were not started. No project/service was launched.
+- User explicitly instructed: no further tests, no project startup, prioritize delivery to main. PostgreSQL/Compose smoke and all new test executions SKIPPED. Final integration uses diff review; no runtime acceptance claim.
+- Remote fetch/push attempts return Repository not found in this environment. Retry normal push; if still blocked, local main delivery is reported separately.

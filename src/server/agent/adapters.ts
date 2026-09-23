@@ -3,7 +3,8 @@ import type postgres from "postgres";
 import type { ForecastRequest, Observation, WeatherRun, WeatherValue } from "../contracts";
 import { targetHours, type ForecastInputSnapshot } from "../data/snapshot/build";
 import { PostgresForecastStore } from "../forecast/postgres-store";
-import { assertApprovedModel, baselineInference, type ForecastInference } from "../forecast/inference";
+import { assertApprovedModel, type ForecastInference } from "../forecast/inference";
+import {createApprovedInference} from "../forecast/approved-inference";
 import { loadForecastModel } from "../forecast/runtime";
 import type { JobPayload } from "../jobs/types";
 import { StepError } from "./workflow";
@@ -22,7 +23,7 @@ export class PostgresAgentPorts implements AgentPorts {
   private readonly forecasts: PostgresForecastStore;
   constructor(private readonly sql: Sql, private readonly configVersion: string,
     private readonly decision?: AgentPorts["decide"], private readonly explainer?: AgentPorts["explain"],
-    private readonly inference: ForecastInference = baselineInference,
+    private readonly inference: ForecastInference = createApprovedInference(sql),
     private readonly triggerSnapshots?: TriggerSnapshotReader) {
     this.forecasts = new PostgresForecastStore(sql);
   }
@@ -144,8 +145,9 @@ export class PostgresAgentPorts implements AgentPorts {
     try {
       values = await this.inference(request, snapshot, model);
     } catch (error) {
-      if (error instanceof Error && error.message === "MODEL_INFERENCE_NOT_IMPLEMENTED")
-        throw new StepError("MODEL_INFERENCE_NOT_IMPLEMENTED");
+      if (error instanceof Error && ["MODEL_INFERENCE_NOT_IMPLEMENTED", "MODEL_NOT_APPROVED", "MODEL_ARTIFACT_UNAVAILABLE",
+        "MODEL_ARTIFACT_CHECKSUM_MISMATCH", "MODEL_ARTIFACT_INVALID", "MODEL_ARTIFACT_REGISTRY_MISMATCH", "MODEL_INPUTS_INVALID"].includes(error.message))
+        throw new StepError(error.message);
       throw error;
     }
     context.signal.throwIfAborted();

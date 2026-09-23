@@ -3,7 +3,8 @@ import type {ModelVersion} from "../contracts";
 import {PostgresObservationReader, PostgresWeatherRunReader} from "../data/snapshot/postgres-readers";
 import {PostgresForecastStore} from "./postgres-store";
 import {ForecastService} from "./service";
-import {baselineInference, type ForecastInference} from "./inference";
+import type {ForecastInference} from "./inference";
+import {createApprovedInference} from "./approved-inference";
 
 let sql: ReturnType<typeof postgres> | undefined;
 export function forecastDatabase() {
@@ -39,10 +40,10 @@ export async function loadForecastModel(db: ReturnType<typeof postgres>, modelId
 }
 
 export async function forecastRuntime(modelId: string,
-  inference: ForecastInference = baselineInference): Promise<ForecastService> {
+  inference?: ForecastInference): Promise<ForecastService> {
   const db = forecastDatabase();
   const model = await loadForecastModel(db, modelId);
   return new ForecastService(new PostgresObservationReader(db),
     new PostgresWeatherRunReader(db), new PostgresForecastStore(db),
-    process.env.FORECAST_CONFIG_VERSION || "baseline-v1", model, inference);
+    process.env.FORECAST_CONFIG_VERSION || "baseline-v1", model, inference ?? createApprovedInference(db));
 }
