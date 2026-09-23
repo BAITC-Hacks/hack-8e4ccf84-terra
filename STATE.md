@@ -1,9 +1,9 @@
 # Project state — overview redesign implementation
 
-- Updated UTC: 2026-09-23 11:42Z
-- Branch/worktree: `feat/terra-overview-redesign` / `terra-overview-redesign` worktree.
-- Base/integration: local `main` at `4ed268c`; `origin` is currently unavailable (`Repository not found`).
-- Owner/status: Codex; overview implementation is complete and production build passes; commit and local-main integration are pending.
+- Updated UTC: 2026-09-23 11:45Z
+- Branch/worktree: `chore/integrate-terra-overview` / private integration worktree.
+- Base/integration: task commit `e9dfb21` merged over local `main` at `4ed268c`; merge commit `04879a4`. `origin` is unavailable (`Repository not found`).
+- Owner/status: Codex; overview implementation is committed, locally integrated, and production build passes. Remote synchronization is blocked.
 
 ## Integrated implementation
 
@@ -52,6 +52,6 @@
 
 ## Next actions
 
-1. Commit `feat/terra-overview-redesign` and integrate it into local `main` from a private integration worktree.
-2. Retry task-branch and `main` pushes when `origin` access is restored; verify task-commit ancestry on `origin/main`.
+1. Retry task-branch and integration-HEAD pushes when `origin` access is restored; push integration HEAD to `main` and verify `e9dfb21` ancestry on `origin/main`.
+2. Fast-forward the checked-out local `main` only after remote synchronization can be verified.
 3. After owner data is available, confirm asset/time/power semantics and the historical weather availability policy.
