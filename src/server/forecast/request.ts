@@ -1,0 +1,23 @@
+import {z} from "zod";
+import type {ForecastRequest} from "../contracts";
+
+const schema = z.strictObject({
+  asset_ids: z.array(z.uuid()).min(1).max(20),
+  issued_at: z.iso.datetime({offset: true}),
+  horizon_hours: z.union([z.literal(24), z.literal(48)]),
+  mode: z.enum(["live", "backtest", "replay"]),
+  model_version: z.union([z.uuid(), z.literal("baseline")]),
+  data_policy: z.literal("history_only"),
+});
+
+export function parseForecastRequest(body: unknown): ForecastRequest {
+  const input = schema.parse(body);
+  const issued = new Date(input.issued_at);
+  if (issued.getTime() % 3_600_000 !== 0 ||
+    new Set(input.asset_ids).size !== input.asset_ids.length) {
+    throw new Error("INVALID_FORECAST_REQUEST");
+  }
+  return {assetIds: input.asset_ids, issuedAt: issued.toISOString(),
+    horizonHours: input.horizon_hours, mode: input.mode,
+    modelVersionId: input.model_version, dataPolicy: input.data_policy};
+}
