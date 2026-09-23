@@ -1,0 +1,32 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: terra
+      POSTGRES_USER: terra
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U terra -d terra"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://terra:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@db:5432/terra
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?set ADMIN_PASSWORD in .env}
+      ADMIN_API_TOKEN: ${ADMIN_API_TOKEN:?set ADMIN_API_TOKEN in .env}
+      SESSION_SECRET: ${SESSION_SECRET:?set SESSION_SECRET in .env}
+      JOB_TICK_SECRET: ${JOB_TICK_SECRET:?set JOB_TICK_SECRET in .env}
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    volumes:
+      - artifacts:/app/artifacts
+volumes:
+  postgres_data:
+  artifacts:
