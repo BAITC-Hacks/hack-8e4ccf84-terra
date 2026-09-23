@@ -1,11 +1,20 @@
-# Project state — historical forecast viewer on local main
+# Project state — minimal localized login hero
 
-- Updated UTC: 2026-09-23T11:59:42.650Z
-- Branch/worktree: local main / primary working tree, explicitly requested by the user. No worktree or push for this task.
-- Base/integration: last verified base 49eaa72; historical-viewer changes uncommitted pending the local feature commit. Concurrent connector, client and translation changes are preserved.
-- Owner/status: Codex; historical viewer implemented and validated locally, prepared for the requested commit. Remote synchronization is outside this task by explicit instruction.
+- Updated UTC: 2026-09-23T12:10:35Z.
+- Branch/worktree: `feat/minimal-landing-hero` / isolated `minimal-landing-hero` worktree.
+- Base: rebased onto `origin/main` at `1923ce2`; task changes are `uncommitted` pending the validated task commit.
+- Owner/status: Codex; implementation and final browser matrix are verified. Push and separate-main integration are next.
 
-## Historical viewer (current task)
+## Minimal login hero (current task)
+
+- Acceptance: exact RU/KK/EN forecast heading and description; no platform eyebrow, repeated marketing captions, forced line break, or accent-only heading line; 40–48 px desktop and 28–32 px mobile heading at 600; 16–18 px description; compact turbines; existing login/preferences preserved.
+- Touched: `src/components/platform/login.tsx`, `src/app/globals.css`, `src/lib/i18n/messages.ts`, `tests/ui/platform.test.cjs`.
+- PASS: `npm test` (42), `node --test tests/ui/client.test.cjs tests/ui/platform.test.cjs` (9), `npm run lint`, `npm run typecheck`, and `npm run build` (21 routes/pages generated).
+- PASS: browser matrix on the production build at desktop 1440×900 and mobile 390×844 for RU/KK/EN in light/dark themes; exact copy, no horizontal overflow or hero/card overlap, no browser warnings/errors. Verified computed sizes: 48/17 px desktop and 31.2/16 px mobile.
+- PASS: visual review and screenshots in ignored `.next/ui-qa`; Arial/Helvetica system stack retained and rendered Russian/Kazakh glyphs correctly. No dependencies added and no backend/business changes.
+- Next: commit, push task branch, merge from a private integration worktree based on latest `origin/main`, push `main`, and verify ancestry.
+
+## Preserved historical viewer
 
 - Acceptance: default protected landing page and first navigation item is /history; turbine selection, inclusive issue-date range within 2026-01-31–2026-02-28 UTC, exact 24/48-hour horizon, sequential daily navigation, graph/table, explicit missing and incomplete releases.
 - Demo: two synthetic turbines, 29 daily issues, no invented actuals; target hours after February remain visible and are not claimed as February evaluation.
@@ -48,11 +57,10 @@
 - The standalone dispatcher and current real-API dashboard contract mismatch are documented limitations.
 - The design HTML remains a synthetic proposal; its overview hierarchy is now implemented in the live route.
 
-## Next actions
+## Preserved backlog
 
-1. Review /history locally with the user; do not push (user instruction).
-2. Next UX slice: connect the historical viewer to durable full-period execution and visible agent stages, using verified archival inputs.
-3. Existing backend work: confirm asset/time/power semantics, persist trustworthy archival weather, connect an approved trained artifact, and obtain February actuals before official evaluation.
+1. Connect the historical viewer to durable full-period execution and visible agent stages, using verified archival inputs.
+2. Confirm asset/time/power semantics, persist trustworthy archival weather, connect an approved trained artifact, and obtain February actuals before official evaluation.
 
 ## Parallel completion specification
 

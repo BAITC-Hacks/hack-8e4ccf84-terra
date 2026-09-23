@@ -208,9 +208,9 @@ export const messages: Record<string, { en: string; kk: string }> = {
     "en": "Version",
     "kk": "Нұсқа"
   },
-  "Ветер меняется.": {
-    "en": "The wind changes.",
-    "kk": "Жел өзгереді."
+  "Прогноз выработки ВЭС": {
+    "en": "Wind power forecast",
+    "kk": "ЖЭС өндірісінің болжамы"
   },
   "Ветроэнергетика": {
     "en": "Wind energy",
@@ -251,10 +251,6 @@ export const messages: Record<string, { en: string; kk: string }> = {
   "Вход ещё не настроен. Обратитесь к администратору.": {
     "en": "Sign-in is not configured yet. Contact your administrator.",
     "kk": "Кіру әлі бапталмаған. Әкімшіге хабарласыңыз."
-  },
-  "Вы готовы.": {
-    "en": "You're ready.",
-    "kk": "Сіз дайынсыз."
   },
   "Выберите колонку CSV": {
     "en": "Select a CSV column",
@@ -788,10 +784,6 @@ export const messages: Record<string, { en: string; kk: string }> = {
     "en": "No row errors.",
     "kk": "Жолдарда қате жоқ."
   },
-  "ПЛАТФОРМА ВЕТРОЭНЕРГЕТИКИ": {
-    "en": "WIND ENERGY PLATFORM",
-    "kk": "ЖЕЛ ЭНЕРГЕТИКАСЫ ПЛАТФОРМАСЫ"
-  },
   "ПРОГНОЗ / ПОЧАСОВАЯ МОЩНОСТЬ": {
     "en": "FORECAST / HOURLY POWER",
     "kk": "БОЛЖАМ / САҒАТТЫҚ ҚУАТ"
@@ -940,21 +932,13 @@ export const messages: Record<string, { en: string; kk: string }> = {
     "en": "Generation forecasts, data health and visibility into every calculation.",
     "kk": "Өндіру болжамдары, деректер күйі және әр есептеудің ашықтығы."
   },
-  "Прогноз на 24–48 часов": {
-    "en": "24–48 hour forecasts",
-    "kk": "24–48 сағаттық болжам"
-  },
-  "Прогнозируйте выработку, следите за качеством данных и принимайте решения в одном рабочем пространстве.": {
-    "en": "Forecast generation, monitor data quality and make decisions in one workspace.",
-    "kk": "Өндіруді болжаңыз, деректер сапасын бақылаңыз және бір жұмыс кеңістігінде шешім қабылдаңыз."
+  "Почасовой прогноз на 24–48 часов на основе погоды и данных турбин.": {
+    "en": "Hourly forecasts for the next 24–48 hours using weather and turbine data.",
+    "kk": "Ауа райы мен турбина деректері негізінде алдағы 24–48 сағатқа арналған сағаттық болжам."
   },
   "Прогресс задачи": {
     "en": "Job progress",
     "kk": "Тапсырманың орындалуы"
-  },
-  "Прозрачность каждого расчёта": {
-    "en": "Visibility into every calculation",
-    "kk": "Әр есептеудің ашықтығы"
   },
   "Происхождение результата": {
     "en": "Result provenance",
