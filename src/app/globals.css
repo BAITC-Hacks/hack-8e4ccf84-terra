@@ -367,3 +367,15 @@ footer { padding:21px 34px; font-size:9px; color:var(--muted); }footer b { font-
 .reference-chart .chart-tooltip b { font-weight:600; }
 .reference-chart svg:focus:not(:focus-visible) { outline:none; }
 @media(max-width:700px) { .reference-chart .chart-tooltip { position:sticky; left:0 !important; top:auto; max-width:calc(100vw - 80px); } }
+/* Progressive disclosure keeps primary actions visible and supporting copy available. */
+.content-details>summary,.demo-options>summary { cursor:pointer; font-weight:600; color:var(--ink); }
+.content-details>summary { font-size:14px; }
+.content-details[open]>summary { margin-bottom:18px; }
+.content-details .metadata { margin-top:16px; }
+.history-conditions .history-context { margin:0; padding-top:0; }
+.demo-options { position:relative; align-self:center; font-size:12px; }
+.demo-options[open] { min-width:155px; }
+.demo-options[open]>summary { margin-bottom:7px; }
+.sidebar nav { margin-top:28px; }
+.two-columns:has(.forecast-details) { align-items:start; }
+@media(max-width:700px) { .demo-options { flex-basis:100%; }.content-details>summary { min-height:28px; } }

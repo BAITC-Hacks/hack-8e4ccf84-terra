@@ -1,3 +1,10 @@
+# UI content cleanup
+
+- Updated UTC: 2026-09-23T12:28:31.400Z; branch refactor/ui-content-cleanup; verified base 39b7418; changes uncommitted.
+- Removed repeated marketing/help copy, simplified RU/EN/KK wording, collapsed provenance and demo controls. Core actions, warnings, units and timezones retained. Preview http://localhost:3114/history.
+- PASS: production build, typecheck, lint, core 42, UI unit 13, dashboard 14 scenarios, history browser suite, UX 30 page/language/theme/width combinations. Visual forecast review passed.
+- Next: preserve latest main login and job feedback updates, validate integration, commit and push.
+
 # Project state — UI/UX audit and reference chart
 
 - Updated UTC: 2026-09-23 12:13Z; owner Codex; branch `chore/integrate-ui-ux-audit`; main base `1923ce2`; task `3ee1708` verified on origin/test/ui-ux-audit.

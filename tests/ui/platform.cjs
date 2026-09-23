@@ -49,7 +49,7 @@ const base = process.env.UI_BASE_URL || 'http://localhost:3107';
     assert.equal((await context.request.get(base+'/api/auth/session')).status(),200);
     await page.getByRole('button',{name:'Table',exact:true}).click();assert.equal(await page.locator('tbody tr').count(),48);
     pass('real session sign in returns to requested page; forecast remains functional');
-    for(const [route,heading] of [['/history','Historical run'],['/overview','48-hour forecast'],['/forecast','Generation forecast'],['/sources','Data sources'],['/agent-log','Agent log']]){
+    for(const [route,heading] of [['/history','Forecast history'],['/overview','48-hour forecast'],['/forecast','Generation forecast'],['/sources','Data sources'],['/agent-log','Agent log']]){
       await page.goto(base+route);await page.locator('.launch-screen').waitFor({state:'hidden'});
       await page.getByRole('heading',{name:heading,exact:true}).waitFor();
       await page.waitForFunction(()=>!document.querySelector('.loading'));
