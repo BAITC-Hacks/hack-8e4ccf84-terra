@@ -1,10 +1,10 @@
-# Project state — industrial portal integration
+# Project state — industrial connectors
 
-- Updated UTC: 2026-09-23 10:15Z
-- Branch/worktree: `chore/integrate-industrial-portal` / private integration worktree.
-- Verified remote: `origin/main` at integration `a2c9077`; task implementation `f78d8a7` and handoff `60d8b5a` are verified ancestors. Task branch `origin/feat/industrial-portal` remains at `60d8b5a`.
-- Owner/status: Codex, industrial UI + RU/KK/EN + themes + mandatory sign-in; complete: implementation, combined checks and main push verified. This follow-up records the verified remote result.
-- Demo: production preview on `http://localhost:3107/login`; random local administrator credentials live only in ignored `.env.local`. Sign in opens the requested dashboard route. Fixture forecast/import/report/journal flows work; real data API alignment remains a separate integration gate.
+- Updated UTC: 2026-09-23 10:39Z
+- Branch/worktree: `feat/oracle-wincc-connectors` / task worktree rebased onto `origin/main` `11ed17b`.
+- Last verified task commit: `6c7449a`; push and main integration pending.
+- Owner/status: Codex, Oracle history and Siemens WinCC live connector workflows; implementation and post-rebase validation complete.
+- Demo: authenticated `/sources` runs both explicitly synthetic fixture workflows end to end. API mode uses server-only gateway URLs/tokens and never falls back to fixtures.
 
 ## Implemented and verified
 
@@ -12,6 +12,10 @@
 - Russian default, Kazakh and English across four pages, login, forms, statuses and synthetic explanations. Locale-aware number/date display; Kazakh months handled explicitly for browsers with incomplete ICU data.
 - Light/dark theme and language cookies applied by the server to initial HTML and retained across reloads.
 - Existing signed administrator session now protects dashboard pages in proxy and server layout as well as APIs. Login/logout and live session checks use `/api/auth/session`; HttpOnly cookie, safe return-path allowlist, no client-only bypass or bundled password.
+- Oracle workflow: verify gateway access, discover tables/fields, map timestamp and normalized power to a turbine, enable historical loading.
+- Siemens WinCC workflow: verify gateway access, discover tag groups, map power and wind-speed tags to a turbine, enable live updates.
+- Protected `POST /api/v1/industrial-connectors/[kind]` validates test/discover/enable actions, keeps credentials server-side, rejects malformed gateway responses, and sanitizes failures.
+- New connector UI copy is available in Russian, Kazakh and English and respects the integrated portal theme/session architecture.
 - Touched: `src/app`, `src/components`, `src/lib/i18n`, `src/lib/navigation.ts`, root login bridge, session GET, `proxy.ts`, `tests/ui`, this handoff. No forecasting/import/agent business logic changed.
 
 ## Preserved work and boundaries
@@ -21,6 +25,7 @@
 - Root `app/` is the effective router; root UI files re-export canonical `src/app` components.
 - Source timezone/interval, physical units/normalization and target semantics remain unconfirmed. No MW/MWh or official quality claim. February actuals remain evaluation-only.
 - Demo examples stay explicitly synthetic. Server-returned data retains its source language. Existing shared administrator role is reused; multi-user registration was not requested.
+- Real Oracle/WinCC operation requires deployed HTTP gateways matching `docs/industrial-connectors.md` plus configured URL/token environment variables; no real plant endpoints were available for this task.
 
 - Agent audit `f436946` / integration `d2d4454` is preserved in `docs/agent-system-problems.md`: production agent wiring, automated tick and durable replay remain incomplete. Its PostgreSQL test was skipped without TEST_DATABASE_URL; this portal task does not claim those runtime gaps are fixed.
 
@@ -36,9 +41,12 @@
 - PASS: `node tests/ui/platform.cjs` (10 browser scenarios: actual login, redirects, Origin checks, defaults/persistence, English/Kazakh pages, mobile, logout, tampered/expired cookies, open-page expiry, reduced motion).
 - PASS: visual review of light/dark login and Kazakh dark dashboard; no page overflow or browser exceptions. Browser locale review found ICU month fallback; fixed, unit-tested and browser suite rerun afterward.
 - NOT_RUN: production PostgreSQL/data-source end-to-end flow; no database configured for this UI preview.
+- PASS after rebase: combined TypeScript suite 31/31, industrial/UI adapter suite 7/7, lint, typecheck, production build.
+- PASS after rebase: authenticated browser walkthrough for Oracle and WinCC end states; English localization also verified.
+- NOT_RUN: real Oracle database and Siemens WinCC plant connections; gateway endpoints and credentials were not provided.
 
 ## Next actions
 
-1. Open the retained local preview at http://localhost:3107/login. Configure deployment administrator/session secrets before serving the portal elsewhere.
-2. Implement agent audit priorities and pass AT-AG-01–AT-AG-18 with production adapters; configure TEST_DATABASE_URL for its PostgreSQL checks.
-3. Separate follow-up: align S05 adapters with S02/S04/S08 real payloads, wire S07 tick and S03 weather; run real database/UI integration before operational use.
+1. Push `feat/oracle-wincc-connectors`, integrate it into the latest `origin/main`, rerun critical checks, and verify ancestry.
+2. Configure production Oracle/WinCC gateway URLs and tokens, then repeat the two workflows against plant infrastructure.
+3. Continue agent audit and remaining real data/API integration work described above.
