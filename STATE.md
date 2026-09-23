@@ -1,31 +1,43 @@
 # Project state — S01 branch
 
-- Updated (UTC): 2026-09-23 08:45Z
+- Updated (UTC): 2026-09-23 09:14Z
 - Branch/worktree: `feat/s01-foundation` / `.worktrees/s01-foundation`
-- Last verified commit: `c2b4003` (base); S01 changes uncommitted
-- Remote: cached `origin/main` at `c2b4003`; fetch failed with `Repository not found`, so freshness is UNKNOWN
-- Demo: existing starter `/` only; no S01 runtime validated yet
+- Last verified prior commit: `49fda2d` (S01 contracts); this handoff accompanies the validated infrastructure commit
+- Base: cached `origin/main` at `c2b4003`; remote freshness UNKNOWN because fetch returns `Repository not found`
+- Demo path: `docker compose --env-file .env.example -p terra-s01-check up --build -d`; `/health` responds 200, admin login and protected assets API work on the local test stack
 
 ## Active task
 
-S01 / owner: this branch / IN_PROGRESS. Acceptance: shared contracts, section 7 schema and migrations, Next.js/PostgreSQL Compose with persistent volumes, administrator session, protected `/api/v1/*`, separately protected jobs tick, `GET /health`, clean database and anonymous access checks. Touched: `src/server/contracts/**`, then S01 owned infrastructure and endpoints.
+S01 / owner Бибарыс / VALIDATED locally; remote publication pending. Acceptance: shared contracts, §7 schema and migrations, Next.js/PostgreSQL Compose with persistent volumes, administrator session, protected `/api/v1/*`, separately protected jobs tick, `GET /health`, clean migration and anonymous access checks. Touched: `src/server/contracts/**`, `src/server/db/**`, `src/server/auth/**`, `app/api/**`, `app/health/**`, `proxy.ts`, root configs, `scripts/migrate.mjs`, `tests/foundation/**`.
 
-## Verified inputs and decisions
+## Verified decisions
 
-- `PLAN.md` §7 and `SLICES.md` define S01 scope. The base contains Next.js 16/TypeScript scaffold and unrelated legacy agent modules; S01 leaves those modules alone.
-- S00 result files `docs/data-contract.md` and `docs/data-audit.md` are absent on the available base. A few CSV rows show ten-minute timestamps and normalized power columns, but that does not establish timezone, interval convention, power scaling, coordinates, or target granularity. Contracts use nullable fields for these unknowns.
-- No import, weather, model, or agent behavior is implemented in this slice.
+- The provided PDF asks for 24–48 hourly forecasts using weather available at each historical issue time. S01 persists availability timestamps and explicit assumptions; timezone, power scale, and source timing remain configurable or nullable pending S00 audit.
+- S04 requested immutable snapshot payload plus forecast idempotency and version links. These fields are included in the S01 migration/type update. S07 owns JobStep execution; tick is currently an authenticated idle adapter.
+- The previous agent workspace scaffold stays untouched. No import, weather, model, forecast, or agent behavior is claimed as complete.
 
 ## Checks
 
-- PASS: `git status --short --branch` showed clean `main` at start; isolated worktree created at `c2b4003`.
-- PASS: `tsc --noEmit --skipLibCheck --target ES2020 src/server/contracts/index.ts` typechecked the gate contracts.
-- BLOCKED: `git fetch --all --prune` with Git metadata access returned `Repository not found`.
-- BLOCKED: `npm ci --offline` could not read the host npm cache; normal `npm ci` stalled without network and was stopped.
-- NOT_RUN: typecheck, tests, build, Compose, clean database migration, auth HTTP checks.
+| UTC | Check | Result |
+|---|---|---|
+| 09:07 | `npm ci --offline` | PASS: 374 packages installed, 0 vulnerabilities reported |
+| 09:08 | `npm run typecheck`; `npm run lint` | PASS after dependency install |
+| 09:09 | `npm run build` | PASS: app routes and proxy compiled |
+| 09:10 | `npm run test:foundation` | PASS: 2 session/secret tests |
+| 09:10 | `docker compose --env-file .env.example config` | PASS |
+| 09:11 | `docker compose --env-file .env.example -p terra-s01-check up --build -d` | PASS: clean DB and app; migration applied |
+| 09:11 | `GET /health` | PASS: 200 with database ready |
+| 09:12 | HTTP auth/asset/tick smoke | PASS: anonymous assets/tick 401; bad login 401; admin login and list 200; invalid asset 400; create 201; authenticated tick 202 |
+| 09:12 | repeat migrator; table counts | PASS: one migration record, 17 public tables including schema_migrations |
+| 09:08 | `git fetch --all --prune` | BLOCKED: GitHub reports `Repository not found` |
+
+## Blockers and risks
+
+- Remote repository access is unavailable. Next action: retry fetch, then push branch and integrate into `origin/main`; do not claim remote completion until verified.
+- The S00 data audit has not reached this branch; unknown physical/time parameters remain unconfirmed. Next action: reconcile after S00 handoff.
+- Dispatcher tick intentionally has no job execution until S07 integration. Next action: wire its `JobStep` adapter after S07 interface lands.
 
 ## Next actions
 
-1. Commit contracts as a separate gate after checking its diff.
-2. Implement S01 migration, authentication, Compose, endpoints, and focused checks; validate against local Docker if available.
-3. Retry fetch/push when repository access is restored and record the verified remote state.
+1. Retry `git fetch --all --prune`, push `feat/s01-foundation`, then merge via a private integration worktree and verify `origin/main` contains the task commit.
+2. Share S01 schema/type revision with S04 and the S00/S02/S03 owners; reconcile any validated data rules without inventing constants.

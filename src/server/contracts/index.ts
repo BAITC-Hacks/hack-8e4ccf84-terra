@@ -68,6 +68,7 @@ export interface InputSnapshot {
   assetIds: Id[];
   observationRevisions: Array<{ observationId: Id; revision: number }>;
   weatherRunIds: Id[];
+  payload: Record<string, unknown>;
   configVersion: string;
   sha256: string;
   createdAt: UtcInstant;
@@ -109,6 +110,9 @@ export interface ForecastRun {
   inputSnapshotId: Id;
   status: "pending" | "incomplete" | "published" | "failed";
   version: number;
+  idempotencyKey: string | null;
+  previousVersionId: Id | null;
+  incompleteReasons: Record<string, unknown> | null;
   createdAt: UtcInstant;
   publishedAt: UtcInstant | null;
   values: ForecastValue[];
