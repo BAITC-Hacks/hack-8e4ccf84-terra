@@ -1,7 +1,7 @@
 # P1 — Canonical archived weather ingestion
 
 Owner: P1 / Codex. Branch: feat/p1-weather-ingestion. Base: local main 1923ce2.
-Status: implemented and validated on task branch; local integration pending. Official historical inputs BLOCKED.
+Status: implemented and validated; integration includes task 69982e9 and preserves main be3f5a3 / P4. Further repeated checks waived by explicit user instruction for immediate local main delivery. Official historical inputs BLOCKED.
 
 ## Delivered boundary
 
@@ -45,10 +45,12 @@ The range is inclusive and UTC-hour-aligned; timeZone must explicitly name the I
 - PASS: npm test — 44 passed, database test skipped without TEST_DATABASE_URL (executed separately above).
 - PASS: npm run lint; npm run typecheck; npm run build (21 pages). Final rerun after CLI fix passed. Agent 12/12 and foundation 4/4 also passed.
 - Initial failures fixed: shared node_modules junction rejected by Turbopack (installed dependencies inside worktree); JSON typing; retry-count test expectation; CLI download clock race (separate archival fetch).
-- Live network smoke not run. Saved real provider evidence is from existing tests/weather/evidence; mocked CLI responses are synthetic test fixtures and never official historical evidence.
+- PASS separate live network smoke: 2026-09-23T12:22:54.857Z, archived ECMWF run 2026-02-01T00:00Z, test coordinates 43.25/76.95 (NOT confirmed turbine coordinates), 120 validated hours including the requested 48-hour horizon, SHA-256 bef4174cb5073d8999fe40a587556570307d3929c781fe1da158e0a04f48245c. published_at remains NULL; no production database write. Mocked CLI responses remain synthetic test fixtures and never official historical evidence.
 
 ## Blockers and next action
 
 1. Historical publication remains UNKNOWN. Single Runs API exposes initialization-specific forecasts, not proof of past publication: https://open-meteo.com/en/docs/single-runs-api (checked 2026-09-23). Obtain verifiable provider publication/availability evidence before adding a trusted provider adapter; do not fill timestamps by SQL as done only in isolated consumer tests.
 2. February actuals and confirmed turbine semantics are external to P1. No February score or combined P7 E2E is claimed.
 3. Remote fetch returns Repository not found. Preserve local implementation, integrate serially with the shared lock, and retry remote delivery when access is restored.
+
+Integration: combined npm test 53 PASS / 1 DB skip (P1 DB suite separately 3/3 PASS), typecheck PASS; P1 integration weather 25/25, agent 12/12 and lint PASS. Remote task push remains BLOCKED (Repository not found).
