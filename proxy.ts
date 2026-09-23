@@ -17,6 +17,18 @@ export function proxy(request: NextRequest) {
       if (origin && origin !== request.nextUrl.origin)
         return NextResponse.json({ code: "FORBIDDEN", message: "Origin mismatch", request_id: crypto.randomUUID() }, { status: 403 });
     }
+    // S08 still checks its own server token. Forward it only after the S01
+    // administrator session has been verified; browsers never receive it.
+    if (path === "/api/v1/backtest-jobs"
+      || /^\/api\/v1\/evaluations\/[^/]+$/.test(path)
+      || /^\/api\/v1\/forecasts\/[^/]+\/export$/.test(path)) {
+      const token = process.env.ADMIN_API_TOKEN;
+      if (!token || token.length < 12 || token.startsWith("replace-with-"))
+        throw new Error("ADMIN_API_TOKEN is not configured");
+      const headers = new Headers(request.headers);
+      headers.set("authorization", `Bearer ${token}`);
+      return NextResponse.next({ request: { headers } });
+    }
     return NextResponse.next();
   } catch {
     return NextResponse.json({ code: "SERVICE_UNAVAILABLE", message: "Authentication is not configured", request_id: crypto.randomUUID() }, { status: 503 });
