@@ -1,51 +1,35 @@
 # Project state
 
 ## Snapshot
+- Updated UTC: 2026-09-23 09:23Z. Branch/worktree: `chore/integrate-s05-dashboard`, `C:/Users/Kassym/Desktop/TTT/hack-8e4ccf84-terra-worktrees/integrate-s05-dashboard`.
+- Verified base: `origin/main` at `68e0714`; UI implementation `f1519cc`; verified task commit `f3299ee`; remote branch handoff `5a004ae`. Integration merge pending commit.
+- S05 owner: Codex / Касымжан. Status: PUSHED to origin/feat/s05-dashboard; validated on fixture/mock API; real E4 integration remains BLOCKED on S01–S04.
+- Demo: `npm run dev`, `/overview`, `/forecast`, `/sources`, `/agent-log`. Default visibly synthetic backtest; select “Настоящий API” for same-origin `/api/v1`.
 
-- Updated UTC: 2026-09-23 09:14:02Z.
-- Branch/worktree: `chore/integrate-s06-e5`, `C:/Users/elnar.saparov/Desktop/HACK/hack-8e4ccf84-terra-worktrees/integrate-s06-e5`.
-- Last verified task commits: `d094908` (implementation) and `865262d` (branch handoff); verified integration commit is `8a7d746` on `origin/main`.
-- Demo: `npm run dev`; `POST /api/v1/training-jobs` creates a durable queued job and returns HTTP 202. The S07 dispatcher/tick integration is outside this branch.
+## S05 verified result
+- Russian overview/forecast/sources/agent log. Chart/table, asset/version/24–48h filters, previous version by target time, briefing, full-version CSV, provenance and source freshness/coverage.
+- Explicit live/backtest/replay, timezone and original normalized power scale. Loading/empty/error/stale/partial states; failed refresh retains last successful forecast. Missing hours remain chart gaps.
+- CSV bounded preview, mapping, encoding/delimiter/decimal/source timezone/interval convention and explicit confirmation, multipart import, job/report flow and row/reason CSV.
+- Agent tools/reasons/duration/errors/result links; job polling; forecast/backtest request and evaluation report with N=0 shown as no data.
+- Schema-checked API adapter fails visibly without fixture fallback. UI-local contract is provisional, pending S01. Details and actual API gate: `tests/ui/README.md`, `docs/handoffs/kassym-s05.md`.
+- UI implementation in `src/app` and `src/components/dashboard`. Root UI routes are thin re-exports to retain S06's existing root API adapter; no S06/API/server/config/dependency files changed by S05.
 
-## Active task and tangible result
+## Preserved integrated work
+- S00 audit `716c63b`, merged through `f7d1ed9`: `docs/data-contract.md` and `docs/data-audit.md` remain authoritative. Two separate source series; normalization/physical target/source timezone/interval meaning/availability UNKNOWN; no February actuals. Do not aggregate source powers or claim measured performance from fixtures.
+- S06 implementation `d094908`, integration `8a7d746`, remote handoff `68e0714`: ridge features/train-only scaling/resumable checkpoints, empirical power curve, pre-February rolling validation and fair comparison, JSON artifacts and durable training-job enqueue are preserved.
+- Both S06 route files remain untouched. Build exposes `/api/v1/training-jobs`; artifacts use `.data/ml` / ML_ARTIFACT_DIR. S01/S07 must supply protected tick/lease orchestration. Real ML quality and dispatcher execution remain unverified.
+- Existing foundation `src/agent`, `src/db`, `src/domain/demo`, `src/ui` untouched; runtime completeness UNKNOWN. S01–S04 and S07–S08 implementation not present on inspected main (except S06); no completeness claims.
 
-- S06 / E5 TypeScript model and validation, owner Codex, status PUSHED and integrated into `origin/main`.
-- Implemented nonlinear ridge features, train-only scaling, resumable sufficient-statistics/optimization checkpoints, empirical power curve, mean baseline, pre-February rolling validation over 3/6/12-month and full-history candidates, fair same-pair comparison, deterministic best-candidate selection, JSON artifacts, and idempotent training-job creation.
-- Touched paths: `src/server/ml/**`, `src/app/api/v1/training-jobs/**`, runtime adapter `app/api/v1/training-jobs/**`, `tests/ml/**`, package scripts/lockfile and `.gitignore`.
-- Acceptance evidence: February target poisoning does not change validation report or selection; eligible candidates use the same pair count; artifacts record code version, cutoff, input hash, training period and validation report; NaN/Infinity are rejected before persistence.
+## Verification in the clean integration worktree
+- PASS `npm ci --no-audit --no-fund`. Initial retry encountered Windows file lock from our preview; stopped it and clean install succeeded.
+- PASS `npm test`: 6 ML tests.
+- PASS `node --test tests/ui/csv.test.mjs tests/ui/client.test.cjs`: 6 tests.
+- PASS `npm run lint` and `npm run build`: TypeScript, four UI routes plus S06 training route.
+- PASS `UI_BROWSER_CHANNEL=msedge node tests/ui/dashboard.cjs` with runner Playwright via NODE_PATH, production port 3106: 13 scenarios; fixture + mock API; 1440px desktop and 390px mobile; screenshots reviewed, no runtime errors.
+- PASS missing real `/api/v1/assets`/forecasts return honest errors. Successful real E4 API flow NOT_RUN (dependent handlers absent).
+- PASS staged diff/whitespace/secret review; no credentials; `git diff --exit-code origin/main -- src/server src/app/api app/api package.json package-lock.json`.
 
-## Decisions and constraints
-
-- February cutoff is capped at `2026-02-01T00:00:00Z`; all fitting and model selection filter to timestamps strictly before cutoff.
-- Ridge uses deterministic batch accumulation of `X'X`/`X'y` followed by bounded gradient steps. Both phases serialize to JSON and resume with row/iteration budgets.
-- Model artifacts default to `.data/ml`, ignored by Git; production must mount this path persistently or set `ML_ARTIFACT_DIR`.
-- This branch owns the ML job step, not S07 queue lease/heartbeat/tick orchestration. The endpoint only enqueues and does not continue work after sending the response.
-- S00 findings merged on the base remain authoritative: source timezone/interval semantics and physical normalization are UNKNOWN; this model uses explicit ISO timestamps and does not label values as MW/MWh.
-
-## Validation
-
-| Check | Result | Evidence |
-|---|---|---|
-| `npm test` | PASS | 6/6 ML tests after rebase: train-only scaler, checkpoint resume, finite guards, power curve, February leakage/fair pairs, idempotent durable artifact |
-| `npm run lint` | PASS | ESLint exited 0 after rebase |
-| `npm run build` | PASS | Next.js 16.3.6 post-rebase production build/typecheck; dynamic `/api/v1/training-jobs` route generated |
-| Manual production HTTP request | PASS | `POST /api/v1/training-jobs` returned 202, queued job id and `Location` |
-| Post-rebase critical suite | PASS | Tests, lint, build and `git diff --check origin/main...HEAD` passed |
-| Private integration suite | PASS | Fresh `npm ci`, 6/6 tests, full lint and production build passed with the staged merge |
-| Secret-pattern review | PASS | Only pre-existing environment/API-key identifiers; no credential values |
-
-## Blockers, risks and next actions
-
-1. S01/S07 should call `FileTrainingJobStore.advance` from the protected bounded job tick and provide lease/heartbeat semantics; S02–S04 should adapt canonical observations/weather records into `TrainingExample` after E4.
-2. Validate quality on real admissible weather/target pairs after source timezone, availability and target semantics are resolved; current tests use deterministic fixtures and do not claim real-world improvement.
-
-## Recent tangible milestones
-
-- 2026-09-23 09:14Z: `origin/main` verified at integration commit `8a7d746`; task implementation `d094908` is an ancestor and remote feature branch points to `865262d`.
-- S00 input audit is merged on `origin/main` through `f7d1ed9`; its documented unknowns remain unresolved downstream gates.
-
-## Remote result
-
-- Feature branch: `origin/feat/typescript-model-validation` at `865262d`.
-- Main integration: `origin/main` at `8a7d746`; `git merge-base --is-ancestor d094908 origin/main` passed.
-- No deployment was performed; the integration is source and test complete.
+## Next actions
+1. Verified remote feature branch at `5a004ae4a7d7e0a8d4b6f2591e11241eb4cecc94`; integration diff preserves all S00/S06 commits and files.
+2. Clean integration worktree checks passed; commit merge, normal fast-forward push to main, verify task ancestry and record remote result.
+3. S01–S04 owners publish contracts/API; align UI adapter and execute real E4 gate in tests/ui/README.md. S06 also awaits canonical data and bounded S07 execution.

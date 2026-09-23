@@ -1,15 +1,2 @@
-import type {Metadata} from "next";
-import "./globals.css";
-
-export const metadata: Metadata = {
-  title: "Agent Workspace",
-  description: "A visible workspace for agent runs and approvals",
-};
-
-export default function RootLayout({children}: LayoutProps<"/">) {
-  return (
-      <html lang="en" className="h-full antialiased">
-      <body className="min-h-full flex flex-col">{children}</body>
-      </html>
-  );
-}
+// Compatibility with the root API adapters until S01 consolidates the router.
+export { default, metadata } from "../src/app/layout";
