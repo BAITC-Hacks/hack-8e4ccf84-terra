@@ -2,15 +2,15 @@
 
 ## Snapshot
 
-- Updated UTC: 2026-09-23 08:51:18Z.
+- Updated UTC: 2026-09-23 08:51:53Z.
 - Branch/worktree: `docs/s00-data-audit`, `C:/Users/Kassym/Desktop/TTT/hack-8e4ccf84-terra-worktrees/s00-data-audit`.
-- Last verified base: `c2b4003` (`origin/main`); current documentation changes: `uncommitted`.
+- Last verified base: `c2b4003` (`origin/main`); last verified task commit: `716c63b`; this post-push handoff edit: `uncommitted`.
 - Remote access: PASS, `git fetch --all --prune` and final `git fetch origin`; base unchanged at final fetch. Earlier access/untracked-scaffold claims were stale: scaffold is tracked.
 - Demo: `npm run dev`, `/` still contains the Next.js starter. Build exposes `/` and `/_not-found`; wind forecasting, API and DB execution are not verified end to end.
 
 ## Active task and tangible result
 
-- S00 / E1 input audit, owner Codex, status VALIDATED (push pending).
+- S00 / E1 input audit, owner Codex, status PUSHED (verified artifact commit `716c63b`).
 - Acceptance: inspect all resources; document schema, cadence, actual period, timezone/interval uncertainties, units/normalization, power granularity, numeric coordinates, evaluation-only February, raw examples and blockers; preserve datasets.
 - Artifacts: `docs/data-contract.md`, `docs/data-audit.md`; required handoff: `STATE.md`. No application changes.
 - All S00 documentary criteria verified. Unresolved source semantics are recorded, not silently assumed; downstream final forecasting gate remains blocked.
@@ -48,4 +48,6 @@ Tool limitations recovered: bare `pdftotext` unavailable; fitz unavailable; used
 
 ## Remote result
 
-Pending initial documentation commit and push. Update this section after verifying the remote commit. No deployment or merge claimed.
+Artifact commit `716c63be2065c64985bf3a9f6e9adfba1b954a87` verified by `git ls-remote origin refs/heads/docs/s00-data-audit`; upstream matches and worktree was clean after push. Branch: [docs/s00-data-audit](https://github.com/BAITC-Hacks/hack-8e4ccf84-terra/tree/docs/s00-data-audit). This state-only follow-up records that verified push. No deployment or merge claimed.
+
+Self-review: staged documentation and state diffs reviewed; `git diff --cached --check` passed; targeted secret-pattern search in docs/STATE returned no matches.
