@@ -23,3 +23,10 @@ test("administrator and dispatcher secrets are independent", () => {
   assert.equal(validTickSecret("Bearer a-long-test-admin-password"), false);
   assert.equal(validTickSecret(null), false);
 });
+
+test("published placeholder secrets cannot authenticate", () => {
+  const saved = process.env.ADMIN_PASSWORD;
+  process.env.ADMIN_PASSWORD = "replace-with-strong-random-value";
+  assert.throws(() => checkAdminPassword("replace-with-strong-random-value"));
+  process.env.ADMIN_PASSWORD = saved;
+});

@@ -1,8 +1,8 @@
 # Project state — local main integration
 
-- Updated (UTC): 2026-09-23 09:29Z
+- Updated (UTC): 2026-09-23 09:31Z
 - Branch/worktree: `chore/integrate-s04-local` / `.worktrees/s04-integration`
-- Last verified prior commit: `1a91e23` (local and cached `origin/main`); pending merge includes S04 `9802da4` and its S01 dependency
+- Last verified prior commit: `0248d79` (local main, includes S01 and S07); pending merge includes S04 `9802da4`
 - Remote freshness: UNKNOWN. Fetch returned `Repository not found`; the user requested local main integration and will push personally.
 - Demo path: `npm run dev` exposes the S05 Russian dashboard at `/overview`, `/forecast`, `/sources`, `/agent-log`. The S04 authenticated API produced a 24-hour published baseline in an isolated PostgreSQL smoke test. A real S02/S03 data flow has not been demonstrated.
 
@@ -14,7 +14,7 @@
 - S05: Russian dashboard, source/forecast/agent pages, explicit fixture and real-API states, CSV UI, responsive views. Previously integrated on `origin/main`; real S04 API alignment remains to verify.
 - S06: ridge training and empirical curve with pre-February validation, JSON artifacts and training-job endpoint. Previously integrated; real model quality remains unverified.
 - S08: sequential backtest/evaluation/export and temporal leakage checks. Previously integrated; production seams await S04/S07.
-- S02/S03: canonical import and weather adapters are not present in this integration. S04 reads their intended S01 tables through typed interfaces. S07 remains active on its own branch; queued JobStep execution is not integrated.
+- S02/S03: canonical import and weather adapters are not present in this integration. S04 reads their intended S01 tables through typed interfaces. S07 job stores, replay, agent workflow and dispatcher are integrated on local main at `0248d79`; the protected tick remains an idle adapter and is not yet wired to S04.
 
 ## S04 decisions and checks
 
@@ -30,4 +30,4 @@
 
 1. Finish this merge, update local `main`, and leave both branches unpushed for the user.
 2. Restore GitHub access and push local `main` when the user is ready; do not claim remote integration before verifying it.
-3. When S02/S03/S07 land, reconcile metric and quality vocabulary, weather publication timing, S05 API contract, and queue execution against the same S04 publication service.
+3. When S02/S03 land, reconcile metric and quality vocabulary, weather publication timing, S05 API contract, and wire the integrated S07 queue to the same S04 publication service.
