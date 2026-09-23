@@ -1,9 +1,9 @@
 # Project state — S09 reproducibility integration
 
 - Updated UTC: 2026-09-23 10:35Z
-- Branch/worktree: `chore/integrate-s09-reproducibility` / private integration worktree; last verified commit: `uncommitted`.
-- Local base: `main` at `11ed17b`; S09 source: `docs/s09-reproducibility` at `6302571`. Remote synchronization intentionally not performed for this user-requested local-only integration.
-- Owner/status: Codex. Industrial UI integration remains present; S09 reproducibility handoff is merged locally. Final product acceptance remains BLOCKED pending the owner implementations recorded in `docs/acceptance.md`.
+- Branch/worktree: local `main` target; verified S09 integration commit: `b226fb1`. This state update is pending its local-main fast-forward.
+- Local base before integration: `main` at `11ed17b`; S09 source: `docs/s09-reproducibility` at `6302571`. Remote synchronization and push were intentionally not performed for this user-requested local-only integration.
+- Owner/status: Codex. Industrial UI integration remains present; S09 reproducibility handoff is integrated on the local main history. Final product acceptance remains BLOCKED pending the owner implementations recorded in `docs/acceptance.md`.
 - Demo: production preview on `http://localhost:3107/login`; random local administrator credentials live only in ignored `.env.local`. Sign in opens the requested dashboard route. Fixture forecast/import/report/journal flows work; real data API alignment remains a separate integration gate.
 
 ## Implemented and verified
@@ -42,6 +42,6 @@
 
 ## Next actions
 
-1. Review and commit this merge, then fast-forward local `main` to the validated integration commit.
+1. Local `main` is the target of the pending fast-forward; do not treat this documentation merge as proof that AC-01–AC-16 pass.
 2. Owners S01–S08 must supply the fixed `demo:*` CLI contracts and pass AC-01–AC-16, restore verification, and the clean Docker gate.
 3. Align S05 adapters with S02/S04/S08 real payloads, wire S07 tick and S03 weather, and run a production database/UI integration before operational use.
