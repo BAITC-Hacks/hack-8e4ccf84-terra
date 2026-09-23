@@ -46,7 +46,7 @@ test('Russian/light defaults, localized dates/numbers and interpolation preserve
   assert.equal(formatDate('2026-01-31T23:00:00Z', 'Asia/Almaty', 'kk'), '01 ақп., 04:00');
 });
 test('return destination allowlist prevents external or unrelated redirects', () => {
-  for (const value of [undefined, 'https://evil.test', '//evil.test', '/\\evil.test', '/api/auth/session', '/login', '/%2f%2fevil.test']) assert.equal(safeReturnPath(value), '/overview');
+  for (const value of [undefined, 'https://evil.test', '//evil.test', '/\\evil.test', '/api/auth/session', '/login', '/%2f%2fevil.test']) assert.equal(safeReturnPath(value), '/history');
   assert.equal(safeReturnPath('/forecast?run=run-1'), '/forecast?run=run-1');
 });
 test('fixture localization preserves identifiers, dates and numeric series', async () => {

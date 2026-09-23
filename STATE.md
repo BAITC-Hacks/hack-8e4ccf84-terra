@@ -1,9 +1,22 @@
-# Project state — README on local main
+# Project state — historical forecast viewer on local main
 
-- Updated UTC: 2026-09-23 11:49Z
-- Branch/worktree: local `main` / primary working tree; canonical state prepared from `chore/integrate-russian-readme`.
-- Base/integration: local `main` fast-forwarded to `649e379`; README task `75119a5` and overview task `e9dfb21` are verified ancestors.
-- Owner/status: Codex; detailed Russian README is validated and present on local `main`. Remote synchronization remains blocked.
+- Updated UTC: 2026-09-23T11:59:42.650Z
+- Branch/worktree: local main / primary working tree, explicitly requested by the user. No worktree or push for this task.
+- Base/integration: last verified base 49eaa72; historical-viewer changes uncommitted pending the local feature commit. Concurrent connector, client and translation changes are preserved.
+- Owner/status: Codex; historical viewer implemented and validated locally, prepared for the requested commit. Remote synchronization is outside this task by explicit instruction.
+
+## Historical viewer (current task)
+
+- Acceptance: default protected landing page and first navigation item is /history; turbine selection, inclusive issue-date range within 2026-01-31–2026-02-28 UTC, exact 24/48-hour horizon, sequential daily navigation, graph/table, explicit missing and incomplete releases.
+- Demo: two synthetic turbines, 29 daily issues, no invented actuals; target hours after February remain visible and are not claimed as February evaluation.
+- Real reads: canonical assets/forecasts envelopes, turbine-only selection, persisted backtest/replay releases; warns at the server's 100-release limit. Errors retain same-query data and never fall back to fixtures.
+- Scope: saved-release viewer only. Selecting a day does not execute training or forecasts; automatic whole-period execution is explicitly marked unavailable.
+- Touched: history routes/components/data adapter, dashboard navigation/client/chart, i18n, auth return allowlist/proxy matcher, CSS, README, UI tests.
+- PASS: npm test (42 tests); node --test tests/ui/platform.test.cjs tests/ui/client.test.cjs tests/ui/csv.test.mjs (12 tests); npm run typecheck; npm run build (21 static pages, /history present).
+- PASS: npm run lint -- --ignore-pattern .worktrees/**. Bare npm run lint traversed unrelated nested worktrees and was interrupted; the scoped command checks this repository's application and tests.
+- PASS: node tests/ui/history.cjs with runner Playwright — real login/default route, daily navigation, turbine/horizon/range changes, gaps/errors, RU/EN/KK, mobile overflow, dark mode, canonical API mocks and failed-refresh retention. Production server used ephemeral credentials and was stopped afterward.
+- PASS: visual review of desktop/mobile screenshots under ignored .next/ui-qa; git diff --check. Database-backed historical E2E was not run; browser data API responses are mocks.
+- Environment: missing dependencies were restored with npm install without changing manifests/lockfile; npm ci initially hit a locked native module on Windows.
 
 ## Integrated implementation
 
@@ -37,6 +50,6 @@
 
 ## Next actions
 
-1. Preserve the unrelated uncommitted history-page work currently present in the primary worktree.
-2. When repository access is restored, push the README task branch and local `main`, then verify `75119a5` and `e9dfb21` ancestry on `origin/main`.
-3. After owner data is available, confirm semantics, persist trustworthy archival weather runs, connect an approved trained artifact, and execute February replay/evaluation.
+1. Review /history locally with the user; do not push (user instruction).
+2. Next UX slice: connect the historical viewer to durable full-period execution and visible agent stages, using verified archival inputs.
+3. Existing backend work: confirm asset/time/power semantics, persist trustworthy archival weather, connect an approved trained artifact, and obtain February actuals before official evaluation.

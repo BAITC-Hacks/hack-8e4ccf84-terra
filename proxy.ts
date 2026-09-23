@@ -51,4 +51,4 @@ export function proxy(request: NextRequest) {
   }
 }
 
-export const config = { matcher: ["/", "/overview/:path*", "/forecast/:path*", "/sources/:path*", "/agent-log/:path*", "/api/v1/:path*", "/api/internal/jobs/tick"] };
+export const config = { matcher: ["/", "/history/:path*", "/overview/:path*", "/forecast/:path*", "/sources/:path*", "/agent-log/:path*", "/api/v1/:path*", "/api/internal/jobs/tick"] };

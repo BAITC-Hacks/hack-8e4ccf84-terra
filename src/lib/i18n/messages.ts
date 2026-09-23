@@ -1,5 +1,7 @@
 // User-facing copy. Russian is the source locale.
+import { historyMessages } from "./history-messages";
 export const messages: Record<string, { en: string; kk: string }> = {
+  ...historyMessages,
 "Данных пока нет": {"en":"No data yet","kk":"Деректер әлі жоқ"},
 "Чтобы получить первый прогноз выработки, подключите историю измерений и прогноз погоды.": {"en":"Connect measurement history and weather forecasts to generate your first power forecast.","kk":"Алғашқы қуат болжамын алу үшін өлшемдер тарихы мен ауа райы болжамын қосыңыз."},
 "Загрузите историю измерений": {"en":"Upload measurement history","kk":"Өлшемдер тарихын жүктеңіз"},

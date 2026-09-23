@@ -1,5 +1,28 @@
 # S05 UI verification and adapter handoff
 
+## Historical scenario
+
+`/` and default sign-in now open `/history`. Select a turbine, an inclusive UTC issue-date range
+within 31 January–28 February 2026, and a 24/48-hour horizon. Select any day or use previous/next
+to inspect its saved releases in a graph or table. Forecast target hours can extend into March;
+the official evaluation window remains February. This screen does not enqueue calculations.
+
+Demo mode has two explicitly synthetic turbines and 29 daily releases, without invented actuals.
+Real mode reads canonical `{assets}` and `{forecasts}` envelopes for turbines and saved
+backtest/replay releases. It preserves missing hours, distinguishes incomplete publications,
+and warns when the API's 100-release-per-query limit may have truncated the list. API errors
+never switch to demo data. Automatic full-period execution remains a separate backend task.
+
+- `npx tsx --test tests/ui/history.test.ts`: date boundaries, units, gaps, canonical adapter, authentication return path.
+- After `npm run build`, run `node tests/ui/history.cjs` with runner-provided Playwright in `NODE_PATH`.
+  This starts and stops its own production server on port 3136 (override `HISTORY_UI_PORT`),
+  uses ephemeral credentials, and checks real authentication plus mocked data API responses.
+  Set `UI_BROWSER_CHANNEL` to override the default installed Edge browser.
+  Desktop/mobile/dark screenshots are written under ignored `.next/ui-qa/`.
+
+The older `dashboard.cjs` / `platform.cjs` scripts contain pre-redesign overview/default-route
+expectations; the historical browser suite is the current focused check for this scenario.
+
 ## Run
 
 - `npm ci --no-audit --no-fund`

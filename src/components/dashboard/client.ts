@@ -3,6 +3,7 @@ import { translate, type Locale } from "../../lib/i18n";
 import { z } from "zod";
 import { agentRunSchema, evaluationSchema, forecastSchema, industrialResponseSchema, jobSchema, type IndustrialAction, type IndustrialKind, type Mode, type Scenario, type Transport } from "./contracts";
 import * as fixture from "./fixtures";
+import { historyAssetsSchema, historyDemoAssets, historyDemoForecasts, historicalForecasts, historyResponseSchema } from "./history-data";
 
 // Only this UI adapter knows the provisional wire shape. No server modules enter the bundle.
 async function request<T>(path: string, schema: z.ZodType<T>, signal?: AbortSignal, init?: RequestInit, locale: Locale = "ru"): Promise<T> {
@@ -44,6 +45,17 @@ export function createClient(transport: Transport, mode: Mode, scenario: Scenari
     return localized(value);
   }
   return {
+    historyAssets: (signal?: AbortSignal) => transport === "fixture"
+      ? demo(scenario === "empty" ? [] : historyDemoAssets, signal)
+      : api("/assets", historyAssetsSchema, signal),
+    historyForecasts: async (assetId: string, horizon: 24 | 48, signal?: AbortSignal) => {
+      if (!assetId) return { runs: [], possiblyTruncated: false };
+      if (transport === "fixture") return { runs: await demo(historyDemoForecasts(assetId, horizon, scenario), signal), possiblyTruncated: false };
+      const query = `asset_id=${encodeURIComponent(assetId)}&horizon_hours=${horizon}`;
+      const responses = await Promise.all(["backtest", "replay"].map(mode => api(`/forecasts?${query}&mode=${mode}`, historyResponseSchema, signal)));
+      return { runs: responses.flatMap(response => historicalForecasts(response, assetId)),
+        possiblyTruncated: responses.some(response => response.forecasts.length >= 100) };
+    },
     assets: (signal?: AbortSignal) => transport === "fixture" ? demo(scenario === "empty" ? [] : fixture.assets, signal) : api("/assets", sourceAssetsSchema, signal),
     forecasts: (signal?: AbortSignal) => transport === "fixture" ? demo(fixture.forecasts(mode, scenario), signal) : api(`/forecasts?mode=${mode}`, z.array(forecastSchema), signal),
     connections: (signal?: AbortSignal) => transport === "fixture" ? demo(scenario === "empty" ? [] : fixture.connections, signal) : api("/connections", sourceConnectionsSchema, signal),

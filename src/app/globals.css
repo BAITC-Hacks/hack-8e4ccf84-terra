@@ -255,6 +255,24 @@ footer { padding:21px 34px; font-size:9px; color:var(--muted); }footer b { font-
 @media(max-width:700px) { .app-shell { display:flex; }.topbar { height:63px; padding:0 16px; gap:9px; }.topbar-location>span { display:none; }.topbar-actions { gap:10px; }.preference-controls { gap:9px; }.logout-button span { display:none; }.logout-button { padding:8px; }.toolbar-divider { display:none; }.language-control select { max-width:105px; }.environment-controls { padding:18px 17px 13px; gap:10px; }.environment-controls label { min-width:135px; }.environment-banner { margin:0 17px; gap:5px; }.environment-banner span { flex-basis:100%; }main { padding:25px 17px; }.overview-hero { min-height:0; }.overview-hero .page-heading { padding:22px; }.overview-hero h1 { font-size:29px; }.overview-hero .wind-scene { position:absolute; right:-105px; bottom:-38px; width:280px; opacity:.2; margin:0; }.overview-hero .page-heading p { max-width:260px; }.metric { padding:16px; }.metric strong { font-size:27px; }.metric-grid { gap:12px; }.metric>span { font-size:10px; }.metric .metric-date { font-size:17px; }.panel { padding:18px; }.notice { flex-wrap:wrap; }.sidebar nav a { padding:13px 12px; }.sidebar .brand { font-size:25px; }.sidebar-bottom { display:flex; }.sidebar-assurance { display:block; }.source-row { gap:9px; }footer { padding:20px 17px; }.login-header { padding:22px; }.login-header .brand { font-size:22px; }.login-header .brand-symbol { width:34px; height:34px; }.login-header .brand-caption { font-size:6px; letter-spacing:1px; }.login-main { display:flex; flex-direction:column; gap:28px; padding:34px 22px; }.login-story { width:100%; }.login-story h1 { font-size:40px; margin:18px 0; }.login-story>p { max-width:400px; }.login-story .wind-scene { display:none; }.login-capabilities { display:none; }.login-card { width:100%; max-width:480px; padding:27px; align-self:center; }.login-card .login-lock { display:none; }.login-footer { flex-direction:row; flex-wrap:wrap; padding:20px 22px; }.login-footer>span:nth-child(2) { display:none; }.launch-caption { font-size:15px; }.session-notice { margin:15px 17px; } }
 @media(prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto !important; transition:none !important; }.rotor,.launch-progress:after,.spinner { animation:none; } }
 .platform-content { display:contents; }
+.history-page { max-width:1200px; margin:auto; }
+.history-context { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; background:var(--surface-alt); }
+.history-context>div { display:grid; gap:5px; }
+.history-context span { color:var(--muted); font-size:12px; }
+.history-context>p { grid-column:1/-1; margin:0; max-width:85ch; }
+.history-filters { display:grid; grid-template-columns:1.4fr 1fr 1fr .8fr; gap:16px; margin:20px 0; }
+.history-count { font-weight:600; color:var(--ink); }
+.history-days { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:8px; margin-top:16px; }
+.history-days button { flex-direction:column; align-items:flex-start; gap:4px; padding:12px; white-space:normal; }
+.history-days button.has-forecast { border-bottom:3px solid var(--accent); }
+.history-days button[aria-pressed=true] { background:var(--surface-alt); outline:2px solid var(--accent); outline-offset:1px; }
+.history-days small { font-size:11px; font-weight:400; }
+.history-step-buttons { display:flex; flex-wrap:wrap; gap:8px; }
+.history-version { max-width:480px; margin-bottom:16px; }
+.history-page .segmented { margin:16px 0; }
+.history-page .chart-wrap { margin-top:18px; }
+@media(max-width:1100px) { .history-days { grid-template-columns:repeat(4,minmax(0,1fr)); }.history-filters { grid-template-columns:repeat(2,minmax(0,1fr)); }.history-release-heading { align-items:flex-start; flex-direction:column; } }
+@media(max-width:600px) { .history-context,.history-filters { grid-template-columns:1fr; }.history-days { grid-template-columns:repeat(3,minmax(0,1fr)); }.history-days button { padding:10px 7px; }.history-step-buttons button { padding:9px; white-space:normal; } }
 @media(max-width:900px) { .sidebar { visibility:hidden; }.menu-open .sidebar { visibility:visible; } }
 
 /* Overview redesign: production implementation of docs/design/terra-redesign.html. */

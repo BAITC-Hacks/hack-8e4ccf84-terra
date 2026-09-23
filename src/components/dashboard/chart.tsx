@@ -24,7 +24,7 @@ export function ForecastChart({ points, previous, timezone }: {
         } if (index > 0 && times[index] - times[index - 1] !== 3600000)
             pen = false; const command = pen ? "L" : "M"; pen = true; return `${command}${x(index).toFixed(1)},${y(value).toFixed(1)}`; }).join(" ");
     }
-    return <div className="chart-wrap"><div className="chart-legend"><span><i className="legend-current"/>{t(" Прогноз")}</span><span><i className="legend-previous"/>{t(" Предыдущая версия")}</span><span><i className="legend-actual"/>{t(" Доступный факт")}</span><small>{t("Нормализованная мощность, исходная шкала")}</small></div>
+    return <div className="chart-wrap"><div className="chart-legend"><span><i className="legend-current"/>{t(" Прогноз")}</span>{previous && <span><i className="legend-previous"/>{t(" Предыдущая версия")}</span>}{points.some(point => point.actual != null) && <span><i className="legend-actual"/>{t(" Доступный факт")}</span>}<small>{t("Нормализованная мощность, исходная шкала")}</small></div>
     <svg viewBox="0 0 930 290" role="img" aria-label={t("Почасовой прогноз на {p0} часов. Нормализованная мощность. Время {p1}. Точные значения доступны в таблице.", { p0: points.length, p1: timezone })}>
       {[0, 1, 2, 3, 4].map(i => { const value = min + (max - min) * i / 4; return <g key={i}><line x1="54" x2="900" y1={y(value)} y2={y(value)} className="grid-line"/><text x="40" y={y(value) + 4} textAnchor="end">{numberLabel(value, 2)}</text></g>; })}
       {previous && <path d={path(point => previous.points.find(p => p.target_time === point.target_time)?.prediction)} className="series previous"/>}

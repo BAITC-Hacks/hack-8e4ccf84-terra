@@ -14,7 +14,7 @@ export function useDashboard() {
   if (!value) throw new Error("Dashboard context missing");
   return value;
 }
-const navigation: [string, string, IconName][] = [["/overview", "Обзор", "overview"], ["/forecast", "Прогноз", "forecast"], ["/sources", "Источники", "sources"], ["/agent-log", "Журнал агента", "activity"]];
+const navigation: [string, string, IconName][] = [["/history", "Исторический прогон", "forecast"], ["/overview", "Обзор", "overview"], ["/forecast", "Прогноз", "forecast"], ["/sources", "Источники", "sources"], ["/agent-log", "Журнал агента", "activity"]];
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const path = usePathname(); const router = useRouter(); const { t, locale } = usePreferences();
   const [transport, setTransport] = useState<Transport>("fixture");
@@ -60,7 +60,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     <div className={`app-shell ${menuOpen ? "menu-open" : ""}`}>
       {menuOpen && <button className="sidebar-scrim" aria-label={t("Закрыть меню")} onClick={() => setMenuOpen(false)} />}
       <aside className="sidebar" id="main-navigation">
-        <Link href="/overview" className="brand"><span className="brand-symbol"><Icon name="wind" size={24} /></span><span>TERRA<span className="brand-caption">ENERGY INTELLIGENCE</span></span></Link>
+        <Link href="/history" className="brand"><span className="brand-symbol"><Icon name="wind" size={24} /></span><span>TERRA<span className="brand-caption">ENERGY INTELLIGENCE</span></span></Link>
         <div className="site-selector"><span className="site-avatar"><Icon name="wind" /></span><div><strong>{t("Ветроэнергетика")}</strong><small>{t("Рабочее пространство")}</small></div><span className="site-indicator" /></div>
         <div className="workspace-label">{t("ОПЕРАЦИОННЫЙ ЦЕНТР")}</div>
         <nav aria-label={t("Главная навигация")}>{navigation.map(([href, title, icon], index) => <Link key={href} href={href} className={path === href ? "active" : ""} aria-current={path === href ? "page" : undefined} onClick={() => setMenuOpen(false)}><Icon name={icon} size={19} /><span>{t(title)}</span><small aria-hidden="true">0{index + 1}</small></Link>)}</nav>
@@ -71,10 +71,10 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         <header className="topbar"><div className="topbar-location"><button className="icon-button mobile-menu" aria-label={t(menuOpen ? "Закрыть меню" : "Открыть меню")} aria-expanded={menuOpen} aria-controls="main-navigation" onClick={() => setMenuOpen(!menuOpen)}><Icon name={menuOpen ? "close" : "menu"} /></button><span>{t("Операционный центр")}<span className="slash">/</span><strong>{t(navigation.find(([href]) => href === path)?.[1] ?? "Обзор")}</strong></span></div><div className="topbar-actions"><PreferenceControls /><span className="toolbar-divider" /><button className="logout-button" aria-label={t(loggingOut ? "Выходим…" : "Выйти")} onClick={logout} disabled={loggingOut}><Icon name="logout" size={17} /><span>{t(loggingOut ? "Выходим…" : "Выйти")}</span></button></div></header>
         <div className="environment-controls">
           <label>{t("Данные")}<select aria-label={t("Данные")} value={transport} onChange={e => setTransport(e.target.value as Transport)}><option value="fixture">{t("Демонстрационные")}</option><option value="api">{t("Настоящий API")}</option></select></label>
-          <label>{t("Режим")}<select aria-label={t("Режим")} value={mode} onChange={e => setMode(e.target.value as Mode)}><option value="live">{t("Live · текущий прогноз")}</option><option value="backtest">{t("Backtest · оценка истории")}</option><option value="replay">{t("Replay · симуляция")}</option></select></label>
+          {path !== "/history" && <label>{t("Режим")}<select aria-label={t("Режим")} value={mode} onChange={e => setMode(e.target.value as Mode)}><option value="live">{t("Live · текущий прогноз")}</option><option value="backtest">{t("Backtest · оценка истории")}</option><option value="replay">{t("Replay · симуляция")}</option></select></label>}
           <label>{t("Часовой пояс")}<select aria-label={t("Часовой пояс")} value={timezone} onChange={e => setTimezone(e.target.value)}><option value="UTC">UTC</option><option value="Asia/Almaty">Asia/Almaty</option><option value="Asia/Qyzylorda">Asia/Qyzylorda</option></select></label>
           {transport === "fixture" && <label>{t("Сценарий UI")}<select aria-label={t("Сценарий UI")} value={scenario} onChange={e => setScenario(e.target.value as Scenario)}>{[["ready", "Готово"], ["partial", "Частичные данные"], ["stale", "Устарело"], ["loading", "Загрузка"], ["empty", "Пусто"], ["error", "Ошибка"]].map(([value, label]) => <option key={value} value={value}>{t(label)}</option>)}</select></label>}
-          <span className={`mode-pill ${mode}`}>{mode === "replay" ? t("СИМУЛЯЦИЯ · REPLAY") : mode.toUpperCase()}</span>
+          {path !== "/history" && <span className={`mode-pill ${mode}`}>{mode === "replay" ? t("СИМУЛЯЦИЯ · REPLAY") : mode.toUpperCase()}</span>}
         </div>
         <div className={`environment-banner ${transport === "api" ? "api" : ""}`} role="status"><Icon name={transport === "api" ? "shield" : "sources"} size={16} /><strong>{t(transport === "fixture" ? "Демонстрационные данные" : "Настоящий API /api/v1")}</strong><span>{t(transport === "fixture" ? "Синтетические примеры, не результаты работы ВЭС." : "Доступ определяется серверной сессией. Ошибки API не заменяются примерами.")}</span></div>
         {sessionError && <div role="alert" className="notice danger session-notice">{t(sessionError)}</div>}
