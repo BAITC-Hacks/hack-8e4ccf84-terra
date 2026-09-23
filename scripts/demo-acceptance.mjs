@@ -87,4 +87,3 @@ const report = {kind:'synthetic-integration', status:ok ? 'PASS':'FAIL', scope:'
 save(`${action}.json`, report);
 console.log(JSON.stringify({synthetic:report.status, endToEnd:report.endToEndStatus, historical:historical.status, reports:directory}));
 process.exitCode = ok ? (action === 'verify' ? 2 : 0) : 1;
-
