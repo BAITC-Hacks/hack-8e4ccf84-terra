@@ -1,11 +1,11 @@
 # Project state — wind forecast agent runtime
 
 - Updated UTC: 2026-09-23 10:59Z.
-- Branch/worktree: `chore/integrate-test-login` / private integration worktree; merge with latest local `main` is pending commit.
-- Base: local `main` at `46f9fe8`; last-known `origin/main` at `0433640`. Fresh remote fetch/push is BLOCKED because GitHub reports `Repository not found`.
+- Branch/worktree: `chore/integrate-test-login` / private integration worktree; last verified integration commit `69ef6e8` is present on local `main`.
+- Base: local `main` at `69ef6e8`; last-known `origin/main` at `f5bd1f9`. Fresh remote fetch/push is BLOCKED because GitHub reports `Repository not found`.
 - Verified task commits: agent runtime `8b33b1e`; test login `5a3264f`.
-- Active task: editable `test` / `test` development sign-in is reconciled with the latest local agent runtime. Remote publication remains blocked.
-- Demo: development server is running from the test-login worktree at `http://localhost:3000/login`; `test` / `test` opens `/overview`.
+- Active task: editable `test` / `test` development sign-in is integrated into local `main` and validated. Remote publication remains blocked.
+- Demo: development server is running from the primary checkout at `http://localhost:3000/login`; `test` / `test` opens `/overview`.
 
 ## Integrated implementation
 
@@ -31,6 +31,6 @@
 
 ## Next actions
 
-1. Complete reconciliation checks, commit the integration, and advance local `main` without overwriting unrelated primary-worktree edits.
-2. When GitHub access returns, fetch/reconcile and push local `main` to `origin/main`, then verify `5a3264f` ancestry.
+1. When GitHub access returns, fetch/reconcile and push local `main` to `origin/main`, then verify `5a3264f` ancestry.
+2. Preserve the ignored local `.env.local` development credentials when moving or recreating the demo environment.
 3. Integrate S03 output into canonical weather tables, add actual-arrival evaluation, then run historical and opt-in OpenAI smoke gates.
