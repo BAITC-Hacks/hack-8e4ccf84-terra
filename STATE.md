@@ -1,9 +1,9 @@
-# Project state — agent-system-problems documentation branch
+# Project state — local main integration
 
-- Updated UTC: 2026-09-23 11:30Z
-- Branch/worktree: `docs/agent-system-problems` / isolated task worktree.
-- Last verified base commit: `8895ba8` on `origin/main`; agent audit documentation is pending branch push and main integration.
-- Active task: document verified agent subsystem defects and acceptance requirements without changing runtime code.
+- Updated UTC: 2026-09-23 11:45Z
+- Branch/worktree: `chore/integrate-agent-system-problems` / private integration worktree.
+- Last verified base commit: `8895ba8` on `origin/main`; agent audit task commit `f436946` is merged locally and pending final main push verification.
+- Active task: agent subsystem audit documentation completed; runtime code was not changed.
 - Demo: S05 fixture dashboard remains at `/overview`, `/forecast`, `/sources`, `/agent-log`. With PostgreSQL and `DATABASE_URL`, run `npm run db:migrate`, then `npm run dev`; CSV APIs are under `/api/v1/imports` and `/api/v1/connections`.
 
 ## Preserved work
@@ -44,9 +44,10 @@
 | Agent audit scope against `origin/main` `8895ba8` | PASS: production agent paths and integration boundaries inspected |
 | Agent fixture workflow tests | PASS: 7/7; PostgreSQL test SKIPPED because `TEST_DATABASE_URL` is unset |
 | Agent-focused ESLint and exact-commit TypeScript check | PASS |
+| Documentation task branch push | PASS: `origin/docs/agent-system-problems` at `f436946` |
 
 ## Next actions
 
-1. Review and commit `docs/agent-system-problems.md`.
-2. Push the documentation branch and integrate it into the latest `origin/main`.
-3. Implement the agent fixes in the priority order recorded by the audit.
+1. Push this integration HEAD to `origin/main` and verify `f436946` is an ancestor.
+2. Implement the agent fixes in the priority order recorded by `docs/agent-system-problems.md`.
+3. Run AT-AG-01–AT-AG-18 before declaring the agent subsystem ready.
